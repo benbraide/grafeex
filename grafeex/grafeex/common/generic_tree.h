@@ -24,7 +24,7 @@ namespace grafeex{
 			virtual ~generic_tree(){}
 
 			virtual index_type add(child_type &child){
-				children_.push_back(&child);
+				children_.push_back(child.non_sibling());
 				return (children_.size() - 1);
 			}
 
@@ -34,17 +34,17 @@ namespace grafeex{
 
 			virtual index_type add(child_type &child, index_type index){
 				if (index >= children_.size()){//Append
-					children_.push_back(&child);
+					children_.push_back(child.non_sibling());
 					index = (children_.size() - 1);
 				}
 				else//Insert
-					children_.insert(std::next(children_.begin(), index), &child);
+					children_.insert(std::next(children_.begin(), index), child.non_sibling());
 
 				return index;
 			}
 
 			virtual generic_tree &remove(child_type &child){
-				auto iter = std::find(children_.begin(), children_.end(), &child);
+				auto iter = std::find(children_.begin(), children_.end(), child.non_sibling());
 				if (iter != children_.end())
 					children_.erase(iter);
 				return *this;
@@ -52,7 +52,7 @@ namespace grafeex{
 
 			virtual generic_tree &remove(index_type index){
 				if (index < children_.size())
-					children_.erase(std::next(children_.begin(), index), &child);
+					children_.erase(std::next(children_.begin(), index));
 				return *this;
 			}
 
@@ -65,7 +65,7 @@ namespace grafeex{
 				return *this;
 			}
 
-			virtual generic_tree &traverse_children(const_traverser_type traverser) const{
+			virtual const generic_tree &traverse_children(const_traverser_type traverser) const{
 				for (auto child : children_){
 					if (!traverser(*child))
 						break;
@@ -75,13 +75,7 @@ namespace grafeex{
 			}
 
 			virtual const child_type *get_child(index_type index) const{
-				if (index == static_cast<index_type>(-1))
-					return children_.empty() ? nullptr : *children_.rbegin();
-
-				if (index < children_.size())
-					return *std::next(children_.begin(), index);
-
-				return nullptr;
+				return const_cast<generic_tree *>(this)->get_child(index);
 			}
 
 			virtual child_type *get_child(index_type index){
@@ -106,6 +100,19 @@ namespace grafeex{
 
 			virtual bool is_child(const child_type &object) const{
 				return (std::find(children_.begin(), children_.end(), &object) != children_.end());
+			}
+
+			virtual bool is_offspring(const child_type &object) const{
+				if (std::find(children_.begin(), children_.end(), &object) != children_.end())
+					return true;
+
+				generic_tree *tree_child;
+				for (auto child : children_){
+					if ((tree_child = dynamic_cast<generic_tree *>(child)) != nullptr && tree_child->is_offspring(object))
+						return true;
+				}
+
+				return false;
 			}
 
 			virtual bool has_children() const{

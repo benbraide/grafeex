@@ -73,7 +73,7 @@ namespace grafeex{
 		template <class value_type, class object_type>
 		class pointer<value_type *, object_type>{
 		public:
-			typedef value_type value_type;
+			typedef value_type *value_type;
 			typedef object_type object_type;
 
 			pointer(value_type value)

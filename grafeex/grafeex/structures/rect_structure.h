@@ -55,11 +55,11 @@ namespace grafeex{
 				: base_type(value_type{ value, value, value, value }){}
 
 			basic_rect(const point_type &top_left, const point_type &bottom_right)
-				: base_type(value_type{ top_left.get_x(), top_left.get_y(), bottom_right.get_x(), bottom_right.get_y() }){}
+				: base_type(value_type{ top_left.x(), top_left.y(), bottom_right.x(), bottom_right.y() }){}
 
 			basic_rect(const point_type &top_left, const size_type &size, origin_type origin = origin_type::nil)
-				: base_type(value_type{ top_left.get_x(), top_left.get_y(), top_left.get_x() + size.get_width(),
-					top_left.get_y() + size.get_height() }){
+				: base_type(value_type{ top_left.x(), top_left.y(), top_left.x() + size.width(),
+					top_left.y() + size.height() }){
 				align_(origin);
 			}
 
@@ -105,7 +105,7 @@ namespace grafeex{
 			}
 
 			basic_rect &operator -=(const size_type &rhs){
-				return offset(size_type{ -rhs.get_width(), -rhs.get_height() });
+				return offset(size_type{ -rhs.width(), -rhs.height() });
 			}
 
 			basic_rect &normalize(){
@@ -139,66 +139,66 @@ namespace grafeex{
 			}
 
 			basic_rect &set(const point_type &top_left, const point_type &bottom_right){
-				base_type::value_ = value_type{ top_left.get_x(), top_left.get_y(), bottom_right.get_x(), bottom_right.get_y() };
+				base_type::value_ = value_type{ top_left.x(), top_left.y(), bottom_right.x(), bottom_right.y() };
 				return *this;
 			}
 
 			basic_rect &set(const point_type &top_left, const size_type &size, origin_type origin = origin_type::nil){
-				base_type::value_ = value_type{ top_left.get_x(), top_left.get_y(), top_left.get_x() + size.get_width(),
-					top_left.get_y() + size.get_height() };
+				base_type::value_ = value_type{ top_left.x(), top_left.y(), top_left.x() + size.width(),
+					top_left.y() + size.height() };
 				align_(origin);
 				return *this;
 			}
 
-			basic_rect &set_left(field_type value){
+			basic_rect &left(field_type value){
 				base_type::value_.left = value;
 				return *this;
 			}
 
-			basic_rect &set_top(field_type value){
+			basic_rect &top(field_type value){
 				base_type::value_.top = value;
 				return *this;
 			}
 
-			basic_rect &set_right(field_type value){
+			basic_rect &right(field_type value){
 				base_type::value_.right = value;
 				return *this;
 			}
 
-			basic_rect &set_bottom(field_type value){
+			basic_rect &bottom(field_type value){
 				base_type::value_.bottom = value;
 				return *this;
 			}
 
-			basic_rect &set_top_left(const point_type &value){
-				base_type::value_.left = value.get_x();
-				base_type::value_.top = value.get_y();
+			basic_rect &top_left(const point_type &value){
+				base_type::value_.left = value.x();
+				base_type::value_.top = value.y();
 				return *this;
 			}
 
-			basic_rect &set_top_right(const point_type &value){
-				base_type::value_.right = value.get_x();
-				base_type::value_.top = value.get_y();
+			basic_rect &top_right(const point_type &value){
+				base_type::value_.right = value.x();
+				base_type::value_.top = value.y();
 				return *this;
 			}
 
-			basic_rect &set_bottom_right(const point_type &value){
-				base_type::value_.right = value.get_x();
-				base_type::value_.bottom = value.get_y();
+			basic_rect &bottom_right(const point_type &value){
+				base_type::value_.right = value.x();
+				base_type::value_.bottom = value.y();
 				return *this;
 			}
 
-			basic_rect &set_bottom_left(const point_type &value){
-				base_type::value_.left = value.get_x();
-				base_type::value_.bottom = value.get_y();
+			basic_rect &bottom_left(const point_type &value){
+				base_type::value_.left = value.x();
+				base_type::value_.bottom = value.y();
 				return *this;
 			}
 
 			basic_rect &inflate(const size_type &value){
-				base_type::value_.left -= value.get_width();
-				base_type::value_.top -= value.get_height();
-				base_type::value_.right += value.get_width();
-				base_type::value_.bottom += value.get_height();
+				base_type::value_.left -= value.width();
+				base_type::value_.top -= value.height();
+				base_type::value_.right += value.width();
+				base_type::value_.bottom += value.height();
 				return *this;
 			}
 
@@ -211,10 +211,10 @@ namespace grafeex{
 			}
 
 			basic_rect &deflate(const size_type &value){
-				base_type::value_.left += value.get_width();
-				base_type::value_.top += value.get_height();
-				base_type::value_.right -= value.get_width();
-				base_type::value_.bottom -= value.get_height();
+				base_type::value_.left += value.width();
+				base_type::value_.top += value.height();
+				base_type::value_.right -= value.width();
+				base_type::value_.bottom -= value.height();
 				return *this;
 			}
 
@@ -227,58 +227,58 @@ namespace grafeex{
 			}
 
 			basic_rect &offset(const size_type &value){
-				base_type::value_.left += value.get_width();
-				base_type::value_.top += value.get_height();
-				base_type::value_.right += value.get_width();
-				base_type::value_.bottom += value.get_height();
+				base_type::value_.left += value.width();
+				base_type::value_.top += value.height();
+				base_type::value_.right += value.width();
+				base_type::value_.bottom += value.height();
 				return *this;
 			}
 
 			basic_rect &move_to(const point_type &value){
-				return offset(value - get_top_left());
+				return offset(value - top_left());
 			}
 
 			const value_type &get() const{
 				return base_type::value_;
 			}
 
-			field_type get_left() const{
+			field_type left() const{
 				return base_type::value_.left;
 			}
 
-			field_type get_top() const{
+			field_type top() const{
 				return base_type::value_.top;
 			}
 
-			field_type get_right() const{
+			field_type right() const{
 				return base_type::value_.right;
 			}
 
-			field_type get_bottom() const{
+			field_type bottom() const{
 				return base_type::value_.bottom;
 			}
 
-			point_type get_top_left() const{
+			point_type top_left() const{
 				return point_type{ base_type::value_.left, base_type::value_.top };
 			}
 
-			point_type get_top_right() const{
+			point_type top_right() const{
 				return point_type{ base_type::value_.right, base_type::value_.top };
 			}
 
-			point_type get_bottom_right() const{
+			point_type bottom_right() const{
 				return point_type{ base_type::value_.right, base_type::value_.bottom };
 			}
 
-			point_type get_bottom_left() const{
+			point_type bottom_left() const{
 				return point_type{ base_type::value_.left, base_type::value_.bottom };
 			}
 
-			size_type get_size() const{
+			size_type size() const{
 				return size_type{ base_type::value_.right - base_type::value_.left, base_type::value_.bottom - base_type::value_.top };
 			}
 
-			size_type get_sum() const{
+			size_type sum() const{
 				return size_type{ base_type::value_.right + base_type::value_.left, base_type::value_.bottom + base_type::value_.top };
 			}
 
@@ -351,8 +351,8 @@ namespace grafeex{
 			}
 
 			bool contains(const point_type &value) const{
-				return (value.get_x() >= base_type::value_.left && value.get_y() >= base_type::value_.top &&
-					value.get_x() < base_type::value_.right && value.get_y() < base_type::value_.bottom);
+				return (value.x() >= base_type::value_.left && value.y() >= base_type::value_.top &&
+					value.x() < base_type::value_.right && value.y() < base_type::value_.bottom);
 			}
 
 			static int compare(const value_type &lhs, const value_type &rhs){
@@ -369,18 +369,18 @@ namespace grafeex{
 					return basic_rect();
 
 				auto iter = points.begin();
-				value_type computed{ iter->get_x(), iter->get_y(), iter->get_x(), iter->get_y() };
+				value_type computed{ iter->x(), iter->y(), iter->x(), iter->y() };
 
 				for (++iter; iter != points.end(); ++iter){
-					if (iter->get_x() < computed.left)
-						computed.left = iter->get_x();
-					else if (iter->get_x() > computed.right)
-						computed.right = iter->get_x();
+					if (iter->x() < computed.left)
+						computed.left = iter->x();
+					else if (iter->x() > computed.right)
+						computed.right = iter->x();
 
-					if (iter->get_y() < computed.top)
-						computed.top = iter->get_y();
-					else if (iter->get_y() > computed.bottom)
-						computed.bottom = iter->get_y();
+					if (iter->y() < computed.top)
+						computed.top = iter->y();
+					else if (iter->y() > computed.bottom)
+						computed.bottom = iter->y();
 				}
 
 				if (inclusive){
@@ -393,23 +393,23 @@ namespace grafeex{
 
 		private:
 			void align_(origin_type origin){
-				auto size = get_size();
+				auto size = size();
 				if (GRAFEEX_IS(origin, origin_type::right)){
 					base_type::value_.right = base_type::value_.left;
-					base_type::value_.left -= size.get_width();
+					base_type::value_.left -= size.width();
 				}
 				else if (GRAFEEX_IS(origin, origin_type::center)){
-					base_type::value_.left -= size.get_width() / 2;
-					base_type::value_.right -= size.get_width() / 2;
+					base_type::value_.left -= size.width() / 2;
+					base_type::value_.right -= size.width() / 2;
 				}
 
 				if (GRAFEEX_IS(origin, origin_type::bottom)){
 					base_type::value_.bottom = base_type::value_.top;
-					base_type::value_.top -= size.get_height();
+					base_type::value_.top -= size.height();
 				}
 				else if (GRAFEEX_IS(origin, origin_type::vertical_center)){
-					base_type::value_.top -= size.get_height() / 2;
-					base_type::value_.bottom -= size.get_height() / 2;
+					base_type::value_.top -= size.height() / 2;
+					base_type::value_.bottom -= size.height() / 2;
 				}
 			}
 		};

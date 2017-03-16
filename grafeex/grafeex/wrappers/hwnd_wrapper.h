@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef GRAFEEX_HND_WRAPPER_H
-#define GRAFEEX_HND_WRAPPER_H
+#ifndef GRAFEEX_HWND_WRAPPER_H
+#define GRAFEEX_HWND_WRAPPER_H
 
 #include <string>
 #include <chrono>
@@ -12,7 +12,7 @@
 
 namespace grafeex{
 	namespace wrappers{
-		class hnd : public wrappers::pointer<::HWND, hnd>{
+		class hwnd : public wrappers::pointer<::HWND, hwnd>{
 		public:
 			typedef ::LRESULT result_type;
 
@@ -41,18 +41,18 @@ namespace grafeex{
 			typedef structures::rect rect_type;
 			typedef structures::color color_type;
 
-			typedef wrappers::pointer<::HWND, hnd> base_type;
+			typedef wrappers::pointer<::HWND, hwnd> base_type;
 
-			hnd(value_type value = nullptr);
+			hwnd(value_type value = nullptr);
 
-			hnd(const hnd &) = default;
+			hwnd(const hwnd &) = default;
 
-			hnd &operator =(const hnd &) = default;
+			hwnd &operator =(const hwnd &) = default;
 
-			bool create(const create_info_type &info, hnd parent);
+			bool create(const create_info_type &info, hwnd parent);
 
 			template <typename params_type>
-			bool create(const create_info_type &info, params_type params, hnd parent){
+			bool create(const create_info_type &info, params_type params, hwnd parent){
 				return ((value_ = ::CreateWindowExW(
 					info.dwExStyle,
 					info.lpszClass,
@@ -90,7 +90,7 @@ namespace grafeex{
 
 			bool move(const point_type &offset, const size_type &size, bool repaint);
 
-			bool position(const point_type &offset, const size_type &size, position_type type, hnd after);
+			bool position(const point_type &offset, const size_type &size, position_type type, hwnd after);
 
 			bool place(const placement_info_type &info);
 
@@ -100,7 +100,7 @@ namespace grafeex{
 
 			bool switch_to_this(bool cause_is_alt_tab = false);
 
-			hnd activate();
+			hwnd activate();
 
 			bool draw_menu_bar();
 
@@ -108,7 +108,7 @@ namespace grafeex{
 
 			bool set_layered_attributes(const color_type &color, layered_attributes_option options = layered_attributes_option::all);
 
-			hnd set_parent(hnd parent);
+			hwnd set_parent(hwnd parent);
 
 			bool set_text(const std::wstring &value);
 
@@ -144,7 +144,7 @@ namespace grafeex{
 				return (value_type)::GetWindowLongPtrW(value_, static_cast<int>(index));
 			}
 
-			hnd get_parent() const;
+			hwnd get_parent() const;
 
 			std::wstring get_text() const;
 
@@ -181,7 +181,7 @@ namespace grafeex{
 				if (value_ == nullptr)
 					return return_type();
 
-				return (return_type)::SendMessageW(value_, msg, (hnd::wparam_type)wparam, (hnd::lparam_type)lparam);
+				return (return_type)::SendMessageW(value_, msg, (hwnd::wparam_type)wparam, (hwnd::lparam_type)lparam);
 			}
 
 			template <typename return_type = result_type, typename wparam_type = wparam_type, typename lparam_type = lparam_type>
@@ -189,24 +189,24 @@ namespace grafeex{
 				if (value_ == nullptr)
 					return return_type();
 
-				return (return_type)::SendMessageW(value_, msg, (hnd::wparam_type)wparam, (hnd::lparam_type)lparam);
+				return (return_type)::SendMessageW(value_, msg, (hwnd::wparam_type)wparam, (hwnd::lparam_type)lparam);
 			}
 
 			template <typename wparam_type = wparam_type, typename lparam_type = lparam_type>
 			bool post_message(uint_type msg, const wparam_type &wparam = wparam_type(), const lparam_type &lparam = lparam_type()) const{
-				return (value_ != nullptr && ::PostMessageW(value_, msg, (hnd::wparam_type)wparam, (hnd::lparam_type)lparam) != FALSE);
+				return (value_ != nullptr && ::PostMessageW(value_, msg, (hwnd::wparam_type)wparam, (hwnd::lparam_type)lparam) != FALSE);
 			}
 
 			template <typename wparam_type = wparam_type, typename lparam_type = lparam_type>
 			bool post_message(uint_type msg, const wparam_type &wparam = wparam_type(), const lparam_type &lparam = lparam_type()){
-				return (value_ != nullptr && ::PostMessageW(value_, msg, (hnd::wparam_type)wparam, (hnd::lparam_type)lparam) != FALSE);
+				return (value_ != nullptr && ::PostMessageW(value_, msg, (hwnd::wparam_type)wparam, (hwnd::lparam_type)lparam) != FALSE);
 			}
 
-			static hnd get_active();
+			static hwnd get_active();
 
 			static rect_type adjust_rect(rect_type value, dword_type styles, dword_type extended_styles, bool has_menu);
 		};
 	}
 }
 
-#endif /* !GRAFEEX_HND_WRAPPER_H */
+#endif /* !GRAFEEX_HWND_WRAPPER_H */

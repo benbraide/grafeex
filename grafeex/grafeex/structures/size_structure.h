@@ -99,12 +99,12 @@ namespace grafeex{
 				return *this;
 			}
 
-			basic_size &set_width(field_type value){
+			basic_size &width(field_type value){
 				base_type::value_.cx = value;
 				return *this;
 			}
 
-			basic_size &set_height(field_type value){
+			basic_size &height(field_type value){
 				base_type::value_.cy = value;
 				return *this;
 			}
@@ -113,11 +113,11 @@ namespace grafeex{
 				return base_type::value_;
 			}
 
-			field_type get_width() const{
+			field_type width() const{
 				return base_type::value_.cx;
 			}
 
-			field_type get_height() const{
+			field_type height() const{
 				return base_type::value_.cy;
 			}
 

@@ -91,12 +91,12 @@ namespace grafeex{
 				return *this;
 			}
 
-			basic_point &set_x(field_type value){
+			basic_point &x(field_type value){
 				base_type::value_.x = value;
 				return *this;
 			}
 
-			basic_point &set_y(field_type value){
+			basic_point &y(field_type value){
 				base_type::value_.y = value;
 				return *this;
 			}
@@ -105,11 +105,11 @@ namespace grafeex{
 				return base_type::value_;
 			}
 
-			field_type get_x() const{
+			field_type x() const{
 				return base_type::value_.x;
 			}
 
-			field_type get_y() const{
+			field_type y() const{
 				return base_type::value_.y;
 			}
 

@@ -16,7 +16,7 @@ namespace grafeex{
 			typedef msg_type::lparam_type lparam_type;
 
 			struct status_info{
-				int entry_count;
+				bool is_posted;
 				int return_value;
 			};
 

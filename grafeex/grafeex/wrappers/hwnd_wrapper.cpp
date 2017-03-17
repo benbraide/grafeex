@@ -1,4 +1,5 @@
 #include "hwnd_wrapper.h"
+#include "../window/window_object.h"
 
 grafeex::wrappers::hwnd::hwnd(value_type value)
 	: base_type(value){}
@@ -96,6 +97,10 @@ grafeex::wrappers::hwnd grafeex::wrappers::hwnd::set_parent(hwnd parent){
 
 bool grafeex::wrappers::hwnd::set_text(const std::wstring &value){
 	return (::SetWindowTextW(value_, value.c_str()) != FALSE);
+}
+
+grafeex::window::object *grafeex::wrappers::hwnd::get_owner() const{
+	return get_data<window::object *>();
 }
 
 grafeex::wrappers::hwnd grafeex::wrappers::hwnd::get_parent() const{

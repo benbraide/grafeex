@@ -9,22 +9,18 @@ namespace grafeex{
 	namespace messaging{
 		class scope_event : public message_event{
 		public:
-			enum class option : unsigned int{
-				nil				= (0 << 0x0000),
-				create			= (1 << 0x0000),
-				client			= (1 << 0x0001),
-			};
+			typedef scope_event_option option;
 
 			explicit scope_event(object &value);
 
 			virtual ~scope_event();
 
+			virtual message_event &dispatch() override;
+
 			virtual bool is_create() const = 0;
 
 			virtual bool is_client() const = 0;
 		};
-
-		GRAFEEX_MAKE_OPERATORS(scope_event::option)
 
 		template <scope_event::option options>
 		class typed_scope_event;
@@ -38,6 +34,8 @@ namespace grafeex{
 			virtual ~typed_scope_event(){}
 
 			virtual message_event &dispatch() override{
+				if (scope_event::dispatch().is_propagating())
+					*this << object_->target()->on_nc_create(*this);
 				return *this;
 			}
 
@@ -59,6 +57,8 @@ namespace grafeex{
 			virtual ~typed_scope_event(){}
 
 			virtual message_event &dispatch() override{
+				if (scope_event::dispatch().is_propagating())
+					*this << object_->target()->on_create(*this);
 				return *this;
 			}
 
@@ -85,6 +85,8 @@ namespace grafeex{
 			virtual ~typed_scope_event(){}
 
 			virtual message_event &dispatch() override{
+				if (scope_event::dispatch().is_propagating())
+					object_->target()->on_nc_destroy(*this);
 				return *this;
 			}
 
@@ -106,6 +108,8 @@ namespace grafeex{
 			virtual ~typed_scope_event(){}
 
 			virtual message_event &dispatch() override{
+				if (scope_event::dispatch().is_propagating())
+					object_->target()->on_destroy(*this);
 				return *this;
 			}
 
@@ -117,6 +121,12 @@ namespace grafeex{
 				return true;
 			}
 		};
+
+		using nc_create_event = typed_scope_event<scope_event::option::create>;
+		using create_event = typed_scope_event<scope_event::option::create | scope_event::option::client>;
+
+		using nc_destroy_event = typed_scope_event<scope_event::option::nil>;
+		using destroy_event = typed_scope_event<scope_event::option::client>;
 	}
 }
 

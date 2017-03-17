@@ -14,7 +14,7 @@ int grafeex::threading::object::run(){
 		scheduler_.execute_all();//Execute pending tasks
 		if (queue_.peek(cache_, message_queue::peek_type::remove)){//Not idle
 			if (!cache_.is_quit()){//Forward message
-				status_.entry_count = 1;
+				status_.is_posted = true;
 				if (cache_.owner() == nullptr)//Thread message
 					dispatch_thread_message_();
 				else if (!is_filtered_message_())
@@ -43,7 +43,7 @@ const grafeex::threading::id &grafeex::threading::object::get_id() const{
 }
 
 bool grafeex::threading::object::is_sent_() const{
-	return (status_.entry_count != 1);
+	return !status_.is_posted;
 }
 
 bool grafeex::threading::object::is_filtered_message_() const{

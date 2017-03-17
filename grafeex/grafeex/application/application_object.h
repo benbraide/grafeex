@@ -17,6 +17,8 @@
 #include "../messaging/close_message_event.h"
 #include "../messaging/state_message_event.h"
 #include "../messaging/style_message_event.h"
+#include "../messaging/visibility_message_event.h"
+#include "../messaging/painting_message_event.h"
 
 namespace grafeex{
 	namespace window{
@@ -42,6 +44,7 @@ namespace grafeex{
 			typedef std::shared_ptr<messaging::event_dispatcher_base> dispatcher_type;
 			typedef std::unordered_map<uint_type, dispatcher_type> dispatcher_list_type;
 
+			typedef structures::point point_type;
 			typedef window::object window_type;
 			typedef wrappers::wnd_class wnd_class_type;
 			typedef wrappers::hwnd hwnd_type;
@@ -52,9 +55,15 @@ namespace grafeex{
 			typedef wrappers::hwnd::create_info_type create_info_type;
 			typedef threading::object base_type;
 
+			struct stored_message_info_type{
+				bool is_active;
+				dword_type time;
+				point_type mouse_position;
+			};
+
 			template <typename... types>
 			object(types... class_args)
-				: instance_(nullptr){
+				: instance_(nullptr), recent_owner_(nullptr){
 				typedef std::wstring::size_type size_type;
 
 				class_.set(class_args...);
@@ -80,7 +89,7 @@ namespace grafeex{
 
 			virtual void quit(int exit_code = 0);
 
-			//virtual hwnd_type create(window_type &owner, const create_info_type &info);
+			virtual hwnd_type create(window_type &owner, const create_info_type &info);
 
 			//virtual hwnd_type create(window_type &owner, const gui::dialog_info &info, bool modal = false);
 
@@ -107,6 +116,7 @@ namespace grafeex{
 				return (object.*method)(values...);
 			}
 
+			stored_message_info_type stored_message_info = {};
 			static object *instance;
 
 		protected:
@@ -118,7 +128,7 @@ namespace grafeex{
 
 			virtual bool is_dialog_message_();
 
-			//virtual hwnd_type create_(window_type &owner, const create_info_type &info);
+			virtual hwnd_type create_(window_type &owner, const create_info_type &info);
 
 			//virtual hwnd_type create_(window_type &owner, const gui::dialog_info &info, bool modal = false);
 
@@ -166,6 +176,7 @@ namespace grafeex{
 			hwnd_type active_dialog_;
 			instance_type instance_;
 			dispatcher_list_type dispatcher_list_;
+			void *recent_owner_;
 		};
 	}
 }

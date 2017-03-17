@@ -12,6 +12,12 @@ grafeex::messaging::message_event &grafeex::messaging::style_event::handle(handl
 	return message_event::handle(type);
 }
 
+grafeex::messaging::message_event &grafeex::messaging::style_event::dispatch(){
+	if (message_event::dispatch().is_propagating())
+		*this << object_->target()->on_style_change(*this);
+	return *this;
+}
+
 bool grafeex::messaging::style_event::is_extended() const{
 	return (static_cast<data_index_type>(object_->info().wparam<int>()) == data_index_type::extended_styles);
 }

@@ -11,6 +11,10 @@
 #include "../structures/color_structure.h"
 
 namespace grafeex{
+	namespace window{
+		class object;
+	}
+
 	namespace wrappers{
 		class hwnd : public wrappers::pointer<::HWND, hwnd>{
 		public:
@@ -143,6 +147,8 @@ namespace grafeex{
 
 				return (value_type)::GetWindowLongPtrW(value_, static_cast<int>(index));
 			}
+
+			window::object *get_owner() const;
 
 			hwnd get_parent() const;
 

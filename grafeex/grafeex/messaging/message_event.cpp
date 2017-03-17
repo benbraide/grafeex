@@ -8,6 +8,11 @@ grafeex::messaging::message_event::message_event(object &value)
 
 grafeex::messaging::message_event::~message_event(){}
 
+grafeex::messaging::message_event &grafeex::messaging::message_event::dispatch(){
+	object_->target()->on_event(*this);
+	return *this;
+}
+
 grafeex::messaging::message_event &grafeex::messaging::message_event::handle(handle_type type){
 	object_->handle(type);
 	return *this;

@@ -1,7 +1,9 @@
 #include "message_object.h"
+#include "../window/window_object.h"
 
 grafeex::messaging::object::object(const msg &info, bool is_sent, procedure_type default_callback)
-	: msg_(info), states_(is_sent ? state::sent : state::nil), default_callback_(default_callback), value_(0){
+	: msg_(info), states_(is_sent ? state::sent : state::nil), default_callback_(default_callback),
+	value_(0), target_(info.owner().get_owner()){
 	if (thread_queue::is_sent())
 		GRAFEEX_SET(states_, state::sent | state::cross);
 
@@ -93,4 +95,8 @@ const grafeex::messaging::msg &grafeex::messaging::object::info() const{
 
 grafeex::messaging::object::result_type grafeex::messaging::object::value() const{
 	return value_;
+}
+
+grafeex::window::object *grafeex::messaging::object::target() const{
+	return target_;
 }

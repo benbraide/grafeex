@@ -6,6 +6,16 @@ grafeex::messaging::activate_event::activate_event(object &value)
 grafeex::messaging::activate_event::~activate_event(){}
 
 grafeex::messaging::message_event &grafeex::messaging::activate_event::dispatch(){
+	if (message_event::dispatch().is_propagating())
+		object_->target()->on_active_change(*this);
+
+	if (is_propagating()){
+		if (is_active())
+			object_->target()->on_activate(*this);
+		else//Deactivate
+			object_->target()->on_deactivate(*this);
+	}
+
 	return *this;
 }
 
@@ -33,6 +43,16 @@ grafeex::messaging::enable_event::enable_event(object &value)
 	: message_event(value){}
 
 grafeex::messaging::message_event &grafeex::messaging::enable_event::dispatch(){
+	if (message_event::dispatch().is_propagating())
+		object_->target()->on_enable_change(*this);
+
+	if (is_propagating()){
+		if (is_enabled())
+			object_->target()->on_enable(*this);
+		else//Disable
+			object_->target()->on_disable(*this);
+	}
+
 	return *this;
 }
 

@@ -17,6 +17,8 @@ namespace grafeex{
 
 			typedef object::result_type result_type;
 			typedef object::handle_type handle_type;
+
+			typedef window::object window_type;
 			
 			message_event();
 
@@ -24,9 +26,9 @@ namespace grafeex{
 
 			virtual ~message_event();
 
-			virtual message_event &dispatch() = 0;
+			virtual message_event &dispatch();
 
-			virtual message_event &handle(handle_type type = handle_type::overwrite);
+			virtual message_event &handle(handle_type type = handle_type::write);
 
 			virtual message_event &skip();
 
@@ -81,6 +83,21 @@ namespace grafeex{
 			virtual bool is_propagating() const;
 
 			virtual const object &get_object() const;
+
+			template <typename return_type, typename object_type, typename function_type, typename... value_types>
+			return_type call(function_type method, object_type &object, const value_types &... values){
+				return (object.*method)(values...);
+			}
+
+			template <typename return_type, typename object_type, typename function_type, typename... value_types>
+			return_type call_ref_args(function_type method, object_type &object, value_types &... values){
+				return (object.*method)(values...);
+			}
+
+			template <typename return_type, typename object_type, typename function_type, typename... value_types>
+			return_type call_val_args(function_type method, object_type &object, value_types... values){
+				return (object.*method)(values...);
+			}
 
 		protected:
 			virtual message_event &write_(result_type value);

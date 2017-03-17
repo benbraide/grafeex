@@ -5,6 +5,7 @@
 
 #include "../wrappers/msg_wrapper.h"
 #include "../threading/thread_message_queue.h"
+#include "../window/window_object.h"
 
 namespace grafeex{
 	namespace messaging{
@@ -36,7 +37,7 @@ namespace grafeex{
 
 			object &modify(const msg &value);
 
-			object &handle(handle_type type = handle_type::overwrite);
+			object &handle(handle_type type = handle_type::write);
 
 			object &skip();
 
@@ -95,11 +96,14 @@ namespace grafeex{
 
 			result_type value() const;
 
+			window::object *target() const;
+
 		protected:
 			msg msg_;
 			state states_;
 			procedure_type default_callback_;
 			result_type value_;
+			window::object *target_;
 		};
 
 		GRAFEEX_MAKE_OPERATORS(object::state)

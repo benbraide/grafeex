@@ -31,6 +31,8 @@ namespace grafeex{
 
 			result_type dispatch() const;
 
+			result_type send() const;
+
 			msg &code(uint_type value);
 
 			uint_type code() const;

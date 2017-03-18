@@ -8,7 +8,7 @@
 
 namespace grafeex{
 	namespace gui{
-		class object_tree : public object, common::sequential_generic_tree<object, object_sibling>{
+		class object_tree : public object, public common::sequential_generic_tree<object, object_sibling>{
 		public:
 			typedef common::generic_tree<object, object_sibling> tree_type;
 			typedef common::sequential_generic_tree<object, object_sibling> base_type;
@@ -25,6 +25,18 @@ namespace grafeex{
 			virtual object &traverse_siblings(sibling_traverser_type traverser) override;
 
 			virtual const object &traverse_siblings(const_sibling_traverser_type traverser) const override;
+
+			virtual object &size(const size_type &value, bool inner = false) override;
+
+			virtual size_type size(bool inner = false) const override;
+
+			virtual object &offset(const size_type &value) override;
+
+			virtual point_type offset() const override;
+
+			virtual object &move(const point_type &value) override;
+
+			virtual object &align(alignment_type value, const size_type &delta = {}) override;
 
 			virtual hit_target_type test(const point_type &value) const override;
 

@@ -141,6 +141,7 @@ grafeex::application::object::result_type CALLBACK grafeex::application::object:
 			if (owner_window->previous_procedure_ == nullptr)//Replace window procedure
 				owner_window->previous_procedure_ = target_hwnd.set_data<procedure_type>(&object::entry, hwnd_type::data_index::procedure);
 
+			owner_window->background_color_;//TODO: Retrieve color from brush inside class
 			instance->recent_owner_ = nullptr;//Reset
 		}
 	}

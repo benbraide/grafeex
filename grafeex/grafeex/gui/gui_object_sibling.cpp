@@ -67,6 +67,10 @@ grafeex::gui::object &grafeex::gui::object_sibling::align(alignment_type value, 
 	return value_->align(value, delta);
 }
 
+grafeex::gui::object::point_type grafeex::gui::object_sibling::compute_alignment(alignment_type value, const size_type &delta) const{
+	return value_->compute_alignment(value, delta);
+}
+
 grafeex::gui::object::hit_target_type grafeex::gui::object_sibling::test(const point_type &value) const{
 	return value_->test(value);
 }

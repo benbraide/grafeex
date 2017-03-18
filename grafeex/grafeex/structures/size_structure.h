@@ -121,14 +121,36 @@ namespace grafeex{
 				return base_type::value_.cy;
 			}
 
+			virtual bool is_inner() const{
+				return false;
+			}
+
 			static int compare(const value_type &lhs, const value_type &rhs){
 				return (lhs.cx == rhs.cx && lhs.cy == rhs.cy) ? 0 : -1;
+			}
+		};
+
+		template <class value_type, class field_type>
+		class basic_inner_size : public basic_size<value_type, field_type>{
+		public:
+			typedef basic_size<value_type, field_type> base_type;
+
+			template <typename... types>
+			explicit basic_inner_size(types... args)
+				: base_type(args...){}
+
+			virtual bool is_inner() const override{
+				return true;
 			}
 		};
 
 		typedef basic_size<::SIZE, ::LONG> size;
 		typedef basic_size<size_native_value<short>, short> short_size;
 		typedef basic_size<size_native_value<float>, float> float_size;
+
+		typedef basic_inner_size<::POINT, ::LONG> inner_size;
+		typedef basic_inner_size<size_native_value<short>, short> short_inner_size;
+		typedef basic_inner_size<size_native_value<float>, float> float_inner_size;
 	}
 }
 

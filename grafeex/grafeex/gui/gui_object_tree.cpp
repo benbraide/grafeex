@@ -48,6 +48,30 @@ const grafeex::gui::object &grafeex::gui::object_tree::traverse_siblings(const_s
 	return *this;
 }
 
+grafeex::gui::object &grafeex::gui::object_tree::size(const size_type &value, bool inner){
+	return dimensions(rect_type{ offset(), value }, inner);
+}
+
+grafeex::gui::object::size_type grafeex::gui::object_tree::size(bool inner) const{
+	return dimensions(inner).size();
+}
+
+grafeex::gui::object &grafeex::gui::object_tree::offset(const size_type &value){
+	return dimensions(rect_type{ offset() + value, size() }, false);
+}
+
+grafeex::gui::object &grafeex::gui::object_tree::move(const point_type &value){
+	return dimensions(rect_type{ value, size() }, false);
+}
+
+grafeex::gui::object::point_type grafeex::gui::object_tree::offset() const{
+	return dimensions(false).top_left();
+}
+
+grafeex::gui::object &grafeex::gui::object_tree::align(alignment_type value, const size_type &delta){
+	return move(compute_alignment(value, delta));
+}
+
 grafeex::gui::object::hit_target_type grafeex::gui::object_tree::test(const point_type &value) const{
 	if (dimensions(true).contains(value))
 		return hit_target_type::client;

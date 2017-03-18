@@ -5,9 +5,12 @@
 
 #include "../wrappers/msg_wrapper.h"
 #include "../threading/thread_message_queue.h"
-#include "../window/window_object.h"
 
 namespace grafeex{
+	namespace window{
+		class object;
+	}
+
 	namespace messaging{
 		class object{
 		public:

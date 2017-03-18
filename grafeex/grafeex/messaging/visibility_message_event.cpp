@@ -1,4 +1,5 @@
 #include "visibility_message_event.h"
+#include "../window/window_object.h"
 
 grafeex::messaging::visibility_event::visibility_event(object &value)
 	: message_event(value){}

@@ -1,5 +1,4 @@
 #include "general_message_event_handler.h"
-#include "../application/application_object.h"
 
 grafeex::messaging::general_event_handler::~general_event_handler(){}
 

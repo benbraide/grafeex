@@ -3,52 +3,38 @@
 #ifndef GRAFEEX_GENERAL_MESSAGE_EVENT_HANDLER_H
 #define GRAFEEX_GENERAL_MESSAGE_EVENT_HANDLER_H
 
-#include "../common/preprocessor.h"
+#include "../application/application_object.h"
 
 namespace grafeex{
 	namespace messaging{
-		enum class scope_event_option : unsigned int{
-			nil				= (0 << 0x0000),
-			create			= (1 << 0x0000),
-			client			= (1 << 0x0001),
-		};
-
-		GRAFEEX_MAKE_OPERATORS(scope_event_option)
-
-		class message_event;
-		class close_event;
-		class erase_background_event;
-		class paint_event;
-		class scope_event;
-		class activate_event;
-		class enable_event;
-		class style_event;
-		class visibility_event;
-
-		template <bool is_client>
-		class typed_paint_event;
-
-		template <scope_event_option options>
-		class typed_scope_event;
-
-		template <bool style_is_changing>
-		class typed_style_event;
-
 		class general_event_handler{
 		public:
-			using nc_paint_event = typed_paint_event<false>;
-			using client_paint_event = typed_paint_event<true>;
-
-			using nc_create_event = typed_scope_event<scope_event_option::create>;
-			using create_event = typed_scope_event<scope_event_option::create | scope_event_option::client>;
-
-			using nc_destroy_event = typed_scope_event<scope_event_option::nil>;
-			using destroy_event = typed_scope_event<scope_event_option::client>;
-
-			using changing_style_event = typed_style_event<true>;
-			using changed_style_event = typed_style_event<false>;
-
 			virtual ~general_event_handler();
+
+		protected:
+			friend class message_event;
+
+			friend class scope_event;
+			friend class nc_create_event;
+			friend class create_event;
+			friend class nc_destroy_event;
+			friend class destroy_event;
+
+			friend class close_event;
+
+			friend class activate_event;
+			friend class enable_event;
+
+			friend class erase_background_event;
+			friend class paint_event;
+			friend class nc_paint_event;
+			friend class client_paint_event;
+
+			friend class style_event;
+			friend class changing_style_event;
+			friend class changed_style_event;
+
+			friend class visibility_event;
 
 			virtual void on_unhandled_event(message_event &e);
 

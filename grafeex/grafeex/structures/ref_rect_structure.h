@@ -335,7 +335,7 @@ namespace grafeex{
 
 		private:
 			void align_(origin_type origin){
-				auto size = size();
+				auto size = this->size();
 				if (GRAFEEX_IS(origin, origin_type::right)){
 					base_type::value_->right = base_type::value_->left;
 					base_type::value_->left -= size.width();

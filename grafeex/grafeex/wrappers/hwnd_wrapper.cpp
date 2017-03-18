@@ -25,6 +25,10 @@ bool grafeex::wrappers::hwnd::destroy(){
 	return (::DestroyWindow(value_) != FALSE);
 }
 
+bool grafeex::wrappers::hwnd::set_menu(menu_type value){
+	return (::SetMenu(value_, value) != FALSE);
+}
+
 bool grafeex::wrappers::hwnd::invalidate(const rect_type &rect, bool erase){
 	return (::InvalidateRect(value_, rect, erase ? TRUE : FALSE) != FALSE);
 }

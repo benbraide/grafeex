@@ -33,6 +33,8 @@ namespace grafeex{
 			typedef ::CREATESTRUCTW create_info_type;
 			typedef ::WINDOWPLACEMENT placement_info_type;
 
+			typedef ::HMENU menu_type;
+
 			typedef structures::enumerations::animation_type animation_type;
 			typedef structures::enumerations::show_mode show_mode;
 			typedef structures::enumerations::position_type position_type;
@@ -74,6 +76,8 @@ namespace grafeex{
 			}
 
 			bool destroy();
+
+			bool set_menu(menu_type value);
 
 			bool invalidate(const rect_type &rect, bool erase = true);
 

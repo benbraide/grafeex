@@ -39,73 +39,30 @@ namespace grafeex{
 			value_type filtered_;
 		};
 
-		template <bool style_is_changing>
-		class typed_style_event;
-
-		template <>
-		class typed_style_event<false> : public style_event{
+		class changing_style_event : public style_event{
 		public:
-			explicit typed_style_event(object &value)
-				: style_event(value){}
+			explicit changing_style_event(object &value);
 
-			virtual ~typed_style_event(){}
+			virtual ~changing_style_event();
 
-			virtual message_event &dispatch() override{
-				if (style_event::dispatch().is_propagating())
-					object_->target()->on_style_changed(*this);
+			virtual message_event &dispatch() override;
 
-				if (is_propagating()){
-					if (is_extended())
-						object_->target()->on_extended_style_changed(*this);
-					else//Basic
-						object_->target()->on_basic_style_changed(*this);
-				}
-
-				return *this;
-			}
-
-			virtual bool is_changing() const override{
-				return false;
-			}
-		};
-
-		template <>
-		class typed_style_event<true> : public style_event{
-		public:
-			explicit typed_style_event(object &value)
-				: style_event(value){}
-
-			virtual ~typed_style_event(){}
-
-			virtual message_event &dispatch() override{
-				if (style_event::dispatch().is_propagating())
-					*this << object_->target()->on_style_changing(*this);
-
-				if (is_propagating()){
-					if (is_extended())
-						*this << object_->target()->on_extended_style_changing(*this);
-					else//Basic
-						*this << object_->target()->on_basic_style_changing(*this);
-				}
-
-				return *this;
-			}
-
-			virtual bool is_changing() const override{
-				return true;
-			}
+			virtual bool is_changing() const override;
 
 		protected:
-			virtual message_event &write_bool_(bool value) override{
-				if (!value)//Change rejected
-					filtered_ = info_->styleOld;
-
-				return message_event::write_(static_cast<result_type>(0));
-			}
+			virtual message_event &write_bool_(bool value) override;
 		};
 
-		using changing_style_event = typed_style_event<true>;
-		using changed_style_event = typed_style_event<false>;
+		class changed_style_event : public style_event{
+		public:
+			explicit changed_style_event(object &value);
+
+			virtual ~changed_style_event();
+
+			virtual message_event &dispatch() override;
+
+			virtual bool is_changing() const override;
+		};
 	}
 }
 

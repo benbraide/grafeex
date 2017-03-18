@@ -1,8 +1,9 @@
 #include "style_message_event.h"
+#include "../window/window_object.h"
 
 grafeex::messaging::style_event::style_event(object &value)
 	: message_event(value), info_(value.info().lparam<info_type *>()){
-
+	//TODO: Implement
 }
 
 grafeex::messaging::style_event::~style_event(){}
@@ -37,4 +38,57 @@ grafeex::messaging::style_event &grafeex::messaging::style_event::filtered_value
 
 grafeex::messaging::style_event::value_type grafeex::messaging::style_event::filtered_value() const{
 	return filtered_;
+}
+
+grafeex::messaging::changing_style_event::changing_style_event(object &value)
+	: style_event(value){}
+
+grafeex::messaging::changing_style_event::~changing_style_event(){}
+
+grafeex::messaging::message_event &grafeex::messaging::changing_style_event::dispatch(){
+	if (style_event::dispatch().is_propagating())
+		*this << object_->target()->on_style_changing(*this);
+
+	if (is_propagating()){
+		if (is_extended())
+			*this << object_->target()->on_extended_style_changing(*this);
+		else//Basic
+			*this << object_->target()->on_basic_style_changing(*this);
+	}
+
+	return *this;
+}
+
+bool grafeex::messaging::changing_style_event::is_changing() const{
+	return true;
+}
+
+grafeex::messaging::message_event &grafeex::messaging::changing_style_event::write_bool_(bool value){
+	if (!value)//Change rejected
+		filtered_ = info_->styleOld;
+
+	return message_event::write_(static_cast<result_type>(0));
+}
+
+grafeex::messaging::changed_style_event::changed_style_event(object &value)
+	: style_event(value){}
+
+grafeex::messaging::changed_style_event::~changed_style_event(){}
+
+grafeex::messaging::message_event &grafeex::messaging::changed_style_event::dispatch(){
+	if (style_event::dispatch().is_propagating())
+		object_->target()->on_style_changed(*this);
+
+	if (is_propagating()){
+		if (is_extended())
+			object_->target()->on_extended_style_changed(*this);
+		else//Basic
+			object_->target()->on_basic_style_changed(*this);
+	}
+
+	return *this;
+}
+
+bool grafeex::messaging::changed_style_event::is_changing() const{
+	return false;
 }

@@ -113,14 +113,36 @@ namespace grafeex{
 				return base_type::value_.y;
 			}
 
+			virtual bool is_absolute() const{
+				return false;
+			}
+
 			static int compare(const value_type &lhs, const value_type &rhs){
 				return (lhs.x == rhs.x && lhs.y == rhs.y) ? 0 : -1;
+			}
+		};
+
+		template <class value_type, class field_type>
+		class basic_absolute_point : public basic_point<value_type, field_type>{
+		public:
+			typedef basic_point<value_type, field_type> base_type;
+
+			template <typename... types>
+			explicit basic_absolute_point(types... args)
+				: base_type(args...){}
+
+			virtual bool is_absolute() const override{
+				return true;
 			}
 		};
 
 		typedef basic_point<::POINT, ::LONG> point;
 		typedef basic_point<point_native_value<short>, short> short_point;
 		typedef basic_point<point_native_value<float>, float> float_point;
+
+		typedef basic_absolute_point<::POINT, ::LONG> absolute_point;
+		typedef basic_absolute_point<point_native_value<short>, short> short_absolute_point;
+		typedef basic_absolute_point<point_native_value<float>, float> float_absolute_point;
 	}
 }
 

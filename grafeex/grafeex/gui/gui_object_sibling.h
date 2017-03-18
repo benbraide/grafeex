@@ -54,6 +54,8 @@ namespace grafeex{
 
 			virtual object &align(alignment_type value, const size_type &delta = {}) override;
 
+			virtual point_type compute_alignment(alignment_type value, const size_type &delta = {}) const override;
+
 			virtual hit_target_type test(const point_type &value) const override;
 
 			virtual point_type convert_to_screen(const point_type &value) const override;

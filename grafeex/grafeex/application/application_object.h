@@ -52,7 +52,7 @@ namespace grafeex{
 			typedef wnd_class_type::procedure_type procedure_type;
 			typedef wnd_class_type::instance_type instance_type;
 
-			typedef wrappers::hwnd::create_info_type create_info_type;
+			typedef hwnd_type::create_info_type create_info_type;
 			typedef threading::object base_type;
 
 			struct stored_message_info_type{

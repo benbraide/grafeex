@@ -35,57 +35,31 @@ namespace grafeex{
 			virtual bool is_client() const = 0;
 		};
 
-		template <bool is_client>
-		class typed_paint_event;
-
-		template <>
-		class typed_paint_event<false> : public paint_event{
+		class nc_paint_event : public paint_event{
 		public:
-			explicit typed_paint_event(object &value)
-				: paint_event(value){}
+			explicit nc_paint_event(object &value);
 
-			virtual ~typed_paint_event(){}
+			virtual ~nc_paint_event();
 
-			virtual message_event &dispatch() override{
-				if (paint_event::dispatch().is_propagating())
-					object_->target()->on_nc_paint(*this);
-				return *this;
-			}
+			virtual message_event &dispatch() override;
 
-			virtual device_type device() override{
-				return nullptr;
-			}
+			virtual device_type device() override;
 
-			virtual bool is_client() const override{
-				return false;
-			}
+			virtual bool is_client() const override;
 		};
 
-		template <>
-		class typed_paint_event<true> : public paint_event{
+		class client_paint_event : public paint_event{
 		public:
-			explicit typed_paint_event(object &value)
-				: paint_event(value){}
+			explicit client_paint_event(object &value);
 
-			virtual ~typed_paint_event(){}
+			virtual ~client_paint_event();
 
-			virtual message_event &dispatch() override{
-				if (paint_event::dispatch().is_propagating())
-					object_->target()->on_paint_client(*this);
-				return *this;
-			}
+			virtual message_event &dispatch() override;
 
-			virtual device_type device() override{
-				return nullptr;
-			}
+			virtual device_type device() override;
 
-			virtual bool is_client() const override{
-				return true;
-			}
+			virtual bool is_client() const override;
 		};
-
-		using nc_paint_event = typed_paint_event<false>;
-		using client_paint_event = typed_paint_event<true>;
 	}
 }
 

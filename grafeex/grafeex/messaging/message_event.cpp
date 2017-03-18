@@ -1,4 +1,5 @@
 #include "message_event.h"
+#include "../window/window_object.h"
 
 grafeex::messaging::message_event::message_event()
 	: object_(nullptr), states_(state::nil){}

@@ -1,4 +1,5 @@
 #include "close_message_event.h"
+#include "../window/window_object.h"
 
 grafeex::messaging::close_event::close_event(object &value)
 	: message_event(value){}

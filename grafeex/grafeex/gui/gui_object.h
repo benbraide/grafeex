@@ -11,9 +11,14 @@
 namespace grafeex{
 	namespace gui{
 		class object_sibling;
+		class object_tree;
 
 		class object{
 		public:
+			typedef object gui_object_type;
+			typedef object_sibling sibling_type;
+			typedef object_tree tree_type;
+
 			typedef structures::point point_type;
 			typedef structures::size size_type;
 			typedef structures::rect rect_type;
@@ -35,9 +40,7 @@ namespace grafeex{
 
 			virtual object *non_sibling() = 0;
 
-			virtual const object *parent() const = 0;
-
-			virtual object *parent() = 0;
+			virtual object *parent() const = 0;
 
 			virtual object &traverse_siblings(sibling_traverser_type traverser) = 0;
 

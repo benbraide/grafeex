@@ -1,12 +1,12 @@
 #include "gui_object_sibling.h"
 
 grafeex::gui::object_sibling::object_sibling()
-	: value_(nullptr), type_(sibling_type::previous){}
+	: value_(nullptr), type_(sibling_value_type::previous){}
 
-grafeex::gui::object_sibling::object_sibling(const object &value, sibling_type type)
+grafeex::gui::object_sibling::object_sibling(const object &value, sibling_value_type type)
 	: object_sibling(const_cast<object &>(value), type){}
 
-grafeex::gui::object_sibling::object_sibling(object &value, sibling_type type)
+grafeex::gui::object_sibling::object_sibling(object &value, sibling_value_type type)
 	: value_(&value), type_(type){}
 
 grafeex::gui::object_sibling::~object_sibling(){}
@@ -15,11 +15,7 @@ grafeex::gui::object *grafeex::gui::object_sibling::non_sibling(){
 	return value_->non_sibling();
 }
 
-const grafeex::gui::object *grafeex::gui::object_sibling::parent() const{
-	return value_->parent();
-}
-
-grafeex::gui::object *grafeex::gui::object_sibling::parent(){
+grafeex::gui::object *grafeex::gui::object_sibling::parent() const{
 	return value_->parent();
 }
 
@@ -96,7 +92,7 @@ grafeex::gui::object::object_type grafeex::gui::object_sibling::type() const{
 }
 
 bool grafeex::gui::object_sibling::is_previous() const{
-	return (type_ == sibling_type::previous);
+	return (type_ == sibling_value_type::previous);
 }
 
 grafeex::gui::object_sibling::index_type grafeex::gui::object_sibling::get_insert_index() const{
@@ -108,5 +104,5 @@ grafeex::gui::object_sibling::index_type grafeex::gui::object_sibling::get_inser
 	if (index == static_cast<index_type>(-1))
 		return index;
 
-	return (type_ == sibling_type::previous) ? (index + 1) : index;
+	return (type_ == sibling_value_type::previous) ? (index + 1) : index;
 }

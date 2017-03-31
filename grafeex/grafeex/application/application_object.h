@@ -44,6 +44,9 @@ namespace grafeex{
 			typedef std::shared_ptr<messaging::event_dispatcher_base> dispatcher_type;
 			typedef std::unordered_map<uint_type, dispatcher_type> dispatcher_list_type;
 
+			typedef std::recursive_mutex lock_type;
+			typedef std::lock_guard<lock_type> guard_type;
+
 			typedef structures::point point_type;
 			typedef window::object window_type;
 			typedef wrappers::wnd_class wnd_class_type;
@@ -66,7 +69,7 @@ namespace grafeex{
 				: instance_(nullptr), recent_owner_(nullptr){
 				typedef std::wstring::size_type size_type;
 
-				class_.set(class_args...);
+				class_.set(entry, class_args...);
 				if ((instance_ = class_.instance()) == nullptr)
 					class_.instance(instance_ = ::GetModuleHandleW(nullptr));
 
@@ -76,6 +79,7 @@ namespace grafeex{
 
 				if (class_.create()){//Create dialog class
 					::GetClassInfoExW(nullptr, L"#32770", dialog_class_);
+					dialog_class_.procedure(entry);
 					dialog_class_.name(random_string.generate_alnum(std::make_pair<size_type, size_type>(9, 18)));
 					dialog_class_.instance(instance_);
 					dialog_class_.create();
@@ -120,6 +124,9 @@ namespace grafeex{
 			static object *instance;
 
 		protected:
+			friend class messaging::create_event;
+			friend class messaging::nc_destroy_event;
+
 			virtual bool is_filtered_message_() const override;
 
 			virtual void dispatch_() override;
@@ -177,6 +184,7 @@ namespace grafeex{
 			instance_type instance_;
 			dispatcher_list_type dispatcher_list_;
 			void *recent_owner_;
+			mutable lock_type lock_;
 		};
 	}
 }

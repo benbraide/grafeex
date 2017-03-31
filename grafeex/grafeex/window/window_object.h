@@ -3,6 +3,8 @@
 #ifndef GRAFEEX_WINDOW_OBJECT_H
 #define GRAFEEX_WINDOW_OBJECT_H
 
+#include "window_view.h"
+
 #include "../gui/gui_object_tree.h"
 
 #include "../wrappers/hwnd_wrapper.h"
@@ -19,11 +21,12 @@ namespace grafeex{
 			typedef ::DWORD dword_type;
 
 			typedef gui::object object_type;
-			typedef gui::object_sibling object_sibling_type;
-			typedef gui::object_tree object_tree_type;
+			typedef gui::object::sibling_type sibling_type;
+			typedef gui::object::tree_type tree_type;
 
 			typedef wrappers::wnd_class wnd_class_type;
 			typedef wrappers::hwnd hwnd_type;
+			typedef wrappers::hwnd::value_type native_value_type;
 
 			typedef structures::point point_type;
 			typedef structures::size size_type;
@@ -41,6 +44,9 @@ namespace grafeex{
 			typedef hwnd_type::create_info_type create_info_type;
 			typedef application::object app_type;
 
+			typedef view view_type;
+			typedef std::shared_ptr<view_type> view_ptr_type;
+
 			struct persistent_styles{
 				dword_type basic;
 				dword_type extended;
@@ -53,8 +59,6 @@ namespace grafeex{
 			virtual rect_type dimensions(bool inner = false) const override;
 
 			virtual object &drag(const size_type &value) override;
-
-			virtual point_type compute_alignment(alignment_type value, const size_type &delta) const override;
 
 			virtual point_type convert_to_screen(const point_type &value) const override;
 
@@ -76,18 +80,33 @@ namespace grafeex{
 
 			virtual dword_type black_listed_styles(bool is_extended) const;
 
+			virtual operator native_value_type() const;
+
 			virtual bool is_dialog() const;
+
+			virtual bool is_top_level() const;
+
+			virtual view_type &view();
 
 			static app_type *&app_instance;
 
 		protected:
 			friend class application::object;
 
+			friend class messaging::nc_create_event;
+			friend class messaging::nc_destroy_event;
+
+			friend class window::view;
+
 			object(procedure_type previous_procedure = ::DefWindowProcW);
 
 			virtual void add_(child_type &child) override;
 
 			virtual void remove_(child_type &child) override;
+
+			virtual void insert_into_parent_(object_type &parent);
+
+			virtual void insert_into_parent_(const sibling_type &sibling);
 
 			virtual bool create_(const std::wstring &caption, const point_type &offset, const size_type &size, dword_type styles = 0,
 				dword_type extended_styles = 0, const wchar_t *class_name = nullptr);
@@ -102,11 +121,21 @@ namespace grafeex{
 
 			virtual void uninitialize_();
 
+			virtual view_ptr_type get_view_();
+
+			template <typename view_type>
+			view_ptr_type create_view_(){
+				if (view_ == nullptr)
+					view_ = std::make_shared<view_type>(*this);
+				return view_;
+			}
+
 			hwnd_type value_;
 			std::wstring text_;
 			procedure_type previous_procedure_;
 			color_type background_color_;
 			persistent_styles persistent_styles_ = {};
+			view_ptr_type view_;
 		};
 	}
 }

@@ -18,8 +18,10 @@ grafeex::messaging::nc_create_event::nc_create_event(object &value)
 grafeex::messaging::nc_create_event::~nc_create_event(){}
 
 grafeex::messaging::message_event &grafeex::messaging::nc_create_event::dispatch(){
+	object_->target()->initialize_();
 	if (scope_event::dispatch().is_propagating())
 		*this << object_->target()->on_nc_create(*this);
+
 	return *this;
 }
 
@@ -37,8 +39,15 @@ grafeex::messaging::create_event::create_event(object &value)
 grafeex::messaging::create_event::~create_event(){}
 
 grafeex::messaging::message_event &grafeex::messaging::create_event::dispatch(){
+	if (object_->target()->is_top_level()){//Add to top level list
+		application::object::instance->lock_.lock();
+		application::object::instance->top_level_windows_.push_back(object_->info().owner());
+		application::object::instance->lock_.unlock();
+	}
+
 	if (scope_event::dispatch().is_propagating())
 		*this << object_->target()->on_create(*this);
+
 	return *this;
 }
 
@@ -62,6 +71,19 @@ grafeex::messaging::nc_destroy_event::~nc_destroy_event(){}
 grafeex::messaging::message_event &grafeex::messaging::nc_destroy_event::dispatch(){
 	if (scope_event::dispatch().is_propagating())
 		object_->target()->on_nc_destroy(*this);
+
+	object_->target()->uninitialize_();
+	if (object_->target()->is_top_level()){
+		application::object::instance->lock_.lock();
+
+		auto &list = application::object::instance->top_level_windows_;
+		auto entry = std::find(list.begin(), list.end(), object_->info().owner());
+		if (entry != list.end())//Remove from top level list
+			list.erase(entry);
+
+		application::object::instance->lock_.unlock();
+	}
+	
 	return *this;
 }
 

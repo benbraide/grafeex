@@ -1,30 +1,21 @@
 #pragma once
 
-#ifndef GRAFEEX_GUI_OBJECT_SIBLING_H
-#define GRAFEEX_GUI_OBJECT_SIBLING_H
+#ifndef GRAFEEX_GUI_GENERIC_OBJECT_H
+#define GRAFEEX_GUI_GENERIC_OBJECT_H
 
 #include "../common/generic_tree.h"
-#include "gui_object.h"
+#include "gui_object_sibling.h"
 
 namespace grafeex{
 	namespace gui{
-		class object_sibling : public object{
+		class generic_object : public object{
 		public:
 			typedef common::generic_tree<object, object_sibling> tree_type;
-			typedef tree_type::index_type index_type;
 
-			enum class sibling_value_type{
-				previous,
-				next,
-			};
+			typedef object::size_type size_type;
+			typedef object::sibling_type sibling_type;
 
-			object_sibling();
-
-			object_sibling(const object &value, sibling_value_type type);
-
-			object_sibling(object &value, sibling_value_type type);
-
-			virtual ~object_sibling();
+			virtual ~generic_object();
 
 			virtual object *non_sibling() override;
 
@@ -46,9 +37,9 @@ namespace grafeex{
 
 			virtual point_type offset() const override;
 
-			virtual object &drag(const size_type &value) override;
-
 			virtual object &move(const point_type &value) override;
+
+			virtual object &drag(const size_type &value) override;
 
 			virtual object &align(alignment_type value, const size_type &delta = {}) override;
 
@@ -66,15 +57,10 @@ namespace grafeex{
 
 			virtual object_type type() const override;
 
-			virtual bool is_previous() const;
-
-			virtual index_type get_insert_index() const;
-
 		protected:
-			object *value_;
-			sibling_value_type type_;
+			object *parent_ = nullptr;
 		};
 	}
 }
 
-#endif /* !GRAFEEX_GUI_OBJECT_SIBLING_H */
+#endif /* !GRAFEEX_GUI_GENERIC_OBJECT_H */

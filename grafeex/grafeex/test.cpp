@@ -1,18 +1,11 @@
-#include "wrappers/hwnd_wrapper.h"
-#include "wrappers/wnd_class_wrapper.h"
-#include "threading/thread_id.h"
+#include "window/frame_window.h"
+#include "window/top_level_window.h"
 
 int WINAPI wWinMain(::HINSTANCE app_instance, ::HINSTANCE, ::LPWSTR cmd_line, int show_type){
-	grafeex::structures::point p;
-	grafeex::structures::size s;
+	grafeex::application::object app;
 
-	grafeex::structures::rect r;
-	grafeex::structures::ref_rect rr;
+	grafeex::window::top_level fw(L"Test Window", grafeex::structures::point{ 10 }, { 500, 400 });
+	fw.view().show();
 
-	grafeex::wrappers::wnd_class wc(L"ben", 0, nullptr);
-
-	auto b = (grafeex::threading::get_current_id() == grafeex::threading::id());
-	grafeex::threading::id::value_type v = grafeex::threading::get_current_id();
-
-	return 0;
+	return app.run();
 }

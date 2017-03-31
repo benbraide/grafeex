@@ -39,7 +39,7 @@ namespace grafeex{
 			explicit basic_random_string(typename engine_type::result_type seed = (seeder_type())())
 				: engine_(seed){}
 
-			std::wstring &&generate(size_type length, const domain_type &domain){
+			std::wstring generate(size_type length, const domain_type &domain){
 				std::wstring generated;
 				if (!domain.empty()){
 					while (generated.size() < length){
@@ -49,88 +49,88 @@ namespace grafeex{
 					}
 				}
 
-				return std::move(generated);
+				return generated;
 			}
 
-			std::wstring &&generate(size_type length, char_set_type set){
-				domain_type domain(std::move(get_domain(set)));
-				return std::move(generate(length, domain));
-			}
-
-			std::wstring &&generate(const std::pair<size_type, size_type> &range, const domain_type &domain){
-				return std::move(generate(engine_.generate(range.first, range.second), domain));
-			}
-
-			std::wstring &&generate(const std::pair<size_type, size_type> &range, char_set_type set){
-				return std::move(generate(engine_.generate(range.first, range.second), set));
-			}
-
-			std::wstring &&generate(size_type length){
-				return std::move(generate(length, char_set_type::nil));
-			}
-
-			std::wstring &&generate(const std::pair<size_type, size_type> &range){
-				return std::move(generate(range, char_set_type::nil));
-			}
-
-			std::wstring &&generate_alpha(size_type length){
-				return std::move(generate(length, char_set_type::alpha));
-			}
-
-			std::wstring &&generate_alpha(const std::pair<size_type, size_type> &range){
-				return std::move(generate(range, char_set_type::alpha));
-			}
-
-			std::wstring &&generate_lowercase_alpha(size_type length){
-				return std::move(generate(length, char_set_type::alpha | char_set_type::lowercase));
-			}
-
-			std::wstring &&generate_lowercase_alpha(const std::pair<size_type, size_type> &range){
-				return std::move(generate(range, char_set_type::alpha | char_set_type::lowercase));
-			}
-
-			std::wstring &&generate_uppercase_alpha(size_type length){
-				return std::move(generate(length, char_set_type::alpha | char_set_type::uppercase));
-			}
-
-			std::wstring &&generate_uppercase_alpha(const std::pair<size_type, size_type> &range){
-				return std::move(generate(range, char_set_type::alpha | char_set_type::uppercase));
-			}
-
-			std::wstring &&generate_digit(size_type length){
-				return std::move(generate(length, char_set_type::digits));
-			}
-
-			std::wstring &&generate_digit(const std::pair<size_type, size_type> &range){
-				return std::move(generate(range, char_set_type::digits));
-			}
-
-			std::wstring &&generate_alnum(size_type length){
-				return std::move(generate(length, char_set_type::digits | char_set_type::alpha));
-			}
-
-			std::wstring &&generate_alnum(const std::pair<size_type, size_type> &range){
-				return std::move(generate(range, char_set_type::digits | char_set_type::alpha));
-			}
-
-			std::wstring &&generate_lowercase_alnum(size_type length){
-				return std::move(generate(length, char_set_type::digits | char_set_type::alpha | char_set_type::lowercase));
-			}
-
-			std::wstring &&generate_lowercase_alnum(const std::pair<size_type, size_type> &range){
-				return std::move(generate(range, char_set_type::digits | char_set_type::alpha | char_set_type::lowercase));
-			}
-
-			std::wstring &&generate_uppercase_alnum(size_type length){
-				return std::move(generate(length, char_set_type::digits | char_set_type::alpha | char_set_type::uppercase));
-			}
-
-			std::wstring &&generate_uppercase_alnum(const std::pair<size_type, size_type> &range){
-				return std::move(generate(range, char_set_type::digits | char_set_type::alpha | char_set_type::uppercase));
-			}
-
-			domain_type &&get_domain(char_set_type set) const{
+			std::wstring generate(size_type length, char_set_type set){
 				domain_type domain;
+				get_domain(set, domain);
+				return generate(length, domain);
+			}
+
+			std::wstring generate(const std::pair<size_type, size_type> &range, const domain_type &domain){
+				return generate(engine_.generate(range.first, range.second), domain);
+			}
+
+			std::wstring generate(const std::pair<size_type, size_type> &range, char_set_type set){
+				return generate(engine_.generate(range.first, range.second), set);
+			}
+
+			std::wstring generate(size_type length){
+				return generate(length, char_set_type::nil);
+			}
+
+			std::wstring generate(const std::pair<size_type, size_type> &range){
+				return generate(range, char_set_type::nil);
+			}
+
+			std::wstring generate_alpha(size_type length){
+				return generate(length, char_set_type::alpha);
+			}
+
+			std::wstring generate_alpha(const std::pair<size_type, size_type> &range){
+				return generate(range, char_set_type::alpha);
+			}
+
+			std::wstring generate_lowercase_alpha(size_type length){
+				return generate(length, char_set_type::alpha | char_set_type::lowercase);
+			}
+
+			std::wstring generate_lowercase_alpha(const std::pair<size_type, size_type> &range){
+				return generate(range, char_set_type::alpha | char_set_type::lowercase);
+			}
+
+			std::wstring generate_uppercase_alpha(size_type length){
+				return generate(length, char_set_type::alpha | char_set_type::uppercase);
+			}
+
+			std::wstring generate_uppercase_alpha(const std::pair<size_type, size_type> &range){
+				return generate(range, char_set_type::alpha | char_set_type::uppercase);
+			}
+
+			std::wstring generate_digit(size_type length){
+				return generate(length, char_set_type::digits);
+			}
+
+			std::wstring generate_digit(const std::pair<size_type, size_type> &range){
+				return generate(range, char_set_type::digits);
+			}
+
+			std::wstring generate_alnum(size_type length){
+				return generate(length, char_set_type::digits | char_set_type::alpha);
+			}
+
+			std::wstring generate_alnum(const std::pair<size_type, size_type> &range){
+				return generate(range, char_set_type::digits | char_set_type::alpha);
+			}
+
+			std::wstring generate_lowercase_alnum(size_type length){
+				return generate(length, char_set_type::digits | char_set_type::alpha | char_set_type::lowercase);
+			}
+
+			std::wstring generate_lowercase_alnum(const std::pair<size_type, size_type> &range){
+				return generate(range, char_set_type::digits | char_set_type::alpha | char_set_type::lowercase);
+			}
+
+			std::wstring generate_uppercase_alnum(size_type length){
+				return generate(length, char_set_type::digits | char_set_type::alpha | char_set_type::uppercase);
+			}
+
+			std::wstring generate_uppercase_alnum(const std::pair<size_type, size_type> &range){
+				return generate(range, char_set_type::digits | char_set_type::alpha | char_set_type::uppercase);
+			}
+
+			void get_domain(char_set_type set, domain_type &domain) const{
 				if (!GRAFEEX_IS(set, char_set_type::full_range)){
 					if (set != char_set_type::nil){
 						if (GRAFEEX_IS(set, char_set_type::digits))
@@ -158,8 +158,6 @@ namespace grafeex{
 				}
 				else//Full character range
 					domain.push_back(std::make_pair<wchar_t, wchar_t>(0, 0xFFFF));
-
-				return std::move(domain);
 			}
 
 		private:

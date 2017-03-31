@@ -19,13 +19,6 @@ grafeex::window::object &grafeex::window::object::drag(const size_type &value){
 	return *this;
 }
 
-grafeex::window::object::point_type grafeex::window::object::compute_alignment(alignment_type value, const size_type &delta) const{
-	if (parent_ == nullptr)
-		return point_type{};
-
-	return (offset() + (compute_alignment_delta(parent_->size(), size(), value) + delta));
-}
-
 grafeex::window::object::point_type grafeex::window::object::convert_to_screen(const point_type &value) const{
 	return value_.client_to_screen(value);
 }
@@ -71,8 +64,20 @@ grafeex::window::object::dword_type grafeex::window::object::black_listed_styles
 	return (is_extended ? WS_EX_LEFTSCROLLBAR : (WS_HSCROLL | WS_VSCROLL));
 }
 
+grafeex::window::object::operator native_value_type() const{
+	return value_;
+}
+
 bool grafeex::window::object::is_dialog() const{
 	return false;
+}
+
+bool grafeex::window::object::is_top_level() const{
+	return false;
+}
+
+grafeex::window::object::view_type &grafeex::window::object::view(){
+	return *get_view_();
 }
 
 void grafeex::window::object::add_(child_type &child){
@@ -81,6 +86,14 @@ void grafeex::window::object::add_(child_type &child){
 
 void grafeex::window::object::remove_(child_type &child){
 	//TODO: Implement
+}
+
+void grafeex::window::object::insert_into_parent_(object_type &parent){
+	reinterpret_cast<tree_type *>(&parent)->add(*this);
+}
+
+void grafeex::window::object::insert_into_parent_(const sibling_type &sibling){
+	reinterpret_cast<tree_type *>(const_cast<sibling_type &>(sibling).parent())->add(*this, sibling);
 }
 
 bool grafeex::window::object::create_(const std::wstring &caption, const point_type &offset, const size_type &size, dword_type styles,
@@ -105,6 +118,8 @@ bool grafeex::window::object::create_(const std::wstring &caption, const point_t
 		computed_offset = bounding_rect.top_left();
 		computed_size = bounding_rect.size();
 	}
+	else//Outer size
+		computed_size = size;
 
 	return create_(create_info_type{
 		nullptr,											//Params
@@ -123,7 +138,16 @@ bool grafeex::window::object::create_(const std::wstring &caption, const point_t
 }
 
 bool grafeex::window::object::create_(const create_info_type &info){
-	return ((value_ = app_instance->create(*this, info)) != nullptr);
+	if ((value_ = app_instance->create(*this, info)) == nullptr){//Failed to create window
+		if (parent_ != nullptr){//Remove from parent
+			dynamic_cast<tree_type *>(parent_)->remove(*this);
+			parent_ = nullptr;
+		}
+
+		return false;
+	}
+
+	return true;
 }
 
 grafeex::window::object::hwnd_type grafeex::window::object::get_parent_handle_(){
@@ -149,6 +173,10 @@ void grafeex::window::object::uninitialize_(){
 	auto tree_parent = dynamic_cast<tree_type *>(parent_);
 	if (tree_parent != nullptr)//Remove from parent
 		tree_parent->remove(*this);
+}
+
+grafeex::window::object::view_ptr_type grafeex::window::object::get_view_(){
+	return create_view_<view_type>();
 }
 
 grafeex::window::object::app_type *&grafeex::window::object::app_instance = grafeex::window::object::app_type::instance;

@@ -133,7 +133,7 @@ void grafeex::application::object::create_dispatchers_(){
 grafeex::application::object::result_type CALLBACK grafeex::application::object::hook_(int code, wparam_type wparam, lparam_type lparam){
 	if (code == HCBT_CREATEWND){//Respond to window creation
 		auto info = reinterpret_cast<create_hook_info_type *>(lparam)->lpcs;
-		if (info->lpCreateParams == instance->recent_owner_){//Ensure target is the stored recent
+		if (instance->recent_owner_ != nullptr && info->lpCreateParams == instance->recent_owner_){//Ensure target is valid
 			auto owner_window = reinterpret_cast<window_type *>(instance->recent_owner_);
 			hwnd_type target_hwnd(reinterpret_cast<hwnd_type::value_type>(wparam));
 

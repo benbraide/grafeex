@@ -58,6 +58,11 @@ namespace grafeex{
 				return !(*this == rhs);
 			}
 
+			pointer &set_native_value(value_type value){
+				value_ = value;
+				return *this;
+			}
+
 			value_type get_native_value() const{
 				return value_;
 			}
@@ -121,6 +126,11 @@ namespace grafeex{
 
 			bool operator !=(const object_type &rhs) const{
 				return !(*this == rhs);
+			}
+
+			pointer &set_native_value(value_type value){
+				value_ = value;
+				return *this;
 			}
 
 			value_type get_native_value() const{

@@ -147,9 +147,9 @@ grafeex::menu::group::index_type grafeex::menu::group::get_item_index_in_parent(
 }
 
 void grafeex::menu::group::insert_into_parent_(gui_object_type &parent){
-	reinterpret_cast<tree_type *>(&parent)->add(*this);
+	dynamic_cast<tree_type *>(parent_ = &parent)->add(*this);
 }
 
 void grafeex::menu::group::insert_into_parent_(const sibling_type &sibling){
-	reinterpret_cast<tree_type *>(const_cast<sibling_type &>(sibling).parent())->add(*this, sibling);
+	dynamic_cast<tree_type *>(parent_ = sibling.parent())->add(*this, sibling);
 }

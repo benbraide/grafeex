@@ -89,11 +89,11 @@ void grafeex::window::object::remove_(child_type &child){
 }
 
 void grafeex::window::object::insert_into_parent_(object_type &parent){
-	reinterpret_cast<tree_type *>(&parent)->add(*this);
+	dynamic_cast<tree_type *>(parent_ = &parent)->add(*this);
 }
 
 void grafeex::window::object::insert_into_parent_(const sibling_type &sibling){
-	reinterpret_cast<tree_type *>(const_cast<sibling_type &>(sibling).parent())->add(*this, sibling);
+	dynamic_cast<tree_type *>(parent_ = sibling.parent())->add(*this, sibling);
 }
 
 bool grafeex::window::object::create_(const std::wstring &caption, const point_type &offset, const size_type &size, dword_type styles,

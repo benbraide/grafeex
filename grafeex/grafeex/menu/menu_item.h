@@ -92,7 +92,6 @@ namespace grafeex{
 
 			virtual bool create_(index_type index, const std::wstring &value);
 
-			gui_object_type *parent_;
 			id_type id_;
 			option options_;
 			menu::object *sub_;

@@ -2,15 +2,15 @@
 #include "menu_object.h"
 
 grafeex::menu::item::item(option options)
-	: parent_(nullptr), options_(options), sub_(nullptr){}
+	: options_(options), sub_(nullptr){}
 
 grafeex::menu::item::item(gui_object_type &parent, const std::wstring &value, option options)
-	: parent_(nullptr), options_(options), sub_(nullptr){
+	: options_(options), sub_(nullptr){
 	create(parent, value);
 }
 
 grafeex::menu::item::item(const sibling_type &sibling, const std::wstring &value, option options)
-	: parent_(nullptr), options_(options), sub_(nullptr){
+	: options_(options), sub_(nullptr){
 	create(sibling, value);
 }
 
@@ -146,11 +146,11 @@ bool grafeex::menu::item::is_bordered() const{
 }
 
 void grafeex::menu::item::insert_into_parent_(gui_object_type &parent){
-	reinterpret_cast<tree_type *>(&parent)->add(*this);
+	dynamic_cast<tree_type *>(parent_ = &parent)->add(*this);
 }
 
 void grafeex::menu::item::insert_into_parent_(const sibling_type &sibling){
-	reinterpret_cast<tree_type *>(const_cast<sibling_type &>(sibling).parent())->add(*this, sibling);
+	dynamic_cast<tree_type *>(parent_ = sibling.parent())->add(*this, sibling);
 }
 
 bool grafeex::menu::item::create_(index_type index, const std::wstring &value){

@@ -100,9 +100,9 @@ grafeex::gui::object_sibling::index_type grafeex::gui::object_sibling::get_inser
 	if (tree_parent == nullptr)
 		return static_cast<index_type>(-1);
 
-	auto index = tree_parent->get_child_index(*this);
+	auto index = tree_parent->get_child_index(*value_->non_sibling());
 	if (index == static_cast<index_type>(-1))
 		return index;
 
-	return (type_ == sibling_value_type::previous) ? (index + 1) : index;
+	return (type_ == sibling_value_type::previous) ? index : (index + 1);
 }

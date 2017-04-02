@@ -84,8 +84,9 @@ bool grafeex::menu::popup::update_owner_(item *owner){
 		remove ? nullptr : value_.get_native_value()//Sub-menu
 	};
 
-	if (::SetMenuItemInfoW(dynamic_cast<tree *>(owner_->parent())->native_value(),
-		static_cast<uint_type>(owner_->get_item_index_in_parent()), TRUE, &info) == FALSE){
+	auto valid_owner = (remove ? owner_ : owner);
+	if (::SetMenuItemInfoW(dynamic_cast<tree *>(valid_owner->parent())->native_value(),
+		static_cast<uint_type>(valid_owner->get_item_index_in_parent()), TRUE, &info) == FALSE){
 		return false;
 	}
 

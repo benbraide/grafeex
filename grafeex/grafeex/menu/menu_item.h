@@ -29,6 +29,23 @@ namespace grafeex{
 				bordered_new_line,
 			};
 
+			class event_tunnel : public gui::generic_object::event_tunnel{
+			public:
+				event_tunnel();
+
+				virtual ~event_tunnel();
+
+				virtual event_tunnel &select();
+
+				GGGO_VOID_EVENT2(select)
+				GGGO_VOID_EVENT2(draw)
+				GGGO_VOID_EVENT2(measure)
+
+				void_event_type select_event_;
+				void_event_type draw_event_;
+				void_event_type measure_event_;
+			};
+
 			explicit item(option options = option::nil);
 
 			item(gui_object_type &parent, const std::wstring &value, option options = option::nil);
@@ -38,6 +55,8 @@ namespace grafeex{
 			virtual ~item();
 
 			virtual object_type type() const override;
+
+			virtual event_tunnel &events() override;
 
 			virtual bool create(gui_object_type &parent, const std::wstring &value);
 
@@ -83,14 +102,22 @@ namespace grafeex{
 
 			virtual bool is_bordered() const;
 
+			virtual bool is_owner_drawn() const;
+
 		protected:
 			friend class popup;
+
+			virtual events_type get_events_() override;
 
 			virtual void insert_into_parent_(gui_object_type &parent);
 
 			virtual void insert_into_parent_(const sibling_type &sibling);
 
 			virtual bool create_(index_type index, const std::wstring &value);
+
+			virtual bool owner_drawn_() const;
+
+			virtual event_tunnel::void_event_type &draw_event_();
 
 			id_type id_;
 			option options_;

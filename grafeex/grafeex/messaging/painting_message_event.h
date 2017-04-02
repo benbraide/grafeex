@@ -9,6 +9,8 @@ namespace grafeex{
 	namespace messaging{
 		class erase_background_event : public message_event{
 		public:
+			using message_event::operator=;
+
 			typedef ::HDC device_type;
 
 			explicit erase_background_event(object &value);
@@ -22,6 +24,8 @@ namespace grafeex{
 
 		class paint_event : public message_event{
 		public:
+			using message_event::operator=;
+
 			typedef ::HDC device_type;
 
 			explicit paint_event(object &value);
@@ -37,6 +41,8 @@ namespace grafeex{
 
 		class nc_paint_event : public paint_event{
 		public:
+			using paint_event::operator=;
+
 			explicit nc_paint_event(object &value);
 
 			virtual ~nc_paint_event();
@@ -50,6 +56,8 @@ namespace grafeex{
 
 		class client_paint_event : public paint_event{
 		public:
+			using paint_event::operator=;
+
 			explicit client_paint_event(object &value);
 
 			virtual ~client_paint_event();

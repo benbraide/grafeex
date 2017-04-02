@@ -3,6 +3,7 @@
 #ifndef GRAFEEX_MESSAGE_DISPATCHER_H
 #define GRAFEEX_MESSAGE_DISPATCHER_H
 
+#include "../gui/gui_object.h"
 #include "message_object.h"
 
 namespace grafeex{
@@ -19,6 +20,9 @@ namespace grafeex{
 			typedef object::handle_type handle_type;
 
 			typedef window::object window_type;
+
+			typedef gui::object gui_object_type;
+			typedef gui::object::event_tunnel event_type;
 			
 			message_event();
 
@@ -105,6 +109,8 @@ namespace grafeex{
 			virtual message_event &write_bool_(bool value);
 
 			virtual result_type value_from_bool_(bool value);
+
+			virtual event_type *get_event_(gui_object_type *object = nullptr);
 
 			object *object_;
 			state states_;

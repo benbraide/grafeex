@@ -9,6 +9,8 @@ namespace grafeex{
 	namespace messaging{
 		class draw_event : public message_event{
 		public:
+			using message_event::operator=;
+
 			typedef ::UINT uint_type;
 			typedef ::DRAWITEMSTRUCT info_type;
 

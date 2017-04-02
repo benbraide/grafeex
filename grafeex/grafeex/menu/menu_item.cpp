@@ -1,6 +1,20 @@
 #include "menu_item.h"
 #include "menu_object.h"
 
+grafeex::menu::item::event_tunnel::event_tunnel(){
+	event_list_[select_event_.group()] = &select_event_;
+	event_list_[draw_event_.group()] = &draw_event_;
+	event_list_[measure_event_.group()] = &measure_event_;
+}
+
+grafeex::menu::item::event_tunnel::~event_tunnel(){}
+
+grafeex::menu::item::event_tunnel &grafeex::menu::item::event_tunnel::select(){
+	grafeex::events::object e(*owner_);
+	select_event_.fire(e);
+	return *this;
+}
+
 grafeex::menu::item::item(option options)
 	: options_(options), sub_(nullptr){}
 
@@ -20,6 +34,10 @@ grafeex::menu::item::~item(){
 
 grafeex::gui::object::object_type grafeex::menu::item::type() const{
 	return gui::object::object_type::menu;
+}
+
+grafeex::menu::item::event_tunnel &grafeex::menu::item::events(){
+	return *dynamic_cast<event_tunnel *>(get_events_().get());
 }
 
 bool grafeex::menu::item::create(gui_object_type &parent, const std::wstring &value){
@@ -145,6 +163,14 @@ bool grafeex::menu::item::is_bordered() const{
 	return (options_ == option::bordered_new_line);
 }
 
+bool grafeex::menu::item::is_owner_drawn() const{
+	return (owner_drawn_() || (events_ != nullptr && !dynamic_cast<event_tunnel *>(events_.get())->draw_event_.empty()));
+}
+
+grafeex::gui::generic_object::events_type grafeex::menu::item::get_events_(){
+	return create_events_<event_tunnel>();
+}
+
 void grafeex::menu::item::insert_into_parent_(gui_object_type &parent){
 	dynamic_cast<tree_type *>(parent_ = &parent)->add(*this);
 }
@@ -162,8 +188,8 @@ bool grafeex::menu::item::create_(index_type index, const std::wstring &value){
 			GRAFEEX_SET(types, MFT_MENUBREAK);
 	}
 
-	//if (!events().draw_.handlers().is_empty())
-		//CWIN_SET(types, MFT_OWNERDRAW);
+	if (is_owner_drawn())//Owner drawn item
+		GRAFEEX_SET(types, MFT_OWNERDRAW);
 
 	uint_type mask = MIIM_STRING | MIIM_ID | MIIM_DATA;
 	if (types != 0u)
@@ -190,4 +216,12 @@ bool grafeex::menu::item::create_(index_type index, const std::wstring &value){
 	}
 
 	return (parent_ != nullptr);
+}
+
+bool grafeex::menu::item::owner_drawn_() const{
+	return false;
+}
+
+grafeex::menu::item::event_tunnel::void_event_type & grafeex::menu::item::draw_event_(){
+	return events().draw_event_;
 }

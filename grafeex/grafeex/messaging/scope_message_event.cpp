@@ -22,6 +22,11 @@ grafeex::messaging::message_event &grafeex::messaging::nc_create_event::dispatch
 	if (scope_event::dispatch().is_propagating())
 		*this << object_->target()->on_nc_create(*this);
 
+	if (!event_is_disabled()){//Raise event
+		events::object e(*object_->target(), *this);
+		*this << dynamic_cast<window::object::event_tunnel *>(get_event_())->create_event_.fire(e, object_->value() != FALSE);
+	}
+
 	return *this;
 }
 
@@ -71,6 +76,11 @@ grafeex::messaging::nc_destroy_event::~nc_destroy_event(){}
 grafeex::messaging::message_event &grafeex::messaging::nc_destroy_event::dispatch(){
 	if (scope_event::dispatch().is_propagating())
 		object_->target()->on_nc_destroy(*this);
+
+	if (!event_is_disabled()){//Raise event
+		events::object e(*object_->target(), *this);
+		dynamic_cast<window::object::event_tunnel *>(get_event_())->destroy_event_.fire(e);
+	}
 
 	object_->target()->uninitialize_();
 	if (object_->target()->is_top_level()){

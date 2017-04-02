@@ -9,6 +9,12 @@ grafeex::messaging::erase_background_event::~erase_background_event(){}
 grafeex::messaging::message_event &grafeex::messaging::erase_background_event::dispatch(){
 	if (message_event::dispatch().is_propagating())
 		*this << object_->target()->on_erase_background(*this);
+
+	if (!event_is_disabled()){//Raise event
+		events::object e(*object_->target(), *this);
+		dynamic_cast<window::object::event_tunnel *>(get_event_())->erase_background_event_.fire(e);
+	}
+
 	return *this;
 }
 
@@ -54,6 +60,12 @@ grafeex::messaging::client_paint_event::~client_paint_event(){}
 grafeex::messaging::message_event &grafeex::messaging::client_paint_event::dispatch(){
 	if (paint_event::dispatch().is_propagating())
 		object_->target()->on_paint_client(*this);
+
+	if (!event_is_disabled()){//Raise event
+		events::object e(*object_->target(), *this);
+		dynamic_cast<window::object::event_tunnel *>(get_event_())->paint_event_.fire(e);
+	}
+
 	return *this;
 }
 

@@ -69,11 +69,34 @@ grafeex::menu::group::child_type *grafeex::menu::group::get_child_absolute(index
 }
 
 grafeex::menu::group::index_type grafeex::menu::group::get_child_index_absolute(const child_type &child) const{
-	return (get_item_index_in_parent() + get_child_index(child));
+	tree *tree_child;
+	index_type index = 0;
+
+	for (auto item : children_){
+		if (item == &child)
+			return (get_item_index_in_parent() + index);
+
+		if ((tree_child = dynamic_cast<tree *>(item)) == nullptr)
+			++index;
+		else
+			index += tree_child->get_children_count_absolute();
+	}
+
+	return static_cast<index_type>(-1);
 }
 
 grafeex::menu::group::index_type grafeex::menu::group::get_children_count_absolute() const{
-	return dynamic_cast<tree *>(parent_)->get_children_count_absolute();
+	tree *tree_child;
+	index_type count = 0;
+
+	for (auto child : children_){
+		if ((tree_child = dynamic_cast<tree *>(child)) == nullptr)
+			++count;
+		else
+			count += tree_child->get_children_count_absolute();
+	}
+
+	return count;
 }
 
 const grafeex::menu::group::child_type *grafeex::menu::group::find_child(id_type id) const {

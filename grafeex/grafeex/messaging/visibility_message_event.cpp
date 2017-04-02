@@ -17,6 +17,14 @@ grafeex::messaging::message_event &grafeex::messaging::visibility_event::dispatc
 			object_->target()->on_show(*this);
 	}
 
+	if (!event_is_disabled()){//Raise event
+		events::object e(*object_->target(), *this);
+		if (is_hidden())
+			dynamic_cast<window::object::event_tunnel *>(get_event_())->hide_event_.fire(e);
+		else//Show
+			dynamic_cast<window::object::event_tunnel *>(get_event_())->show_event_.fire(e);
+	}
+
 	return *this;
 }
 

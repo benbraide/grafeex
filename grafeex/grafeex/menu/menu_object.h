@@ -56,6 +56,17 @@ namespace grafeex{
 				right_to_left		= TPM_LAYOUTRTL,
 			};
 
+			class event_tunnel : public base_type::event_tunnel{
+			public:
+				event_tunnel();
+
+				virtual ~event_tunnel();
+
+				GGGO_VOID_EVENT2(select)
+
+				void_event_type select_event_;
+			};
+
 			object(native_type value);
 
 			object(value_type value);
@@ -64,6 +75,8 @@ namespace grafeex{
 
 			virtual object_type type() const override;
 			
+			virtual event_tunnel &events() override;
+
 			virtual native_type native_value() const override;
 
 			virtual object &traverse_children_absolute(traverser_type traverser) override;
@@ -110,6 +123,8 @@ namespace grafeex{
 			virtual dword_type context_help_id() const;
 
 		protected:
+			virtual events_type get_events_() override;
+
 			virtual bool init_();
 
 			value_type value_;

@@ -9,6 +9,8 @@ namespace grafeex{
 	namespace messaging{
 		class visibility_event : public message_event{
 		public:
+			using message_event::operator=;
+
 			typedef ::BOOL bool_type;
 
 			enum class reason_type{

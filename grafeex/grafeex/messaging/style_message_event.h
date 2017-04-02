@@ -9,6 +9,8 @@ namespace grafeex{
 	namespace messaging{
 		class style_event : public message_event{
 		public:
+			using message_event::operator=;
+
 			typedef ::DWORD value_type;
 			typedef ::STYLESTRUCT info_type;
 
@@ -41,6 +43,8 @@ namespace grafeex{
 
 		class changing_style_event : public style_event{
 		public:
+			using style_event::operator=;
+
 			explicit changing_style_event(object &value);
 
 			virtual ~changing_style_event();
@@ -55,6 +59,8 @@ namespace grafeex{
 
 		class changed_style_event : public style_event{
 		public:
+			using style_event::operator=;
+
 			explicit changed_style_event(object &value);
 
 			virtual ~changed_style_event();

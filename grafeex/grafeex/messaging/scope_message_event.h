@@ -9,6 +9,8 @@ namespace grafeex{
 	namespace messaging{
 		class scope_event : public message_event{
 		public:
+			using message_event::operator=;
+
 			explicit scope_event(object &value);
 
 			virtual ~scope_event();
@@ -22,6 +24,8 @@ namespace grafeex{
 
 		class nc_create_event : public scope_event{
 		public:
+			using scope_event::operator=;
+
 			explicit nc_create_event(object &value);
 
 			virtual ~nc_create_event();
@@ -35,6 +39,8 @@ namespace grafeex{
 
 		class create_event : public scope_event{
 		public:
+			using scope_event::operator=;
+
 			explicit create_event(object &value);
 
 			virtual ~create_event();
@@ -51,6 +57,8 @@ namespace grafeex{
 
 		class nc_destroy_event : public scope_event{
 		public:
+			using scope_event::operator=;
+
 			explicit nc_destroy_event(object &value);
 
 			virtual ~nc_destroy_event();
@@ -64,6 +72,8 @@ namespace grafeex{
 
 		class destroy_event : public scope_event{
 		public:
+			using scope_event::operator=;
+
 			explicit destroy_event(object &value);
 
 			virtual ~destroy_event();

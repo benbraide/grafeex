@@ -71,8 +71,8 @@ bool grafeex::menu::separator::create_(index_type index){
 			GRAFEEX_SET(types, MFT_MENUBREAK);
 	}
 
-	//if (!events().draw_.handlers().is_empty())
-	//CWIN_SET(types, MFT_OWNERDRAW);
+	if (is_owner_drawn())//Owner drawn item
+		GRAFEEX_SET(types, MFT_OWNERDRAW);
 
 	auto tree_parent = dynamic_cast<tree *>(parent_);
 	uint_type mask = MIIM_FTYPE | MIIM_ID | MIIM_DATA;

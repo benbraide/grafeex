@@ -1,5 +1,28 @@
 #include "window_object.h"
 
+grafeex::window::object::event_tunnel::event_tunnel(){
+	event_list_[menu_select_event_.group()] = &menu_select_event_;
+	event_list_[context_menu_event_.group()] = &context_menu_event_;
+
+	event_list_[create_event_.group()] = &create_event_;
+	event_list_[destroy_event_.group()] = &destroy_event_;
+	event_list_[close_event_.group()] = &close_event_;
+
+	event_list_[size_event_.group()] = &size_event_;
+	event_list_[maximize_event_.group()] = &maximize_event_;
+	event_list_[minimize_event_.group()] = &minimize_event_;
+
+	event_list_[show_event_.group()] = &show_event_;
+	event_list_[hide_event_.group()] = &hide_event_;
+
+	event_list_[erase_background_event_.group()] = &erase_background_event_;
+	event_list_[paint_event_.group()] = &paint_event_;
+
+	event_list_[timer_event_.group()] = &timer_event_;
+}
+
+grafeex::window::object::event_tunnel::~event_tunnel(){}
+
 grafeex::window::object::object(procedure_type previous_procedure)
 	: previous_procedure_(previous_procedure){}
 
@@ -37,6 +60,10 @@ grafeex::window::object::rect_type grafeex::window::object::convert_from_screen(
 
 grafeex::window::object::object_type::object_type grafeex::window::object::type() const{
 	return object_type::object_type::windowed;
+}
+
+grafeex::window::object::event_tunnel &grafeex::window::object::events(){
+	return *dynamic_cast<event_tunnel *>(get_events_().get());
 }
 
 bool grafeex::window::object::destroy(){
@@ -78,6 +105,10 @@ bool grafeex::window::object::is_top_level() const{
 
 grafeex::window::object::view_type &grafeex::window::object::view(){
 	return *get_view_();
+}
+
+grafeex::gui::generic_object::events_type grafeex::window::object::get_events_(){
+	return create_events_<event_tunnel>();
 }
 
 void grafeex::window::object::add_(child_type &child){

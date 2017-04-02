@@ -9,6 +9,8 @@ namespace grafeex{
 	namespace messaging{
 		class close_event : public message_event{
 		public:
+			using message_event::operator=;
+
 			explicit close_event(object &value);
 
 			virtual ~close_event();

@@ -112,3 +112,9 @@ grafeex::messaging::message_event &grafeex::messaging::message_event::write_bool
 grafeex::messaging::message_event::result_type grafeex::messaging::message_event::value_from_bool_(bool value){
 	return (value ? TRUE : FALSE);
 }
+
+grafeex::messaging::message_event::event_type *grafeex::messaging::message_event::get_event_(gui_object_type *object){
+	if (object == nullptr)
+		return &dynamic_cast<gui::generic_object *>(object_->target())->events();
+	return &dynamic_cast<gui::generic_object *>(object)->events();
+}

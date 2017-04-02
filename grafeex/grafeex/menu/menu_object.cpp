@@ -1,5 +1,11 @@
 #include "menu_object.h"
 
+grafeex::menu::object::event_tunnel::event_tunnel(){
+	event_list_[select_event_.group()] = &select_event_;
+}
+
+grafeex::menu::object::event_tunnel::~event_tunnel(){}
+
 grafeex::menu::object::object(native_type value)
 	: value_(value){}
 
@@ -10,6 +16,10 @@ grafeex::menu::object::~object(){}
 
 grafeex::gui::object::object_type grafeex::menu::object::type() const{
 	return object_type::menu;
+}
+
+grafeex::menu::object::event_tunnel &grafeex::menu::object::events(){
+	return *dynamic_cast<event_tunnel *>(get_events_().get());
 }
 
 grafeex::menu::tree::native_type grafeex::menu::object::native_value() const{
@@ -49,11 +59,34 @@ grafeex::menu::object::child_type *grafeex::menu::object::get_child_absolute(ind
 }
 
 grafeex::menu::object::index_type grafeex::menu::object::get_child_index_absolute(const child_type &child) const{
-	return get_child_index(child);
+	tree *tree_child;
+	index_type index = 0;
+
+	for (auto item : children_){
+		if (item == &child)
+			return index;
+
+		if ((tree_child = dynamic_cast<tree *>(item)) == nullptr)
+			++index;
+		else
+			index += tree_child->get_children_count_absolute();
+	}
+
+	return static_cast<index_type>(-1);
 }
 
 grafeex::menu::object::index_type grafeex::menu::object::get_children_count_absolute() const{
-	return ::GetMenuItemCount(value_);
+	tree *tree_child;
+	index_type count = 0;
+
+	for (auto child : children_){
+		if ((tree_child = dynamic_cast<tree *>(child)) == nullptr)
+			++count;
+		else
+			count += tree_child->get_children_count_absolute();
+	}
+
+	return count;
 }
 
 const grafeex::menu::object::child_type *grafeex::menu::object::find_child(id_type id) const{
@@ -118,6 +151,10 @@ bool grafeex::menu::object::context_help_id(dword_type value){
 
 grafeex::menu::object::dword_type grafeex::menu::object::context_help_id() const{
 	return value_.context_help_id();
+}
+
+grafeex::gui::generic_object::events_type grafeex::menu::object::get_events_(){
+	return create_events_<event_tunnel>();
 }
 
 bool grafeex::menu::object::init_(){

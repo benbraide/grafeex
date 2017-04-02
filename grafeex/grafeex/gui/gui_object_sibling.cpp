@@ -91,6 +91,10 @@ grafeex::gui::object::object_type grafeex::gui::object_sibling::type() const{
 	return value_->type();
 }
 
+grafeex::gui::object::event_tunnel &grafeex::gui::object_sibling::events(){
+	return value_->events();
+}
+
 bool grafeex::gui::object_sibling::is_previous() const{
 	return (type_ == sibling_value_type::previous);
 }
@@ -104,5 +108,5 @@ grafeex::gui::object_sibling::index_type grafeex::gui::object_sibling::get_inser
 	if (index == static_cast<index_type>(-1))
 		return index;
 
-	return (type_ == sibling_value_type::previous) ? index : (index + 1);
+	return (type_ == sibling_value_type::previous) ? (index + 1) : index;
 }

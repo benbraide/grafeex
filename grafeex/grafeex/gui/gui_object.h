@@ -36,6 +36,11 @@ namespace grafeex{
 				menu,
 			};
 
+			class event_tunnel{
+			public:
+				virtual ~event_tunnel(){}
+			};
+
 			virtual ~object(){}
 
 			virtual object *non_sibling() = 0;
@@ -77,6 +82,8 @@ namespace grafeex{
 			virtual rect_type convert_from_screen(const rect_type &value) const = 0;
 
 			virtual object_type type() const = 0;
+
+			virtual event_tunnel &events() = 0;
 
 			static size_type compute_alignment_delta(const size_type &parent_size, const size_type &target_size, alignment_type value);
 		};

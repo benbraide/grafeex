@@ -24,6 +24,7 @@ namespace grafeex{
 			virtual ~generic_tree(){}
 
 			virtual index_type add(child_type &child){
+				pre_add_(child);
 				children_.push_back(child.non_sibling());
 				add_(child);
 				return (children_.size() - 1);
@@ -34,6 +35,7 @@ namespace grafeex{
 			}
 
 			virtual index_type add(child_type &child, index_type index){
+				pre_add_(child);
 				if (index >= children_.size()){//Append
 					children_.push_back(child.non_sibling());
 					index = (children_.size() - 1);
@@ -48,6 +50,7 @@ namespace grafeex{
 			virtual generic_tree &remove(child_type &child){
 				auto iter = std::find(children_.begin(), children_.end(), child.non_sibling());
 				if (iter != children_.end()){
+					pre_remove_(child);
 					children_.erase(iter);
 					remove_(child);
 				}
@@ -60,6 +63,7 @@ namespace grafeex{
 					auto iter = std::next(children_.begin(), index);
 					auto child = *iter;
 
+					pre_remove_(*child);
 					children_.erase(iter);
 					remove_(*child);
 				}
@@ -135,7 +139,11 @@ namespace grafeex{
 			}
 
 		protected:
+			virtual void pre_add_(child_type &child){}
+
 			virtual void add_(child_type &child){}
+
+			virtual void pre_remove_(child_type &child){}
 
 			virtual void remove_(child_type &child){}
 

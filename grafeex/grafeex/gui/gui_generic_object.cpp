@@ -1,5 +1,13 @@
 #include "gui_generic_object.h"
 
+grafeex::gui::generic_object::event_tunnel::~event_tunnel(){}
+
+void grafeex::gui::generic_object::event_tunnel::unbind(const entry_type &entry){
+	auto item = event_list_.find(entry.group());
+	if (item != event_list_.end())
+		item->second->remove(entry);
+}
+
 grafeex::gui::generic_object::~generic_object(){}
 
 grafeex::gui::object *grafeex::gui::generic_object::non_sibling(){
@@ -112,4 +120,16 @@ grafeex::gui::object::rect_type grafeex::gui::generic_object::convert_from_scree
 
 grafeex::gui::object::object_type grafeex::gui::generic_object::type() const{
 	return object_type::unspecified;
+}
+
+grafeex::gui::generic_object::event_tunnel &grafeex::gui::generic_object::events(){
+	return *get_events_();
+}
+
+grafeex::gui::generic_object::events_type grafeex::gui::generic_object::get_events_(){
+	return create_events_<event_tunnel>();
+}
+
+void grafeex::gui::generic_object::init_events_(){
+	events_->owner_ = this;
 }

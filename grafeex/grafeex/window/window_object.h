@@ -52,6 +52,51 @@ namespace grafeex{
 				dword_type extended;
 			};
 
+			class event_tunnel : public gui::object_tree::event_tunnel{
+			public:
+				event_tunnel();
+
+				virtual ~event_tunnel();
+
+				GGGO_VOID_EVENT2(menu_select)
+				GGGO_VOID_EVENT2(context_menu)
+
+				GGGO_BOOL_EVENT2(create)
+				GGGO_VOID_EVENT2(destroy)
+				GGGO_BOOL_EVENT2(close)
+
+				GGGO_VOID_EVENT2(size)
+				GGGO_VOID_EVENT2(maximize)
+				GGGO_VOID_EVENT2(minimize)
+
+				GGGO_VOID_EVENT2(show)
+				GGGO_VOID_EVENT2(hide)
+
+				GGGO_VOID_EVENT2(erase_background)
+				GGGO_VOID_EVENT2(paint)
+
+				GGGO_VOID_EVENT2(timer)
+
+				void_event_type menu_select_event_;
+				void_event_type context_menu_event_;
+
+				bool_event_type create_event_;
+				void_event_type destroy_event_;
+				bool_event_type close_event_;
+
+				void_event_type size_event_;
+				void_event_type maximize_event_;
+				void_event_type minimize_event_;
+
+				void_event_type show_event_;
+				void_event_type hide_event_;
+
+				void_event_type erase_background_event_;
+				void_event_type paint_event_;
+
+				void_event_type timer_event_;
+			};
+
 			virtual ~object();
 
 			virtual object &dimensions(const rect_type &value, bool inner = false) override;
@@ -69,6 +114,8 @@ namespace grafeex{
 			virtual rect_type convert_from_screen(const rect_type &value) const override;
 
 			virtual object_type::object_type type() const override;
+
+			virtual event_tunnel &events() override;
 
 			virtual bool destroy();
 
@@ -99,6 +146,8 @@ namespace grafeex{
 			friend class window::view;
 
 			object(procedure_type previous_procedure = ::DefWindowProcW);
+
+			virtual events_type get_events_() override;
 
 			virtual void add_(child_type &child) override;
 

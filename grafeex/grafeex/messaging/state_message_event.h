@@ -9,6 +9,8 @@ namespace grafeex{
 	namespace messaging{
 		class activate_event : public message_event{
 		public:
+			using message_event::operator=;
+
 			typedef ::BOOL bool_type;
 
 			explicit activate_event(object &value);
@@ -26,6 +28,8 @@ namespace grafeex{
 
 		class enable_event : public message_event{
 		public:
+			using message_event::operator=;
+
 			typedef ::BOOL bool_type;
 
 			explicit enable_event(object &value);

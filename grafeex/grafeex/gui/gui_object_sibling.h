@@ -66,6 +66,8 @@ namespace grafeex{
 
 			virtual object_type type() const override;
 
+			virtual event_tunnel &events() override;
+
 			virtual bool is_previous() const;
 
 			virtual index_type get_insert_index() const;

@@ -47,7 +47,7 @@ bool grafeex::menu::separator::create(gui_object_type &parent){
 		return false;
 
 	insert_into_parent_(parent);
-	return create_(dynamic_cast<tree *>(parent_)->get_child_index_absolute(*this));
+	return create_(get_item_index_in_parent());
 }
 
 bool grafeex::menu::separator::create(const sibling_type &sibling){
@@ -55,7 +55,7 @@ bool grafeex::menu::separator::create(const sibling_type &sibling){
 		return false;
 
 	insert_into_parent_(sibling);
-	return create_(dynamic_cast<tree *>(parent_)->get_child_index_absolute(*this));
+	return create_(get_item_index_in_parent());
 }
 
 bool grafeex::menu::separator::create_(index_type index, const std::wstring &value){

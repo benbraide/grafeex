@@ -3,6 +3,7 @@
 #ifndef GRAFEEX_MENU_COLLECTION_H
 #define GRAFEEX_MENU_COLLECTION_H
 
+#include "../menu/menu_check_item.h"
 #include "../menu/menu_separator.h"
 #include "../menu/menu_group.h"
 #include "../menu/menu_bar.h"
@@ -21,7 +22,10 @@ namespace grafeex{
 			typedef gui::object_sibling sibling_type;
 
 			typedef grafeex::menu::item item_type;
+			typedef grafeex::menu::check_item check_item_type;
 			typedef grafeex::menu::separator separator_type;
+
+			typedef item_type::option option_type;
 
 			typedef menu<grafeex::menu::group> group_type;
 			typedef menu<grafeex::menu::popup> popup_type;
@@ -42,20 +46,50 @@ namespace grafeex{
 				menu_type::destroy();
 			}
 
+			virtual menu_interface &set_new_line(bool bordered = false) override{
+				if (bordered)
+					options_ = option_type::bordered_new_line;
+				else//No border
+					options_ = option_type::new_line;
+
+				return *this;
+			}
+
+			virtual menu_interface &clear_new_line() override{
+				options_ = option_type::nil;
+				return *this;
+			}
+
 			virtual menu_interface &item(GCMI_ITEM_BASIC, GCMI_APPEND_INDEX) override{
-				return item_(value, callback, index);
+				return item_<item_type>(value, callback, index);
 			}
 
 			virtual menu_interface &item(GCMI_ITEM_BASIC2, GCMI_APPEND_INDEX) override{
-				return item_(value, callback, index);
+				return item_<item_type>(value, callback, index);
 			}
 
 			virtual menu_interface &item(void_callback_type callback, GCMI_OWNER_DRAW, GCMI_APPEND_INDEX) override{
-				return item_(callback, draw_callback, measure_callback, index);
+				return item_<item_type>(callback, draw_callback, measure_callback, index);
 			}
 
 			virtual menu_interface &item(void_no_args_callback_type callback, GCMI_OWNER_DRAW, GCMI_APPEND_INDEX) override{
-				return item_(callback, draw_callback, measure_callback, index);
+				return item_<item_type>(callback, draw_callback, measure_callback, index);
+			}
+
+			virtual menu_interface &check(GCMI_ITEM_BASIC, GCMI_APPEND_INDEX) override{
+				return item_<check_item_type>(value, callback, index);
+			}
+
+			virtual menu_interface &check(GCMI_ITEM_BASIC2, GCMI_APPEND_INDEX) override{
+				return item_<check_item_type>(value, callback, index);
+			}
+
+			virtual menu_interface &check(void_callback_type callback, GCMI_OWNER_DRAW, GCMI_APPEND_INDEX) override{
+				return item_<check_item_type>(callback, draw_callback, measure_callback, index);
+			}
+
+			virtual menu_interface &check(void_no_args_callback_type callback, GCMI_OWNER_DRAW, GCMI_APPEND_INDEX) override{
+				return item_<check_item_type>(callback, draw_callback, measure_callback, index);
 			}
 
 			virtual menu_interface &separator(GCMI_APPEND_INDEX) override{
@@ -155,20 +189,25 @@ namespace grafeex{
 				return list_.empty();
 			}
 
+			virtual bool is_new_line() const override{
+				return (options_ != option_type::nil);
+			}
+
 		protected:
 			virtual void remove_(typename menu_type::child_type &child) override{
 				menu_type::remove_(child);
-
-				cache_.erase(&child);
 				for (auto iter = list_.begin(); iter != list_.end(); ++iter){
 					if (iter->get() == &child){
 						list_.erase(iter);
 						break;
 					}
 				}
+
+				if (!cache_.empty())
+					cache_.erase(&child);
 			}
 
-			template <typename callback_type>
+			template <typename target_type, typename callback_type>
 			menu_interface &item_(GCMI_ITEM_BASIC3, GCMI_APPEND_INDEX){
 				guard_type guard(menu_type::lock_);
 
@@ -176,20 +215,21 @@ namespace grafeex{
 				auto sibling = (index == GCMI_APPEND_VALUE) ? nullptr : menu_type::get_child(index);
 
 				if (sibling == nullptr)
-					item = std::make_shared<item_type>(*this, value);
+					item = std::make_shared<target_type>(*this, value, options_);
 				else//Use sibling
-					item = std::make_shared<item_type>(sibling_type(*sibling, sibling_type::sibling_value_type::next), value);
+					item = std::make_shared<target_type>(sibling_type(*sibling, sibling_type::sibling_value_type::next), value, options_);
 
+				options_ = option_type::nil;
 				item->events().select(callback);
 				list_.push_back(item);
 
 				return *this;
 			}
 
-			template <typename callback_type>
+			template <typename target_type, typename callback_type>
 			menu_interface &item_(callback_type callback, GCMI_OWNER_DRAW, GCMI_APPEND_INDEX){
 				guard_type guard(menu_type::lock_);
-				auto item = std::make_shared<item_type>();
+				auto item = std::make_shared<target_type>(options_);
 
 				item->events().select(callback);
 				item->events().draw(draw_callback);
@@ -201,12 +241,15 @@ namespace grafeex{
 				else//Use sibling
 					item->create(sibling_type(*sibling, sibling_type::sibling_value_type::next), L"");
 
+				options_ = option_type::nil;
 				list_.push_back(item);
+
 				return *this;
 			}
 
 			list_type list_;
 			cache_type cache_;
+			option_type options_ = option_type::nil;
 		};
 
 		typedef menu<grafeex::menu::bar> menu_bar;

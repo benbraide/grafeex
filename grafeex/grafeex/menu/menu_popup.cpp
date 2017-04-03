@@ -9,7 +9,7 @@ grafeex::menu::popup::popup(item &owner)
 }
 
 grafeex::menu::popup::~popup(){
-	destroy();
+	destroy_(true);
 }
 
 bool grafeex::menu::popup::track(const hwnd_type &owner, const point_type &offset, track_option options){
@@ -41,14 +41,7 @@ bool grafeex::menu::popup::create(item &owner){
 }
 
 bool grafeex::menu::popup::destroy(){
-	if (value_ != nullptr){
-		if (owner_ != nullptr && !update_owner_(nullptr))
-			return false;
-
-		return value_.destroy();
-	}
-
-	return (value_ == nullptr);
+	return destroy_(false);
 }
 
 bool grafeex::menu::popup::is_created() const{
@@ -101,4 +94,16 @@ bool grafeex::menu::popup::update_owner_(item *owner){
 	}
 
 	return true;
+}
+
+bool grafeex::menu::popup::destroy_(bool force){
+	if (value_ != nullptr){
+		if (owner_ != nullptr && !update_owner_(nullptr) && !force)
+			return false;
+
+		object::destroy();
+		return value_.destroy();
+	}
+
+	return (value_ == nullptr);
 }

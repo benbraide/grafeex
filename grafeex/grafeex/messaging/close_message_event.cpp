@@ -13,6 +13,8 @@ grafeex::messaging::message_event &grafeex::messaging::close_event::dispatch(){
 	if (!event_is_disabled()){//Raise event
 		events::object e(*object_->target(), *this);
 		*this << dynamic_cast<window::object::event_tunnel *>(get_event_())->close_event_.fire(e, true);
+		if (e.default_is_prevented())
+			*this << false;
 	}
 
 	return *this;

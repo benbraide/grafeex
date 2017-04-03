@@ -27,6 +27,10 @@ namespace grafeex{
 
 			virtual ~menu_interface(){}
 
+			virtual menu_interface &set_new_line(bool bordered = false) = 0;
+
+			virtual menu_interface &clear_new_line() = 0;
+
 			virtual menu_interface &item(GCMI_ITEM_BASIC, GCMI_APPEND_INDEX) = 0;
 
 			virtual menu_interface &item(GCMI_ITEM_BASIC2, GCMI_APPEND_INDEX) = 0;
@@ -34,6 +38,14 @@ namespace grafeex{
 			virtual menu_interface &item(void_callback_type callback, GCMI_OWNER_DRAW, GCMI_APPEND_INDEX) = 0;
 
 			virtual menu_interface &item(void_no_args_callback_type callback, GCMI_OWNER_DRAW, GCMI_APPEND_INDEX) = 0;
+
+			virtual menu_interface &check(GCMI_ITEM_BASIC, GCMI_APPEND_INDEX) = 0;
+
+			virtual menu_interface &check(GCMI_ITEM_BASIC2, GCMI_APPEND_INDEX) = 0;
+
+			virtual menu_interface &check(void_callback_type callback, GCMI_OWNER_DRAW, GCMI_APPEND_INDEX) = 0;
+
+			virtual menu_interface &check(void_no_args_callback_type callback, GCMI_OWNER_DRAW, GCMI_APPEND_INDEX) = 0;
 
 			virtual menu_interface &separator(GCMI_APPEND_INDEX) = 0;
 
@@ -48,6 +60,8 @@ namespace grafeex{
 			virtual index_type count() const = 0;
 
 			virtual bool empty() const = 0;
+
+			virtual bool is_new_line() const = 0;
 		};
 	}
 }

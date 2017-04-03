@@ -73,6 +73,8 @@ namespace grafeex{
 			virtual index_type get_insert_index() const;
 
 		protected:
+			virtual void remove_parent_() override;
+
 			object *value_;
 			sibling_value_type type_;
 		};

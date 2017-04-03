@@ -5,12 +5,12 @@
 
 #include "../wrappers/menu_wrapper.h"
 
-#include "menu_tree.h"
+#include "basic_menu_tree.h"
 #include "menu_item.h"
 
 namespace grafeex{
 	namespace menu{
-		class group : public gui::object_tree, public tree{
+		class group : public basic_tree{
 		public:
 			typedef gui::object_tree base_type;
 			
@@ -28,6 +28,8 @@ namespace grafeex{
 			explicit group(gui_object_type &parent);
 
 			explicit group(const sibling_type &sibling);
+
+			virtual ~group();
 
 			virtual group &dimensions(const rect_type &value, bool inner = false) override;
 
@@ -49,21 +51,7 @@ namespace grafeex{
 
 			virtual native_type native_value() const override;
 
-			virtual group &traverse_children_absolute(traverser_type traverser) override;
-
-			virtual const group &traverse_children_absolute(const_traverser_type traverser) const override;
-
-			virtual const child_type *get_child_absolute(index_type index) const override;
-
-			virtual child_type *get_child_absolute(index_type index) override;
-
-			virtual index_type get_child_index_absolute(const child_type &child) const override;
-
-			virtual index_type get_children_count_absolute() const override;
-
-			virtual const child_type *find_child(id_type id) const override;
-
-			virtual child_type *find_child(id_type id) override;
+			virtual index_type get_child_menu_index(const child_type &child) const override;
 
 			virtual id_type generate_id() override;
 
@@ -78,9 +66,13 @@ namespace grafeex{
 			virtual index_type get_item_index_in_parent() const;
 
 		protected:
+			virtual void remove_parent_() override;
+
 			virtual void insert_into_parent_(gui_object_type &parent);
 
 			virtual void insert_into_parent_(const sibling_type &sibling);
+
+			virtual bool destroy_(bool force);
 		};
 	}
 }

@@ -120,6 +120,8 @@ namespace grafeex{
 		protected:
 			friend class messaging::message_event;
 
+			virtual void remove_parent_() override;
+
 			virtual events_type get_events_();
 
 			template <typename generic_events_type>

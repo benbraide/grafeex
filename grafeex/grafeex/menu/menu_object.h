@@ -7,12 +7,17 @@
 
 #include "../common/random_number.h"
 #include "../wrappers/hwnd_wrapper.h"
+#include "../messaging/menu_message_event_handler.h"
 
 #include "menu_group.h"
 
 namespace grafeex{
+	namespace messaging{
+		class nc_create_event;
+	}
+
 	namespace menu{
-		class object : public gui::object_tree, public tree{
+		class object : public basic_tree, public messaging::menu_event_handler{
 		public:
 			typedef gui::object_tree base_type;
 
@@ -63,8 +68,12 @@ namespace grafeex{
 				virtual ~event_tunnel();
 
 				GGGO_VOID_EVENT2(select)
+				GGGO_VOID_EVENT2(highlight)
+				GGGO_VOID_EVENT2(init)
 
 				void_event_type select_event_;
+				void_event_type highlight_event_;
+				void_event_type init_event_;
 			};
 
 			object(native_type value);
@@ -78,22 +87,6 @@ namespace grafeex{
 			virtual event_tunnel &events() override;
 
 			virtual native_type native_value() const override;
-
-			virtual object &traverse_children_absolute(traverser_type traverser) override;
-
-			virtual const object &traverse_children_absolute(const_traverser_type traverser) const override;
-
-			virtual const child_type *get_child_absolute(index_type index) const override;
-
-			virtual child_type *get_child_absolute(index_type index) override;
-
-			virtual index_type get_child_index_absolute(const child_type &child) const override;
-
-			virtual index_type get_children_count_absolute() const override;
-
-			virtual const child_type *find_child(id_type id) const override;
-
-			virtual child_type *find_child(id_type id) override;
 
 			virtual id_type generate_id() override;
 
@@ -123,6 +116,8 @@ namespace grafeex{
 			virtual dword_type context_help_id() const;
 
 		protected:
+			friend class messaging::create_event;
+
 			virtual events_type get_events_() override;
 
 			virtual bool init_();

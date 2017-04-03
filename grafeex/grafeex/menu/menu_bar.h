@@ -40,6 +40,8 @@ namespace grafeex{
 		protected:
 			virtual bool update_owner_(window_type *owner);
 
+			virtual bool destroy_(bool force);
+
 			window_type *owner_;
 		};
 	}

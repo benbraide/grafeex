@@ -21,7 +21,14 @@ namespace grafeex{
 			typedef typename list_type::size_type index_type;
 			typedef typename list_type::size_type size_type;
 
-			virtual ~generic_tree(){}
+			virtual ~generic_tree(){
+				destroy();
+			}
+
+			virtual bool destroy(){
+				empty_children_();
+				return true;
+			}
 
 			virtual index_type add(child_type &child){
 				pre_add_(child);
@@ -89,11 +96,7 @@ namespace grafeex{
 				return *this;
 			}
 
-			virtual const child_type *get_child(index_type index) const{
-				return const_cast<generic_tree *>(this)->get_child(index);
-			}
-
-			virtual child_type *get_child(index_type index){
+			virtual child_type *get_child(index_type index) const{
 				if (index == static_cast<index_type>(-1))
 					return children_.empty() ? nullptr : *children_.rbegin();
 
@@ -145,7 +148,15 @@ namespace grafeex{
 
 			virtual void pre_remove_(child_type &child){}
 
-			virtual void remove_(child_type &child){}
+			virtual void remove_(child_type &child){
+				child.remove_parent_();
+			}
+
+			virtual void empty_children_(){
+				for (auto child : children_)
+					child->remove_parent_();
+				children_.clear();
+			}
 
 			list_type children_;
 		};

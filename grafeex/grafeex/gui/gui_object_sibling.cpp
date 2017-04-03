@@ -110,3 +110,5 @@ grafeex::gui::object_sibling::index_type grafeex::gui::object_sibling::get_inser
 
 	return (type_ == sibling_value_type::previous) ? (index + 1) : index;
 }
+
+void grafeex::gui::object_sibling::remove_parent_(){}

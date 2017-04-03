@@ -26,17 +26,15 @@ namespace grafeex{
 
 			virtual const tree &traverse_children_absolute(const_traverser_type traverser) const = 0;
 
-			virtual const child_type *get_child_absolute(index_type index) const = 0;
-
-			virtual child_type *get_child_absolute(index_type index) = 0;
+			virtual child_type *get_child_absolute(index_type index) const = 0;
 
 			virtual index_type get_child_index_absolute(const child_type &child) const = 0;
 
+			virtual index_type get_child_menu_index(const child_type &child) const = 0;
+
 			virtual index_type get_children_count_absolute() const = 0;
 
-			virtual const child_type *find_child(id_type id) const = 0;
-
-			virtual child_type *find_child(id_type id) = 0;
+			virtual child_type *find_child(id_type id) const = 0;
 
 			virtual id_type generate_id() = 0;
 		};

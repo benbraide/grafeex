@@ -7,13 +7,20 @@
 #include "menu_tree.h"
 
 namespace grafeex{
+	namespace messaging{
+		class menu_rbutton_up_event;
+		class menu_command_event;
+		class menu_select_event;
+	}
+
 	namespace menu{
 		class object;
 		class popup;
+		class shared;
 
 		class item : public gui::generic_object{
 		public:
-			typedef gui::object base_type;
+			typedef gui::generic_object base_type;
 
 			typedef tree_type::index_type index_type;
 			typedef tree::id_type id_type;
@@ -38,10 +45,12 @@ namespace grafeex{
 				virtual event_tunnel &select();
 
 				GGGO_VOID_EVENT2(select)
+				GGGO_VOID_EVENT2(highlight)
 				GGGO_VOID_EVENT2(draw)
 				GGGO_VOID_EVENT2(measure)
 
 				void_event_type select_event_;
+				void_event_type highlight_event_;
 				void_event_type draw_event_;
 				void_event_type measure_event_;
 			};
@@ -106,6 +115,13 @@ namespace grafeex{
 
 		protected:
 			friend class popup;
+			friend class shared;
+
+			friend class messaging::menu_rbutton_up_event;
+			friend class messaging::menu_command_event;
+			friend class messaging::menu_select_event;
+
+			virtual void remove_parent_() override;
 
 			virtual events_type get_events_() override;
 
@@ -115,9 +131,17 @@ namespace grafeex{
 
 			virtual bool create_(index_type index, const std::wstring &value);
 
+			virtual bool destroy_(bool force);
+
 			virtual bool owner_drawn_() const;
 
 			virtual event_tunnel::void_event_type &draw_event_();
+
+			virtual void on_rbutton_up(messaging::menu_rbutton_up_event &e);
+
+			virtual void on_select(messaging::menu_command_event &e);
+
+			virtual void on_highlight(messaging::menu_select_event &e);
 
 			id_type id_;
 			option options_;

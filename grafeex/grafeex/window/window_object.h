@@ -11,10 +11,14 @@
 #include "../wrappers/wnd_class_wrapper.h"
 
 #include "../messaging/general_message_event_handler.h"
+#include "../messaging/menu_message_event_handler.h"
+
+#include "../menu/shared_menu.h"
+#include "../collections/menu_collection.h"
 
 namespace grafeex{
 	namespace window{
-		class object : public gui::object_tree, public messaging::general_event_handler{
+		class object : public gui::object_tree, public messaging::general_event_handler, public messaging::menu_event_handler{
 		public:
 			typedef ::UINT uint_type;
 			typedef ::WORD word_type;
@@ -47,6 +51,13 @@ namespace grafeex{
 			typedef view view_type;
 			typedef std::shared_ptr<view_type> view_ptr_type;
 
+			typedef menu::object menu_type;
+			typedef menu::shared shared_menu_type;
+			typedef collections::menu_bar menu_collection_type;
+
+			typedef std::shared_ptr<menu_type> menu_ptr_type;
+			typedef std::shared_ptr<menu_collection_type> menu_collection_ptr_type;
+
 			struct persistent_styles{
 				dword_type basic;
 				dword_type extended;
@@ -59,6 +70,8 @@ namespace grafeex{
 				virtual ~event_tunnel();
 
 				GGGO_VOID_EVENT2(menu_select)
+				GGGO_VOID_EVENT2(menu_highlight)
+				GGGO_VOID_EVENT2(menu_init)
 				GGGO_VOID_EVENT2(context_menu)
 
 				GGGO_BOOL_EVENT2(create)
@@ -78,6 +91,8 @@ namespace grafeex{
 				GGGO_VOID_EVENT2(timer)
 
 				void_event_type menu_select_event_;
+				void_event_type menu_highlight_event_;
+				void_event_type menu_init_event_;
 				void_event_type context_menu_event_;
 
 				bool_event_type create_event_;
@@ -117,7 +132,7 @@ namespace grafeex{
 
 			virtual event_tunnel &events() override;
 
-			virtual bool destroy();
+			virtual bool destroy() override;
 
 			virtual bool is_created() const;
 
@@ -127,11 +142,19 @@ namespace grafeex{
 
 			virtual dword_type black_listed_styles(bool is_extended) const;
 
+			virtual operator hwnd_type() const;
+
 			virtual operator native_value_type() const;
 
 			virtual bool is_dialog() const;
 
 			virtual bool is_top_level() const;
+
+			virtual bool has_menu() const;
+
+			virtual menu_collection_type &menu();
+
+			virtual menu_type &system_menu();
 
 			virtual view_type &view();
 
@@ -140,6 +163,7 @@ namespace grafeex{
 		protected:
 			friend class application::object;
 
+			friend class messaging::create_event;
 			friend class messaging::nc_create_event;
 			friend class messaging::nc_destroy_event;
 
@@ -184,6 +208,8 @@ namespace grafeex{
 			procedure_type previous_procedure_;
 			color_type background_color_;
 			persistent_styles persistent_styles_ = {};
+			menu_ptr_type system_menu_;
+			menu_collection_ptr_type menu_;
 			view_ptr_type view_;
 		};
 	}

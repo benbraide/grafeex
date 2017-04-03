@@ -1,8 +1,9 @@
 #include "menu_item.h"
-#include "menu_object.h"
+#include "menu_popup.h"
 
 grafeex::menu::item::event_tunnel::event_tunnel(){
 	event_list_[select_event_.group()] = &select_event_;
+	event_list_[highlight_event_.group()] = &highlight_event_;
 	event_list_[draw_event_.group()] = &draw_event_;
 	event_list_[measure_event_.group()] = &measure_event_;
 }
@@ -29,7 +30,7 @@ grafeex::menu::item::item(const sibling_type &sibling, const std::wstring &value
 }
 
 grafeex::menu::item::~item(){
-	destroy();
+	destroy_(true);
 }
 
 grafeex::gui::object::object_type grafeex::menu::item::type() const{
@@ -45,7 +46,7 @@ bool grafeex::menu::item::create(gui_object_type &parent, const std::wstring &va
 		return false;
 
 	insert_into_parent_(parent);
-	return create_(dynamic_cast<tree *>(parent_)->get_child_index_absolute(*this), value);
+	return create_(get_item_index_in_parent(), value);
 }
 
 bool grafeex::menu::item::create(const sibling_type &sibling, const std::wstring &value){
@@ -53,17 +54,11 @@ bool grafeex::menu::item::create(const sibling_type &sibling, const std::wstring
 		return false;
 
 	insert_into_parent_(sibling);
-	return create_(dynamic_cast<tree *>(parent_)->get_child_index_absolute(*this), value);
+	return create_(get_item_index_in_parent(), value);
 }
 
 bool grafeex::menu::item::destroy(){
-	if (is_created() && ::RemoveMenu(dynamic_cast<tree *>(parent_)->native_value(), static_cast<uint_type>(get_item_index_in_parent()),
-		MF_BYPOSITION) != FALSE){//Destroy
-		dynamic_cast<tree_type *>(parent_)->remove(*this);
-		parent_ = nullptr;
-	}
-
-	return (parent_ == nullptr);
+	return destroy_(false);
 }
 
 bool grafeex::menu::item::is_created() const{
@@ -124,7 +119,7 @@ grafeex::menu::item::uint_type grafeex::menu::item::get_states() const{
 }
 
 grafeex::menu::item::index_type grafeex::menu::item::get_item_index_in_parent() const{
-	return dynamic_cast<tree *>(parent_)->get_child_index_absolute(*this);
+	return dynamic_cast<tree *>(parent_)->get_child_menu_index(*this);
 }
 
 bool grafeex::menu::item::is_action() const{
@@ -165,6 +160,14 @@ bool grafeex::menu::item::is_bordered() const{
 
 bool grafeex::menu::item::is_owner_drawn() const{
 	return (owner_drawn_() || (events_ != nullptr && !dynamic_cast<event_tunnel *>(events_.get())->draw_event_.empty()));
+}
+
+void grafeex::menu::item::remove_parent_(){
+	base_type::remove_parent_();
+	if (sub_ != nullptr){//Remove sub
+		dynamic_cast<popup *>(sub_)->owner_ = nullptr;
+		sub_ = nullptr;
+	}
 }
 
 grafeex::gui::generic_object::events_type grafeex::menu::item::get_events_(){
@@ -218,6 +221,16 @@ bool grafeex::menu::item::create_(index_type index, const std::wstring &value){
 	return (parent_ != nullptr);
 }
 
+bool grafeex::menu::item::destroy_(bool force){
+	if (is_created() && (::RemoveMenu(dynamic_cast<tree *>(parent_)->native_value(), static_cast<uint_type>(get_item_index_in_parent()),
+		MF_BYPOSITION) != FALSE || force)){//Destroy
+		dynamic_cast<tree_type *>(parent_)->remove(*this);
+		parent_ = nullptr;
+	}
+
+	return (parent_ == nullptr);
+}
+
 bool grafeex::menu::item::owner_drawn_() const{
 	return false;
 }
@@ -225,3 +238,9 @@ bool grafeex::menu::item::owner_drawn_() const{
 grafeex::menu::item::event_tunnel::void_event_type & grafeex::menu::item::draw_event_(){
 	return events().draw_event_;
 }
+
+void grafeex::menu::item::on_rbutton_up(messaging::menu_rbutton_up_event &e){}
+
+void grafeex::menu::item::on_select(messaging::menu_command_event &e){}
+
+void grafeex::menu::item::on_highlight(messaging::menu_select_event &e){}

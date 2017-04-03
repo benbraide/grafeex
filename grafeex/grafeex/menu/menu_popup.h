@@ -21,7 +21,7 @@ namespace grafeex{
 
 			virtual bool create(item &owner);
 
-			virtual bool destroy();
+			virtual bool destroy() override;
 
 			virtual bool is_created() const;
 
@@ -32,7 +32,11 @@ namespace grafeex{
 			virtual item *owner() const;
 
 		protected:
+			friend class item;
+
 			virtual bool update_owner_(item *owner);
+
+			virtual bool destroy_(bool force);
 
 			item *owner_;
 		};

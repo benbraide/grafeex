@@ -52,7 +52,14 @@ namespace grafeex{
 
 			bool data(ulong_ptr_type value);
 
-			ulong_ptr_type data() const;
+			template <typename value_type = ulong_ptr_type>
+			value_type data() const{
+				info_type info;
+				get_(info, MIM_MENUDATA);
+				return (value_type)info.dwMenuData;
+			}
+
+			int count() const;
 
 		protected:
 			template <typename... types>

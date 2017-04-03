@@ -9,6 +9,10 @@
 #include "../structures/enumerations.h"
 
 namespace grafeex{
+	namespace common{
+		template <class, class> class generic_tree;
+	}
+
 	namespace gui{
 		class object_sibling;
 		class object_tree;
@@ -86,6 +90,11 @@ namespace grafeex{
 			virtual event_tunnel &events() = 0;
 
 			static size_type compute_alignment_delta(const size_type &parent_size, const size_type &target_size, alignment_type value);
+
+		protected:
+			template <class, class> friend class common::generic_tree;
+
+			virtual void remove_parent_() = 0;
 		};
 
 		object::point_type operator +(const object::point_type &point, const object::size_type &size);

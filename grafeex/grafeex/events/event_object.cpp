@@ -30,7 +30,7 @@ bool grafeex::events::object::is_default() const{
 }
 
 bool grafeex::events::object::is_propagating() const{
-	return GRAFEEX_IS(states_, state::propagation_stopped);
+	return !GRAFEEX_IS(states_, state::propagation_stopped);
 }
 
 grafeex::events::object::gui_object_type &grafeex::events::object::target() const{

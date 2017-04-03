@@ -10,7 +10,7 @@ grafeex::menu::bar::bar(window_type &owner)
 }
 
 grafeex::menu::bar::~bar(){
-	destroy();
+	destroy_(true);
 }
 
 bool grafeex::menu::bar::create(){
@@ -38,14 +38,7 @@ bool grafeex::menu::bar::create(window_type &owner){
 }
 
 bool grafeex::menu::bar::destroy(){
-	if (value_ != nullptr){
-		if (owner_ != nullptr && !update_owner_(nullptr))
-			return false;
-
-		return value_.destroy();
-	}
-
-	return (value_ == nullptr);
+	return destroy_(false);
 }
 
 bool grafeex::menu::bar::is_created() const{
@@ -88,4 +81,16 @@ bool grafeex::menu::bar::update_owner_(window_type *owner){
 	}
 
 	return true;
+}
+
+bool grafeex::menu::bar::destroy_(bool force){
+	if (value_ != nullptr){
+		if (owner_ != nullptr && !update_owner_(nullptr) && !force)
+			return false;
+
+		object::destroy();
+		return value_.destroy();
+	}
+
+	return (value_ == nullptr);
 }

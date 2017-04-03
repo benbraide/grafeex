@@ -2,6 +2,8 @@
 
 grafeex::window::object::event_tunnel::event_tunnel(){
 	event_list_[menu_select_event_.group()] = &menu_select_event_;
+	event_list_[menu_highlight_event_.group()] = &menu_highlight_event_;
+	event_list_[menu_init_event_.group()] = &menu_init_event_;
 	event_list_[context_menu_event_.group()] = &context_menu_event_;
 
 	event_list_[create_event_.group()] = &create_event_;
@@ -91,6 +93,10 @@ grafeex::window::object::dword_type grafeex::window::object::black_listed_styles
 	return (is_extended ? WS_EX_LEFTSCROLLBAR : (WS_HSCROLL | WS_VSCROLL));
 }
 
+grafeex::window::object::operator hwnd_type() const{
+	return value_;
+}
+
 grafeex::window::object::operator native_value_type() const{
 	return value_;
 }
@@ -101,6 +107,20 @@ bool grafeex::window::object::is_dialog() const{
 
 bool grafeex::window::object::is_top_level() const{
 	return false;
+}
+
+bool grafeex::window::object::has_menu() const{
+	return (menu_ != nullptr);
+}
+
+grafeex::window::object::menu_collection_type &grafeex::window::object::menu(){
+	if (menu_ == nullptr)
+		menu_ = std::make_shared<collections::menu_bar>(*this);
+	return *menu_;
+}
+
+grafeex::window::object::menu_type &grafeex::window::object::system_menu(){
+	return *system_menu_;
 }
 
 grafeex::window::object::view_type &grafeex::window::object::view(){
@@ -170,6 +190,7 @@ bool grafeex::window::object::create_(const std::wstring &caption, const point_t
 
 bool grafeex::window::object::create_(const create_info_type &info){
 	if ((value_ = app_instance->create(*this, info)) == nullptr){//Failed to create window
+		system_menu_ = nullptr;
 		if (parent_ != nullptr){//Remove from parent
 			dynamic_cast<tree_type *>(parent_)->remove(*this);
 			parent_ = nullptr;
@@ -198,13 +219,7 @@ grafeex::window::object *grafeex::window::object::get_window_parent_(){
 
 void grafeex::window::object::initialize_(){}
 
-void grafeex::window::object::uninitialize_(){
-	value_ = nullptr;//Reset
-
-	auto tree_parent = dynamic_cast<tree_type *>(parent_);
-	if (tree_parent != nullptr)//Remove from parent
-		tree_parent->remove(*this);
-}
+void grafeex::window::object::uninitialize_(){}
 
 grafeex::window::object::view_ptr_type grafeex::window::object::get_view_(){
 	return create_view_<view_type>();

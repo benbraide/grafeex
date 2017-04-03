@@ -2,6 +2,7 @@
 #include "window/frame_window.h"
 #include "window/top_level_window.h"
 #include "menu/menu_bar.h"
+#include "menu/menu_check_item.h"
 #include "collections/menu_collection.h"
 
 int WINAPI wWinMain(::HINSTANCE app_instance, ::HINSTANCE, ::LPWSTR cmd_line, int show_type){
@@ -17,7 +18,8 @@ int WINAPI wWinMain(::HINSTANCE app_instance, ::HINSTANCE, ::LPWSTR cmd_line, in
 		return (rand.generate() || ++count >= 4);
 	});
 
-	grafeex::menu::bar mb(fw);//Create menu bar and assign to window
+	auto &mb = fw.menu();//Create menu bar and assign to window
+	auto &sys = fw.system_menu();
 
 	//Create menu items
 	grafeex::menu::item i1(mb, L"First");
@@ -26,6 +28,27 @@ int WINAPI wWinMain(::HINSTANCE app_instance, ::HINSTANCE, ::LPWSTR cmd_line, in
 	grafeex::menu::item i4(grafeex::gui::object_sibling(i2, grafeex::gui::object_sibling::sibling_value_type::next), L"Inserted");
 	grafeex::menu::item i5(mb, L"Drop");
 
+	fw.events().context_menu([](grafeex::events::object &e){
+		auto &drop = dynamic_cast<grafeex::messaging::context_menu_event *>(e.message_object())->menu();
+
+		drop.item(L"first", [](){});
+		drop.item(L"second", [](){});
+		drop.item(L"inserted", [](){}, 1);
+		drop.separator();
+		drop.sub(L"sub", [](grafeex::collections::menu_interface &sub){
+			sub.item(L"_first", [](){});
+			sub.separator();
+			sub.item(L"_last", [](){});
+		});
+		drop.separator();
+		drop.group([](grafeex::collections::menu_interface &group){
+			group.item(L"radio_1", [](){});
+			group.item(L"radio_2", [](){});
+			group.item(L"radio_3", [](){});
+		});
+		drop.separator();
+		drop.item(L"last", [](){});
+	});
 	grafeex::collections::menu_popup drop(i5);
 
 	drop.item(L"first", [](){});
@@ -43,6 +66,8 @@ int WINAPI wWinMain(::HINSTANCE app_instance, ::HINSTANCE, ::LPWSTR cmd_line, in
 		group.item(L"radio_2", [](){});
 		group.item(L"radio_3", [](){});
 	});
+	drop.separator();
+	drop.check(L"check", [](){});
 	drop.separator();
 	drop.item(L"last", [](){});
 

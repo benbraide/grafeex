@@ -128,6 +128,15 @@ void grafeex::application::object::create_dispatchers_(){
 
 	dispatcher_list_[WM_NCPAINT] = std::make_shared<messaging::event_dispatcher<messaging::nc_paint_event> >();
 	dispatcher_list_[WM_PAINT] = std::make_shared<messaging::event_dispatcher<messaging::client_paint_event> >();
+
+	dispatcher_list_[WM_CONTEXTMENU] = std::make_shared<messaging::event_dispatcher<messaging::context_menu_event> >();
+	dispatcher_list_[WM_INITMENU] = std::make_shared<messaging::event_dispatcher<messaging::menu_init_event> >();
+	dispatcher_list_[WM_INITMENUPOPUP] = std::make_shared<messaging::event_dispatcher<messaging::menu_popup_init_event> >();
+	dispatcher_list_[WM_UNINITMENUPOPUP] = std::make_shared<messaging::event_dispatcher<messaging::menu_popup_uninit_event> >();
+	dispatcher_list_[WM_NEXTMENU] = std::make_shared<messaging::event_dispatcher<messaging::menu_next_event> >();
+	dispatcher_list_[WM_MENURBUTTONUP] = std::make_shared<messaging::event_dispatcher<messaging::menu_rbutton_up_event> >();
+	dispatcher_list_[WM_MENUCOMMAND] = std::make_shared<messaging::event_dispatcher<messaging::menu_command_event> >();
+	dispatcher_list_[WM_MENUSELECT] = std::make_shared<messaging::event_dispatcher<messaging::menu_select_event> >();
 }
 
 grafeex::application::object::result_type CALLBACK grafeex::application::object::hook_(int code, wparam_type wparam, lparam_type lparam){

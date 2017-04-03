@@ -19,6 +19,7 @@
 #include "../messaging/style_message_event.h"
 #include "../messaging/visibility_message_event.h"
 #include "../messaging/painting_message_event.h"
+#include "../messaging/menu_message_event.h"
 
 namespace grafeex{
 	namespace window{

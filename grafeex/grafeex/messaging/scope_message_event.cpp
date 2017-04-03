@@ -25,6 +25,8 @@ grafeex::messaging::message_event &grafeex::messaging::nc_create_event::dispatch
 	if (!event_is_disabled()){//Raise event
 		events::object e(*object_->target(), *this);
 		*this << dynamic_cast<window::object::event_tunnel *>(get_event_())->create_event_.fire(e, object_->value() != FALSE);
+		if (e.default_is_prevented())
+			*this << false;
 	}
 
 	return *this;
@@ -44,6 +46,9 @@ grafeex::messaging::create_event::create_event(object &value)
 grafeex::messaging::create_event::~create_event(){}
 
 grafeex::messaging::message_event &grafeex::messaging::create_event::dispatch(){
+	object_->target()->system_menu_ = std::make_shared<menu::shared>(object_->info().owner(), menu::shared::option::system);
+	object_->target()->system_menu_->init_();
+
 	if (object_->target()->is_top_level()){//Add to top level list
 		application::object::instance->lock_.lock();
 		application::object::instance->top_level_windows_.push_back(object_->info().owner());
@@ -83,6 +88,14 @@ grafeex::messaging::message_event &grafeex::messaging::nc_destroy_event::dispatc
 	}
 
 	object_->target()->uninitialize_();
+	object_->target()->system_menu_ = nullptr;
+	object_->target()->menu_ = nullptr;//Destroy menu
+	object_->target()->value_ = nullptr;//Reset
+
+	auto tree_parent = dynamic_cast<gui::object_tree *>(object_->target()->parent());
+	if (tree_parent != nullptr)//Remove from parent
+		tree_parent->remove(*object_->target());
+
 	if (object_->target()->is_top_level()){
 		application::object::instance->lock_.lock();
 

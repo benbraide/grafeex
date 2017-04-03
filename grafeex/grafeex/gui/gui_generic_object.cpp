@@ -126,6 +126,10 @@ grafeex::gui::generic_object::event_tunnel &grafeex::gui::generic_object::events
 	return *get_events_();
 }
 
+void grafeex::gui::generic_object::remove_parent_(){
+	parent_ = nullptr;
+}
+
 grafeex::gui::generic_object::events_type grafeex::gui::generic_object::get_events_(){
 	return create_events_<event_tunnel>();
 }

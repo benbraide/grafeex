@@ -20,7 +20,14 @@ namespace grafeex{
 			using base_type::add;
 			using base_type::get_child;
 
-			virtual ~sequential_generic_tree(){}
+			virtual ~sequential_generic_tree(){
+				destroy();
+			}
+
+			virtual bool destroy() override{
+				guard_type guard(lock_);
+				return base_type::destroy();
+			}
 
 			virtual index_type add(child_type &child) override{
 				guard_type guard(lock_);
@@ -52,7 +59,7 @@ namespace grafeex{
 				return base_type::traverse_children(traverser);
 			}
 
-			virtual child_type *get_child(index_type index) override{
+			virtual child_type *get_child(index_type index) const override{
 				guard_type guard(lock_);
 				return base_type::get_child(index);
 			}

@@ -90,10 +90,8 @@ bool grafeex::wrappers::menu::data(ulong_ptr_type value){
 	});
 }
 
-grafeex::wrappers::menu::ulong_ptr_type grafeex::wrappers::menu::data() const{
-	info_type info;
-	get_(info, MIM_MENUDATA);
-	return info.dwMenuData;
+int grafeex::wrappers::menu::count() const{
+	return ::GetMenuItemCount(value_);
 }
 
 void grafeex::wrappers::menu::get_(info_type &info, dword_type masks) const{

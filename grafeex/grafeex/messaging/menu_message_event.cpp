@@ -246,12 +246,7 @@ grafeex::messaging::message_event &grafeex::messaging::menu_command_event::dispa
 
 	if (target_item != nullptr){//Call handler on item
 		target_item->on_select(*this);
-		if ((check_item = dynamic_cast<menu::check_item *>(target_item)) != nullptr && is_propagating()){
-			if (check_item->is_checked())
-				check_item->on_checked(*this);
-			else//Unchecked
-				check_item->on_unchecked(*this);
-		}
+		check_item = dynamic_cast<menu::check_item *>(target_item);
 	}
 
 	auto target = menu();
@@ -262,18 +257,11 @@ grafeex::messaging::message_event &grafeex::messaging::menu_command_event::dispa
 		object_->target()->on_menu_select(*this);
 
 	auto default_is_prevented = false;
+	events::object e(*object_->target(), *this);
+
 	if (!event_is_disabled()){//Raise event
-		events::object e(*object_->target(), *this);
-		if (target_item != nullptr){
-			auto ev = get_event_(target_item);
-			dynamic_cast<menu::item::event_tunnel *>(ev)->select_event_.fire(e);
-			if (check_item != nullptr && e.is_propagating()){
-				if (check_item->is_checked())
-					dynamic_cast<menu::check_item::event_tunnel *>(ev)->checked_event_.fire(e);
-				else//Unchecked
-					dynamic_cast<menu::check_item::event_tunnel *>(ev)->unchecked_event_.fire(e);
-			}
-		}
+		if (target_item != nullptr)
+			dynamic_cast<menu::item::event_tunnel *>(get_event_(target_item))->select_event_.fire(e);
 
 		if (e.is_propagating() && target != nullptr)
 			dynamic_cast<menu::object::event_tunnel *>(get_event_(target))->select_event_.fire(e);
@@ -285,10 +273,28 @@ grafeex::messaging::message_event &grafeex::messaging::menu_command_event::dispa
 	}
 
 	if (!default_is_prevented && !object_->is_skipped() && target_item != nullptr){
+		auto was_checked = target_item->is_checked();
 		if (target_item->is_inside_group())
 			target_item->check();
 		else if (check_item != nullptr)
 			check_item->toggle();
+
+		auto is_checked = target_item->is_checked();
+		if (check_item != nullptr && was_checked != is_checked){
+			if (is_propagating()){
+				if (is_checked)
+					check_item->on_checked(*this);
+				else//Unchecked
+					check_item->on_unchecked(*this);
+			}
+
+			if (e.is_propagating()){
+				if (check_item->is_checked())
+					dynamic_cast<menu::check_item::event_tunnel *>(get_event_(target_item))->checked_event_.fire(e);
+				else//Unchecked
+					dynamic_cast<menu::check_item::event_tunnel *>(get_event_(target_item))->unchecked_event_.fire(e);
+			}
+		}
 	}
 
 	return *this;

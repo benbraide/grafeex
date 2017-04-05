@@ -20,4 +20,13 @@
 #pragma comment(lib, "winmm.lib")
 #pragma comment(lib, "wmvcore.lib")
 
+#ifdef max
+#undef max
+#endif // max
+
+#ifdef min
+#undef min
+#endif // min
+
+
 #endif /* !GRAFEEX_WINDOWS_HEADERS_H */

@@ -8,7 +8,9 @@
 #include <list>
 #include <unordered_map>
 
+#include "../common/com.h"
 #include "../common/random_string.h"
+
 #include "../wrappers/wnd_class_wrapper.h"
 #include "../threading/thread_object.h"
 
@@ -20,6 +22,9 @@
 #include "../messaging/visibility_message_event.h"
 #include "../messaging/painting_message_event.h"
 #include "../messaging/menu_message_event.h"
+
+#include "../gdi/gdi_manager.h"
+#include "../d2d/d2d_factory.h"
 
 namespace grafeex{
 	namespace window{
@@ -58,6 +63,15 @@ namespace grafeex{
 
 			typedef hwnd_type::create_info_type create_info_type;
 			typedef threading::object base_type;
+
+			typedef common::com com_type;
+			typedef d2d::factory factory_type;
+
+			enum class gdi_manager_state : unsigned int{
+				nil				= (0 << 0x0000),
+				active			= (1 << 0x0000),
+				monitoring		= (1 << 0x0001),
+			};
 
 			struct stored_message_info_type{
 				bool is_active;
@@ -109,6 +123,14 @@ namespace grafeex{
 				scheduler_.add(method, priority);
 			}
 
+			void enable_gdi_manager(bool monitor = true);
+
+			void disable_gdi_manager(bool monitor_only = false);
+
+			bool gdi_manager_is_enabled() const;
+
+			bool gdi_manager_is_monitoring() const;
+
 			static result_type CALLBACK entry(hwnd_type::value_type window_handle, uint_type msg, wparam_type wparam, lparam_type lparam);
 
 			template <typename object_type, typename return_type, typename function_type, typename... value_types>
@@ -122,7 +144,9 @@ namespace grafeex{
 			}
 
 			stored_message_info_type stored_message_info = {};
+
 			static object *instance;
+			static factory_type d2d_factory;
 
 		protected:
 			friend class messaging::create_event;
@@ -179,6 +203,8 @@ namespace grafeex{
 
 			static result_type CALLBACK hook_(int code, wparam_type wparam, lparam_type lparam);
 
+			com_type com_;
+			gdi_manager_state gdi_manager_states_;
 			wnd_class_type class_, dialog_class_;
 			hwnd_list_type top_level_windows_;
 			hwnd_type active_dialog_;
@@ -187,6 +213,8 @@ namespace grafeex{
 			void *recent_owner_;
 			mutable lock_type lock_;
 		};
+
+		GRAFEEX_MAKE_OPERATORS(object::gdi_manager_state)
 	}
 }
 

@@ -91,6 +91,7 @@ grafeex::messaging::message_event &grafeex::messaging::nc_destroy_event::dispatc
 	object_->target()->system_menu_ = nullptr;
 	object_->target()->menu_ = nullptr;//Destroy menu
 	object_->target()->value_ = nullptr;//Reset
+	object_->target()->renderer_ = nullptr;//Release renderer
 
 	auto tree_parent = dynamic_cast<gui::object_tree *>(object_->target()->parent());
 	if (tree_parent != nullptr)//Remove from parent

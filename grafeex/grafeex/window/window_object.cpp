@@ -127,6 +127,12 @@ grafeex::window::object::view_type &grafeex::window::object::view(){
 	return *get_view_();
 }
 
+grafeex::window::object::render_type &grafeex::window::object::renderer(){
+	if (renderer_ == nullptr)
+		std::make_shared<render_type>(app_instance->d2d_factory, value_);
+	return *renderer_;
+}
+
 grafeex::gui::generic_object::events_type grafeex::window::object::get_events_(){
 	return create_events_<event_tunnel>();
 }

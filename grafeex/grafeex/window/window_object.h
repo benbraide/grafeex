@@ -16,6 +16,8 @@
 #include "../menu/shared_menu.h"
 #include "../collections/menu_collection.h"
 
+#include "../d2d/d2d_hwnd_render_target.h"
+
 namespace grafeex{
 	namespace window{
 		class object : public gui::object_tree, public messaging::general_event_handler, public messaging::menu_event_handler{
@@ -57,6 +59,9 @@ namespace grafeex{
 
 			typedef std::shared_ptr<menu_type> menu_ptr_type;
 			typedef std::shared_ptr<menu_collection_type> menu_collection_ptr_type;
+
+			typedef d2d::hwnd_render_target render_type;
+			typedef std::shared_ptr<render_type> render_ptr_type;
 
 			struct persistent_styles{
 				dword_type basic;
@@ -158,6 +163,8 @@ namespace grafeex{
 
 			virtual view_type &view();
 
+			virtual render_type &renderer();
+
 			static app_type *&app_instance;
 
 		protected:
@@ -211,6 +218,7 @@ namespace grafeex{
 			menu_ptr_type system_menu_;
 			menu_collection_ptr_type menu_;
 			view_ptr_type view_;
+			render_ptr_type renderer_;
 		};
 	}
 }

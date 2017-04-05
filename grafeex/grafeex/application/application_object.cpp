@@ -24,6 +24,39 @@ grafeex::application::object::instance_type grafeex::application::object::get_in
 	return instance_;
 }
 
+void grafeex::application::object::enable_gdi_manager(bool monitor){
+	GRAFEEX_SET(gdi_manager_states_, gdi_manager_state::active);
+	if (monitor && GRAFEEX_IS(gdi_manager_states_, gdi_manager_state::monitoring)){
+		GRAFEEX_SET(gdi_manager_states_, gdi_manager_state::monitoring);
+		gdi::manager::init();
+	}
+	else if (!monitor){
+		GRAFEEX_REMOVE(gdi_manager_states_, gdi_manager_state::monitoring);
+		gdi::manager::uninit();
+	}
+}
+
+void grafeex::application::object::disable_gdi_manager(bool monitor_only){
+	if (GRAFEEX_IS(gdi_manager_states_, gdi_manager_state::monitoring)){
+		GRAFEEX_REMOVE(gdi_manager_states_, gdi_manager_state::monitoring);
+		gdi::manager::uninit();
+	}
+
+	if (!monitor_only && !GRAFEEX_IS(gdi_manager_states_, gdi_manager_state::active)){
+		GRAFEEX_REMOVE(gdi_manager_states_, gdi_manager_state::active);
+		gdi::manager::guard_type guard(gdi::manager::lock_);
+		gdi::manager::owner_cache_.clear();
+	}
+}
+
+bool grafeex::application::object::gdi_manager_is_enabled() const{
+	return GRAFEEX_IS(gdi_manager_states_, gdi_manager_state::active);
+}
+
+bool grafeex::application::object::gdi_manager_is_monitoring() const{
+	return GRAFEEX_IS(gdi_manager_states_, gdi_manager_state::monitoring);
+}
+
 grafeex::application::object::result_type CALLBACK grafeex::application::object::entry(hwnd_type::value_type window_handle,
 	uint_type msg, wparam_type wparam, lparam_type lparam){
 	auto target = hwnd_type(window_handle).get_owner();
@@ -71,6 +104,8 @@ grafeex::application::object::result_type CALLBACK grafeex::application::object:
 }
 
 grafeex::application::object *grafeex::application::object::instance;
+
+grafeex::application::object::factory_type grafeex::application::object::d2d_factory;
 
 bool grafeex::application::object::is_filtered_message_() const{
 	return false;

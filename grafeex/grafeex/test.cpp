@@ -1,4 +1,5 @@
 #include "common/random_bool.h"
+#include "common/hook.h"
 #include "window/frame_window.h"
 #include "window/top_level_window.h"
 #include "menu/menu_bar.h"

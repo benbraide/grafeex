@@ -9,6 +9,11 @@
 #include "../common/random_number.h"
 #include "event_entry.h"
 
+#ifdef max
+#undef max
+#endif // max
+
+
 namespace grafeex{
 	namespace events{
 		template <class owner_type, class return_type, class... value_types>

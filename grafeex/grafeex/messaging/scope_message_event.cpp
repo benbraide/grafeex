@@ -1,5 +1,5 @@
 #include "scope_message_event.h"
-#include "../window/window_object.h"
+#include "../window/dialog_window.h"
 
 grafeex::messaging::scope_event::scope_event(object &value)
 	: message_event(value){}
@@ -18,7 +18,9 @@ grafeex::messaging::nc_create_event::nc_create_event(object &value)
 grafeex::messaging::nc_create_event::~nc_create_event(){}
 
 grafeex::messaging::message_event &grafeex::messaging::nc_create_event::dispatch(){
+	object_->target()->value_ = object_->info().owner();
 	object_->target()->initialize_();
+
 	if (scope_event::dispatch().is_propagating())
 		*this << object_->target()->on_nc_create(*this);
 
@@ -49,7 +51,7 @@ grafeex::messaging::message_event &grafeex::messaging::create_event::dispatch(){
 	object_->target()->system_menu_ = std::make_shared<menu::shared>(object_->info().owner(), menu::shared::option::system);
 	object_->target()->system_menu_->init_();
 
-	if (object_->target()->is_top_level()){//Add to top level list
+	if (object_->target()->parent() == nullptr){//Add to top level list
 		application::object::instance->lock_.lock();
 		application::object::instance->top_level_windows_.push_back(object_->info().owner());
 		application::object::instance->lock_.unlock();
@@ -57,6 +59,15 @@ grafeex::messaging::message_event &grafeex::messaging::create_event::dispatch(){
 
 	if (scope_event::dispatch().is_propagating())
 		*this << object_->target()->on_create(*this);
+
+	if (object_->value() != static_cast<result_type>(-1)){//Accepted
+		if (application::object::instance->pending_dialog_info_.target != nullptr){//Apply pending updates
+			application::object::instance->pending_dialog_info_.target->dimensions(structures::rect{
+				application::object::instance->pending_dialog_info_.offset,
+				application::object::instance->pending_dialog_info_.size
+			});
+		}
+	}
 
 	return *this;
 }
@@ -97,7 +108,7 @@ grafeex::messaging::message_event &grafeex::messaging::nc_destroy_event::dispatc
 	if (tree_parent != nullptr)//Remove from parent
 		tree_parent->remove(*object_->target());
 
-	if (object_->target()->is_top_level()){
+	if (object_->target()->parent() == nullptr){
 		application::object::instance->lock_.lock();
 
 		auto &list = application::object::instance->top_level_windows_;
@@ -107,7 +118,10 @@ grafeex::messaging::message_event &grafeex::messaging::nc_destroy_event::dispatc
 
 		application::object::instance->lock_.unlock();
 	}
-	
+
+	if (application::object::instance->active_dialog_ == object_->target())
+		application::object::instance->active_dialog_ = nullptr;
+
 	return *this;
 }
 

@@ -3,30 +3,60 @@
 #ifndef GRAFEEX_FRAME_WINDOW_H
 #define GRAFEEX_FRAME_WINDOW_H
 
-#include "window_object.h"
+#include "dialog_window.h"
 
 namespace grafeex{
 	namespace window{
-		class frame : public object{
+		template <class window_type>
+		class basic_frame : public window_type{
 		public:
-			frame();
+			typedef window_type window_type;
 
-			frame(const std::wstring &caption, const point_type &offset, const size_type &size);
+			typedef typename window_type::point_type point_type;
+			typedef typename window_type::size_type size_type;
 
-			frame(object_type &parent, const std::wstring &caption, const point_type &offset, const size_type &size);
+			typedef typename window_type::object_type object_type;
+			typedef typename window_type::sibling_type sibling_type;
 
-			frame(const sibling_type &sibling, const std::wstring &caption, const point_type &offset, const size_type &size);
+			typedef typename window_type::dword_type dword_type;
 
-			virtual ~frame();
+			basic_frame(){}
 
-			virtual dword_type black_listed_styles(bool is_extended) const override;
+			basic_frame(const std::wstring &caption, const point_type &offset, const size_type &size){
+				create(caption, offset, size);
+			}
 
-			virtual bool create(const std::wstring &caption, const point_type &offset, const size_type &size);
+			basic_frame(object_type &parent, const std::wstring &caption, const point_type &offset, const size_type &size){
+				create(parent, caption, offset, size);
+			}
 
-			virtual bool create(object_type &parent, const std::wstring &caption, const point_type &offset, const size_type &size);
+			basic_frame(const sibling_type &sibling, const std::wstring &caption, const point_type &offset, const size_type &size){
+				create(sibling, caption, offset, size);
+			}
 
-			virtual bool create(const sibling_type &sibling, const std::wstring &caption, const point_type &offset, const size_type &size);
+			virtual ~basic_frame(){}
+
+			virtual dword_type black_listed_styles(bool is_extended) const override{
+				return (window_type::black_listed_styles(is_extended) | (is_extended ? 0L : (WS_CAPTION | WS_BORDER | WS_SYSMENU)));
+			}
+
+			virtual bool create(const std::wstring &caption, const point_type &offset, const size_type &size){
+				return window_type::create_(caption, offset, size, WS_OVERLAPPEDWINDOW);
+			}
+
+			virtual bool create(object_type &parent, const std::wstring &caption, const point_type &offset, const size_type &size){
+				window_type::insert_into_parent_(parent);
+				return window_type::create_(caption, offset, size, WS_OVERLAPPEDWINDOW);
+			}
+
+			virtual bool create(const sibling_type &sibling, const std::wstring &caption, const point_type &offset, const size_type &size){
+				window_type::insert_into_parent_(sibling);
+				return window_type::create_(caption, offset, size, WS_OVERLAPPEDWINDOW);
+			}
 		};
+
+		typedef basic_frame<object> frame;
+		typedef basic_frame<dialog> dialog_frame;
 	}
 }
 

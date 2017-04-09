@@ -81,7 +81,13 @@ namespace grafeex{
 
 			bool invalidate(const rect_type &rect, bool erase = true);
 
+			bool invalidate(bool erase = true);
+
 			bool validate(const rect_type &rect);
+
+			bool validate();
+
+			bool enable(bool enable = true);
 
 			bool minimize();
 
@@ -177,6 +183,8 @@ namespace grafeex{
 			rect_type adjust_rect(const rect_type &value) const;
 
 			bool is_visible() const;
+
+			bool is_enabled() const;
 
 			bool is_maximized() const;
 

@@ -4,11 +4,11 @@
 #define GRAFEEX_D2D_HWND_RENDER_TARGET_H
 
 #include "../wrappers/hwnd_wrapper.h"
-#include "d2d_render_target_resource.h"
+#include "d2d_factory.h"
 
 namespace grafeex{
 	namespace d2d{
-		class hwnd_render_target : public common::com_ptr<::ID2D1HwndRenderTarget>, public render_target_resource<::ID2D1HwndRenderTarget>{
+		class hwnd_render_target : public ::Microsoft::WRL::ComPtr<::ID2D1HwndRenderTarget>{
 		public:
 			typedef factory::interface_type factory_type;
 
@@ -16,8 +16,8 @@ namespace grafeex{
 			typedef wrappers::hwnd::value_type hwnd_value_type;
 			typedef wrappers::hwnd::size_type size_type;
 
-			typedef common::com_ptr<::ID2D1HwndRenderTarget> base_type;
-			typedef render_target_resource<::ID2D1HwndRenderTarget> resource_type;
+			typedef ::Microsoft::WRL::ComPtr<::ID2D1HwndRenderTarget> base_type;
+			typedef base_type::InterfaceType interface_type;
 
 			hwnd_render_target();
 

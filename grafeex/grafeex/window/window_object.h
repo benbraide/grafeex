@@ -6,6 +6,7 @@
 #include "window_view.h"
 
 #include "../gui/gui_object_tree.h"
+#include "../d2d/d2d_render_target_manager.h"
 
 #include "../wrappers/hwnd_wrapper.h"
 #include "../wrappers/wnd_class_wrapper.h"
@@ -16,8 +17,6 @@
 #include "../menu/shared_menu.h"
 #include "../collections/menu_collection.h"
 
-#include "../d2d/d2d_hwnd_render_target.h"
-
 namespace grafeex{
 	namespace window{
 		class object : public gui::object_tree, public messaging::general_event_handler, public messaging::menu_event_handler{
@@ -25,6 +24,10 @@ namespace grafeex{
 			typedef ::UINT uint_type;
 			typedef ::WORD word_type;
 			typedef ::DWORD dword_type;
+
+			typedef ::D2D1_SIZE_F d2d_float_size_type;
+			typedef ::D2D1_POINT_2F d2d_float_point_type;
+			typedef ::D2D1_RECT_F d2d_float_rect_type;
 
 			typedef gui::object object_type;
 			typedef gui::object::sibling_type sibling_type;
@@ -50,7 +53,7 @@ namespace grafeex{
 			typedef hwnd_type::create_info_type create_info_type;
 			typedef application::object app_type;
 
-			typedef view view_type;
+			typedef window::view view_type;
 			typedef std::shared_ptr<view_type> view_ptr_type;
 
 			typedef menu::object menu_type;
@@ -60,8 +63,11 @@ namespace grafeex{
 			typedef std::shared_ptr<menu_type> menu_ptr_type;
 			typedef std::shared_ptr<menu_collection_type> menu_collection_ptr_type;
 
-			typedef d2d::hwnd_render_target render_type;
-			typedef std::shared_ptr<render_type> render_ptr_type;
+			typedef general_event_handler::d2d_color_type d2d_color_type;
+			typedef general_event_handler::render_type render_type;
+
+			typedef d2d::render_target_manager<render_type> render_manager_type;
+			typedef std::shared_ptr<render_manager_type> render_manager_ptr_type;
 
 			struct persistent_styles{
 				dword_type basic;
@@ -151,6 +157,14 @@ namespace grafeex{
 
 			virtual operator native_value_type() const;
 
+			virtual d2d_float_point_type convert_to_dip(const point_type &value);
+
+			virtual d2d_float_rect_type convert_to_dip(const rect_type &value);
+
+			virtual point_type convert_from_dip(const d2d_float_point_type &value);
+
+			virtual rect_type convert_from_dip(const d2d_float_rect_type &value);
+
 			virtual bool is_dialog() const;
 
 			virtual bool is_top_level() const;
@@ -161,9 +175,9 @@ namespace grafeex{
 
 			virtual menu_type &system_menu();
 
-			virtual view_type &view();
+			virtual view_type &view() override;
 
-			virtual render_type &renderer();
+			virtual render_type &renderer() override;
 
 			static app_type *&app_instance;
 
@@ -173,6 +187,9 @@ namespace grafeex{
 			friend class messaging::create_event;
 			friend class messaging::nc_create_event;
 			friend class messaging::nc_destroy_event;
+
+			friend class messaging::erase_background_event;
+			friend class messaging::paint_event;
 
 			friend class window::view;
 
@@ -218,7 +235,7 @@ namespace grafeex{
 			menu_ptr_type system_menu_;
 			menu_collection_ptr_type menu_;
 			view_ptr_type view_;
-			render_ptr_type renderer_;
+			render_manager_ptr_type renderer_;
 		};
 	}
 }

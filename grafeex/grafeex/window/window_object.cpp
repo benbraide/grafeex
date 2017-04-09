@@ -33,6 +33,14 @@ grafeex::window::object::~object(){
 }
 
 grafeex::window::object &grafeex::window::object::dimensions(const rect_type &value, bool inner){
+	typedef structures::enumerations::position_type position_type;
+	if (inner){//Client rect
+		auto adjusted_value = value_.adjust_rect(value);
+		value_.position(adjusted_value.top_left(), adjusted_value.size(), position_type::no_z_order, nullptr);
+	}
+	else//Window rect
+		value_.position(value.top_left(), value.size(), position_type::no_z_order, nullptr);
+
 	return *this;
 }
 
@@ -101,6 +109,58 @@ grafeex::window::object::operator native_value_type() const{
 	return value_;
 }
 
+grafeex::window::object::d2d_float_point_type grafeex::window::object::convert_to_dip(const point_type &value){
+	auto renderer_size = this->renderer()->GetSize();
+	auto size = dimensions(true).size();
+	if (size.width() <= 0 || size.height() <= 0)
+		return d2d_float_point_type{ static_cast<float>(value.x()), static_cast<float>(value.y()) };
+
+	d2d_float_size_type ratio{ (renderer_size.width / size.width()), (renderer_size.height / size.height()) };
+	return d2d_float_point_type{ value.x() * ratio.width, value.y() * ratio.height };
+}
+
+grafeex::window::object::d2d_float_rect_type grafeex::window::object::convert_to_dip(const rect_type &value){
+	auto renderer_size = this->renderer()->GetSize();
+	auto size = dimensions(true).size();
+	if (size.width() <= 0 || size.height() <= 0){
+		return d2d_float_rect_type{ static_cast<float>(value.left()), static_cast<float>(value.top()),
+			static_cast<float>(value.right()), static_cast<float>(value.bottom()) };
+	}
+
+	d2d_float_size_type ratio{ (renderer_size.width / size.width()), (renderer_size.height / size.height()) };
+	return d2d_float_rect_type{ value.left() * ratio.width, value.top() * ratio.height,
+		value.right() * ratio.width, value.bottom() * ratio.height };
+}
+
+grafeex::window::object::point_type grafeex::window::object::convert_from_dip(const d2d_float_point_type &value){
+	typedef point_type::field_type field_type;
+
+	auto renderer_size = this->renderer()->GetSize();
+	if (renderer_size.width <= 0 || renderer_size.height <= 0)
+		return point_type{ static_cast<field_type>(value.x), static_cast<field_type>(value.y) };
+
+	auto size = dimensions(true).size();
+	d2d_float_size_type ratio{ (size.width() / renderer_size.width), (size.height() / renderer_size.height) };
+
+	return point_type{ static_cast<field_type>(value.x * ratio.width), static_cast<field_type>(value.y * ratio.height) };
+}
+
+grafeex::window::object::rect_type grafeex::window::object::convert_from_dip(const d2d_float_rect_type &value){
+	typedef point_type::field_type field_type;
+
+	auto renderer_size = this->renderer()->GetSize();
+	if (renderer_size.width <= 0 || renderer_size.height <= 0){
+		return rect_type{ static_cast<field_type>(value.left), static_cast<field_type>(value.top),
+			static_cast<field_type>(value.right), static_cast<field_type>(value.bottom) };
+	}
+
+	auto size = dimensions(true).size();
+	d2d_float_size_type ratio{ (size.width() / renderer_size.width), (size.height() / renderer_size.height) };
+
+	return rect_type{ static_cast<field_type>(value.left * ratio.width), static_cast<field_type>(value.top * ratio.height),
+		static_cast<field_type>(value.right * ratio.width), static_cast<field_type>(value.bottom * ratio.height) };
+}
+
 bool grafeex::window::object::is_dialog() const{
 	return false;
 }
@@ -129,8 +189,8 @@ grafeex::window::object::view_type &grafeex::window::object::view(){
 
 grafeex::window::object::render_type &grafeex::window::object::renderer(){
 	if (renderer_ == nullptr)
-		std::make_shared<render_type>(app_instance->d2d_factory, value_);
-	return *renderer_;
+		renderer_ = std::make_shared<render_manager_type>(app_instance->d2d_factory, value_);
+	return renderer_->get();
 }
 
 grafeex::gui::generic_object::events_type grafeex::window::object::get_events_(){

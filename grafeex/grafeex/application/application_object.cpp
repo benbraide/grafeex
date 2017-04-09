@@ -1,5 +1,5 @@
 #include "application_object.h"
-#include "../window/window_object.h"
+#include "../window/dialog_window.h"
 
 grafeex::application::object::~object(){}
 
@@ -94,9 +94,8 @@ grafeex::application::object::result_type CALLBACK grafeex::application::object:
 
 	messaging::object meesage_object(instance->cache_, is_sent, target->previous_procedure_);
 	auto message_dispatcher = instance->dispatcher_list_.find(instance->cache_.code());
-	if (message_dispatcher == instance->dispatcher_list_.end()){//Unrecognized message
-
-	}
+	if (message_dispatcher == instance->dispatcher_list_.end())//Unrecognized message
+		instance->dispatcher_list_[WM_NULL]->dispatch(meesage_object);
 	else//Dispatch message
 		message_dispatcher->second->dispatch(meesage_object);
 
@@ -121,20 +120,25 @@ bool grafeex::application::object::is_stopped_() const{
 }
 
 bool grafeex::application::object::is_dialog_message_(){
-	return (active_dialog_ != nullptr && cache_.is_dialog(active_dialog_));
+	return (active_dialog_ != nullptr && cache_.is_dialog(*active_dialog_));
 }
 
 grafeex::application::object::hwnd_type grafeex::application::object::create_(window_type &owner, const create_info_type &info){
 	auto hook = ::SetWindowsHookExW(WH_CBT, hook_, nullptr, id_);//Install hook to intercept window creation
+	auto is_dialog = (dynamic_cast<window::dialog *>(&owner) != nullptr);
+	if (is_dialog)
+		pending_dialog_info_ = { &owner, point_type{ info.x, info.y }, size_type{ info.cx, info.cy } };
+
+	auto &target_class = is_dialog ? dialog_class_ : class_;
 	auto value = ::CreateWindowExW(
 		info.dwExStyle,
-		(info.lpszClass == nullptr) ? class_ : info.lpszClass,
+		(info.lpszClass == nullptr) ? target_class : info.lpszClass,
 		info.lpszName,
 		info.style,
-		info.x,
-		info.y,
-		info.cx,
-		info.cy,
+		is_dialog ? 0 : info.x,
+		is_dialog ? 0 : info.y,
+		is_dialog ? 0 : info.cx,
+		is_dialog ? 0 : info.cy,
 		info.hwndParent,
 		info.hMenu,
 		(info.hInstance == nullptr) ? instance_ : info.hInstance,
@@ -142,37 +146,71 @@ grafeex::application::object::hwnd_type grafeex::application::object::create_(wi
 	);
 
 	::UnhookWindowsHookEx(hook);//Uninstall hook
+	if (is_dialog)//Clear pending info
+		pending_dialog_info_ = {};
+
 	return value;
 }
 
 void grafeex::application::object::create_dispatchers_(){
-	dispatcher_list_[WM_NCCREATE] = std::make_shared<messaging::event_dispatcher<messaging::nc_create_event> >();
-	dispatcher_list_[WM_CREATE] = std::make_shared<messaging::event_dispatcher<messaging::create_event> >();
-	dispatcher_list_[WM_NCDESTROY] = std::make_shared<messaging::event_dispatcher<messaging::nc_destroy_event> >();
-	dispatcher_list_[WM_DESTROY] = std::make_shared<messaging::event_dispatcher<messaging::destroy_event> >();
+	GAPP_DISPATCH(WM_NULL, message_event);
 
-	dispatcher_list_[WM_CLOSE] = std::make_shared<messaging::event_dispatcher<messaging::close_event> >();
+	GAPP_DISPATCH(WM_NCCREATE, nc_create_event);
+	GAPP_DISPATCH(WM_CREATE, create_event);
+	GAPP_DISPATCH(WM_NCDESTROY, nc_destroy_event);
+	GAPP_DISPATCH(WM_DESTROY, destroy_event);
 
-	dispatcher_list_[WM_ACTIVATE] = std::make_shared<messaging::event_dispatcher<messaging::activate_event> >();
-	dispatcher_list_[WM_ENABLE] = std::make_shared<messaging::event_dispatcher<messaging::enable_event> >();
+	GAPP_DISPATCH(WM_CLOSE, close_event);
 
-	dispatcher_list_[WM_STYLECHANGING] = std::make_shared<messaging::event_dispatcher<messaging::changing_style_event> >();
-	dispatcher_list_[WM_STYLECHANGED] = std::make_shared<messaging::event_dispatcher<messaging::changed_style_event> >();
+	GAPP_DISPATCH(WM_ACTIVATEAPP, activate_app_event);
+	GAPP_DISPATCH(WM_NCACTIVATE, nc_activate_event);
+	GAPP_DISPATCH(WM_ACTIVATE, activate_event);
+	GAPP_DISPATCH(WM_CANCELMODE, cancel_mode_event);
+	GAPP_DISPATCH(WM_ENABLE, enable_event);
 
-	dispatcher_list_[WM_SHOWWINDOW] = std::make_shared<messaging::event_dispatcher<messaging::visibility_event> >();
+	GAPP_DISPATCH(WM_STYLECHANGING, changing_style_event);
+	GAPP_DISPATCH(WM_STYLECHANGED, changed_style_event);
 
-	dispatcher_list_[WM_NCPAINT] = std::make_shared<messaging::event_dispatcher<messaging::nc_paint_event> >();
-	dispatcher_list_[WM_PAINT] = std::make_shared<messaging::event_dispatcher<messaging::client_paint_event> >();
+	GAPP_DISPATCH(WM_SHOWWINDOW, visibility_event);
 
-	dispatcher_list_[WM_CONTEXTMENU] = std::make_shared<messaging::event_dispatcher<messaging::context_menu_event> >();
-	dispatcher_list_[WM_INITMENU] = std::make_shared<messaging::event_dispatcher<messaging::menu_init_event> >();
-	dispatcher_list_[WM_INITMENUPOPUP] = std::make_shared<messaging::event_dispatcher<messaging::menu_popup_init_event> >();
-	dispatcher_list_[WM_UNINITMENUPOPUP] = std::make_shared<messaging::event_dispatcher<messaging::menu_popup_uninit_event> >();
-	dispatcher_list_[WM_NEXTMENU] = std::make_shared<messaging::event_dispatcher<messaging::menu_next_event> >();
-	dispatcher_list_[WM_MENURBUTTONUP] = std::make_shared<messaging::event_dispatcher<messaging::menu_rbutton_up_event> >();
-	dispatcher_list_[WM_MENUCOMMAND] = std::make_shared<messaging::event_dispatcher<messaging::menu_command_event> >();
-	dispatcher_list_[WM_MENUSELECT] = std::make_shared<messaging::event_dispatcher<messaging::menu_select_event> >();
+	GAPP_DISPATCH(WM_WINDOWPOSCHANGING, changing_position_event);
+	GAPP_DISPATCH(WM_WINDOWPOSCHANGED, changed_position_event);
+
+	GAPP_DISPATCH(WM_MOVING, changing_movement_event);
+	GAPP_DISPATCH(WM_MOVE, changed_movement_event);
+
+	GAPP_DISPATCH(WM_SIZING, changing_size_event);
+	GAPP_DISPATCH(WM_SIZE, changed_size_event);
+
+	GAPP_DISPATCH(WM_GETMINMAXINFO, min_max_event);
+
+	GAPP_DISPATCH(WM_ENTERSIZEMOVE, enter_size_move_event);
+	GAPP_DISPATCH(WM_EXITSIZEMOVE, exit_size_move_event);
+
+	GAPP_DISPATCH(WM_QUERYOPEN, query_open_event);
+	GAPP_DISPATCH(WM_QUERYDRAGICON, query_drag_icon_event);
+
+	GAPP_DISPATCH(WM_ERASEBKGND, erase_background_event);
+	GAPP_DISPATCH(WM_NCPAINT, nc_paint_event);
+	GAPP_DISPATCH(WM_PAINT, client_paint_event);
+
+	GAPP_DISPATCH(WM_CONTEXTMENU, context_menu_event);
+	GAPP_DISPATCH(WM_INITMENU, menu_init_event);
+	GAPP_DISPATCH(WM_INITMENUPOPUP, menu_popup_init_event);
+	GAPP_DISPATCH(WM_UNINITMENUPOPUP, menu_popup_uninit_event);
+	GAPP_DISPATCH(WM_NEXTMENU, menu_next_event);
+	GAPP_DISPATCH(WM_MENURBUTTONUP, menu_rbutton_up_event);
+	GAPP_DISPATCH(WM_MENUCOMMAND, menu_command_event);
+	GAPP_DISPATCH(WM_MENUSELECT, menu_select_event);
+
+	GAPP_DISPATCH(WM_THEMECHANGED, theme_changed_event);
+	GAPP_DISPATCH(WM_USERCHANGED, user_changed_event);
+	GAPP_DISPATCH(WM_INPUTLANGCHANGE, input_language_changed_event);
+	GAPP_DISPATCH(WM_INPUTLANGCHANGEREQUEST, input_language_change_request_event);
+	GAPP_DISPATCH(WM_DISPLAYCHANGE, display_changed_event);
 }
+
+void grafeex::application::object::app_activate_(messaging::activate_app_event &e){}
 
 grafeex::application::object::result_type CALLBACK grafeex::application::object::hook_(int code, wparam_type wparam, lparam_type lparam){
 	if (code == HCBT_CREATEWND){//Respond to window creation

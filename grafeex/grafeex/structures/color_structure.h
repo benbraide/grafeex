@@ -271,9 +271,6 @@ namespace grafeex{
 			color get_different(const color &target) const;
 
 			color get_different(const color &first, const color &second) const;
-
-		private:
-			value_type value_;
 		};
 	}
 }

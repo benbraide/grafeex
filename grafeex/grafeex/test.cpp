@@ -12,12 +12,30 @@ int WINAPI wWinMain(::HINSTANCE app_instance, ::HINSTANCE, ::LPWSTR cmd_line, in
 	grafeex::window::top_level fw(L"Test Window", grafeex::structures::point{ 10 }, { 500, 400 });
 	fw.view().show();
 
+	grafeex::window::dialog_frame dfm(L"Modal Dialog", grafeex::structures::point{ 10 }, { 200, 150 });
+	dfm.view().show();
+	dfm.do_modal(fw);
+
 	auto count = 0;
 	grafeex::common::random_bool rand;
 	fw.events().close([&rand, &count](){
 		std::string s = "Window closing...";
 		return (rand.generate() || ++count >= 4);
 	});
+
+	grafeex::common::random_int rand_int;
+	std::thread([&fw, &rand_int]{
+		typedef ::BYTE byte_type;
+		while (true){
+			::Sleep(5000);
+
+			auto red = static_cast<byte_type>(rand_int.generate(0, 255));
+			auto green = static_cast<byte_type>(rand_int.generate(0, 255));
+			auto blue = static_cast<byte_type>(rand_int.generate(0, 255));
+
+			fw.view().background_color(grafeex::structures::color(red, green, blue));
+		}
+	}).detach();
 
 	auto &mb = fw.menu();//Create menu bar and assign to window
 	auto &sys = fw.system_menu();

@@ -33,8 +33,20 @@ bool grafeex::wrappers::hwnd::invalidate(const rect_type &rect, bool erase){
 	return (::InvalidateRect(value_, rect, erase ? TRUE : FALSE) != FALSE);
 }
 
+bool grafeex::wrappers::hwnd::invalidate(bool erase){
+	return (::InvalidateRect(value_, nullptr, erase ? TRUE : FALSE) != FALSE);
+}
+
 bool grafeex::wrappers::hwnd::validate(const rect_type &rect){
 	return (::ValidateRect(value_, rect) != FALSE);
+}
+
+bool grafeex::wrappers::hwnd::enable(bool enable){
+	return (::EnableWindow(value_, enable ? TRUE : FALSE) != FALSE);
+}
+
+bool grafeex::wrappers::hwnd::validate(){
+	return (::ValidateRect(value_, nullptr) != FALSE);
 }
 
 bool grafeex::wrappers::hwnd::minimize(){
@@ -168,6 +180,10 @@ grafeex::wrappers::hwnd::rect_type grafeex::wrappers::hwnd::adjust_rect(const re
 
 bool grafeex::wrappers::hwnd::is_visible() const{
 	return (::IsWindowVisible(value_) != FALSE);
+}
+
+bool grafeex::wrappers::hwnd::is_enabled() const{
+	return (::IsWindowEnabled(value_) != FALSE);
 }
 
 bool grafeex::wrappers::hwnd::is_maximized() const{

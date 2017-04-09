@@ -47,7 +47,8 @@
 
 #define GetAValue(rgba) (LOBYTE((rgba) >> 24))
 
-#define GRAFEEX_MAKE_DIALOG_TEMPLATE(styles, extended_styles) { styles, extended_styles, 0, 0, 0, 0, 0, {0}, {0}, {0} }
+#define GRAFEEX_MAKE_DIALOG_TEMPLATE(s, es, cls, t) { (s), (es), 0, 0, 0, 0, 0, L"", (cls), (t) }
+#define GRAFEEX_MAKE_DIALOG_TEMPLATE2(s, es, t) GRAFEEX_MAKE_DIALOG_TEMPLATE((s), (es), nullptr_t, (t))
 
 #define GRAFEEX_MAKE_MOUSE_POSITION(value) { GET_X_LPARAM(value), GET_Y_LPARAM(value) }
 #define GRAFEEX_SPLIT_WORD(value) { LOWORD(value), HIWORD(value) }

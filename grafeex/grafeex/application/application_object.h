@@ -3,6 +3,8 @@
 #ifndef GRAFEEX_APPLICATION_OBJECT_H
 #define GRAFEEX_APPLICATION_OBJECT_H
 
+#define GAPP_DISPATCH(e, d) dispatcher_list_[e] = std::make_shared<messaging::event_dispatcher<messaging::d> >()
+
 #include <atomic>
 #include <memory>
 #include <list>
@@ -11,6 +13,7 @@
 #include "../common/com.h"
 #include "../common/random_string.h"
 
+#include "../structures/dialog_template.h"
 #include "../wrappers/wnd_class_wrapper.h"
 #include "../threading/thread_object.h"
 
@@ -22,6 +25,8 @@
 #include "../messaging/visibility_message_event.h"
 #include "../messaging/painting_message_event.h"
 #include "../messaging/menu_message_event.h"
+#include "../messaging/dimensions_message_event.h"
+#include "../messaging/system_message_event.h"
 
 #include "../gdi/gdi_manager.h"
 #include "../d2d/d2d_factory.h"
@@ -54,9 +59,13 @@ namespace grafeex{
 			typedef std::lock_guard<lock_type> guard_type;
 
 			typedef structures::point point_type;
+			typedef structures::size size_type;
+			typedef structures::dialog_template dialog_template_type;
+
 			typedef window::object window_type;
 			typedef wrappers::wnd_class wnd_class_type;
 			typedef wrappers::hwnd hwnd_type;
+			typedef wrappers::hwnd::value_type hwnd_value_type;
 
 			typedef wnd_class_type::procedure_type procedure_type;
 			typedef wnd_class_type::instance_type instance_type;
@@ -79,9 +88,15 @@ namespace grafeex{
 				point_type mouse_position;
 			};
 
+			struct pending_dialog_info{
+				window_type *target;
+				point_type offset;
+				size_type size;
+			};
+
 			template <typename... types>
 			object(types... class_args)
-				: instance_(nullptr), recent_owner_(nullptr){
+				: instance_(nullptr), active_dialog_(nullptr), recent_owner_(nullptr){
 				typedef std::wstring::size_type size_type;
 
 				class_.set(entry, class_args...);
@@ -109,8 +124,6 @@ namespace grafeex{
 			virtual void quit(int exit_code = 0);
 
 			virtual hwnd_type create(window_type &owner, const create_info_type &info);
-
-			//virtual hwnd_type create(window_type &owner, const gui::dialog_info &info, bool modal = false);
 
 			virtual instance_type get_instance() const;
 
@@ -151,6 +164,8 @@ namespace grafeex{
 		protected:
 			friend class messaging::create_event;
 			friend class messaging::nc_destroy_event;
+			friend class messaging::activate_event;
+			friend class messaging::activate_app_event;
 
 			virtual bool is_filtered_message_() const override;
 
@@ -161,8 +176,6 @@ namespace grafeex{
 			virtual bool is_dialog_message_();
 
 			virtual hwnd_type create_(window_type &owner, const create_info_type &info);
-
-			//virtual hwnd_type create_(window_type &owner, const gui::dialog_info &info, bool modal = false);
 
 			template <typename return_type>
 			return_type execute_(std::false_type, std::function<return_type()> method, int priority){
@@ -201,16 +214,23 @@ namespace grafeex{
 
 			virtual void create_dispatchers_();
 
+			virtual void app_activate_(messaging::activate_app_event &e);
+
 			static result_type CALLBACK hook_(int code, wparam_type wparam, lparam_type lparam);
 
 			com_type com_;
 			gdi_manager_state gdi_manager_states_;
 			wnd_class_type class_, dialog_class_;
+
 			hwnd_list_type top_level_windows_;
-			hwnd_type active_dialog_;
+			window_type *active_dialog_;
+
 			instance_type instance_;
 			dispatcher_list_type dispatcher_list_;
+
 			void *recent_owner_;
+			pending_dialog_info pending_dialog_info_{};
+
 			mutable lock_type lock_;
 		};
 

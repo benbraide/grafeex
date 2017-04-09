@@ -5,20 +5,23 @@
 
 #include <d2d1.h>
 #include <d2d1helper.h>
-
-#include "../common/com_ptr.h"
+#include <wrl.h>
 
 #pragma comment(lib, "d2d1.lib")
 
 namespace grafeex{
 	namespace d2d{
-		class factory : public common::com_ptr<::ID2D1Factory>{
+		class factory : public ::Microsoft::WRL::ComPtr<::ID2D1Factory>{
 		public:
-			typedef common::com_ptr<::ID2D1Factory> base_type;
+			typedef ::Microsoft::WRL::ComPtr<::ID2D1Factory> base_type;
+
+			typedef base_type::InterfaceType interface_type;
 
 			explicit factory(bool multi_threaded = true);
 
 			~factory();
+
+			operator interface_type &() const;
 		};
 	}
 }

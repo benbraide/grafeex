@@ -2,68 +2,68 @@
 #include "window_object.h"
 
 grafeex::window::view::view(object &object)
-	: object_(object){}
+	: object_(&object){}
 
 grafeex::window::view::~view(){}
 
 grafeex::window::view &grafeex::window::view::enable(){
-	object_.value_.enable(true);
+	object_->value_.enable(true);
 	return *this;
 }
 
 grafeex::window::view &grafeex::window::view::disable(){
-	object_.value_.enable(false);
+	object_->value_.enable(false);
 	return *this;
 }
 
 bool grafeex::window::view::enabled() const{
-	return object_.value_.is_enabled();
+	return object_->value_.is_enabled();
 }
 
 grafeex::window::view &grafeex::window::view::show(show_mode mode){
-	object_.value_.show(mode);
+	object_->value_.show(mode);
 	return *this;
 }
 
 grafeex::window::view &grafeex::window::view::hide(){
-	object_.value_.show(show_mode::hide);
+	object_->value_.show(show_mode::hide);
 	return *this;
 }
 
 bool grafeex::window::view::visisble() const{
-	return object_.value_.is_visible();
+	return object_->value_.is_visible();
 }
 
 grafeex::window::view &grafeex::window::view::maximize(){
-	object_.value_.show(show_mode::maximize);
+	object_->value_.show(show_mode::maximize);
 	return *this;
 }
 
 bool grafeex::window::view::maximized() const{
-	return object_.value_.is_maximized();
+	return object_->value_.is_maximized();
 }
 
 grafeex::window::view &grafeex::window::view::minimize(){
-	object_.value_.show(show_mode::minimize);
+	object_->value_.show(show_mode::minimize);
 	return *this;
 }
 
 bool grafeex::window::view::minimized() const{
-	return object_.value_.is_minimized();
+	return object_->value_.is_minimized();
 }
 
 grafeex::window::view &grafeex::window::view::restore(){
-	object_.value_.show(show_mode::restore);
+	object_->value_.show(show_mode::restore);
 	return *this;
 }
 
 grafeex::window::view &grafeex::window::view::caption(const std::wstring &value){
-	object_.value_.set_text(value);
+	object_->value_.set_text(value);
 	return *this;
 }
 
 const std::wstring &grafeex::window::view::caption() const{
-	return object_.text_;
+	return object_->text_;
 }
 
 grafeex::window::view &grafeex::window::view::background_color(const color_type &value){
@@ -72,7 +72,7 @@ grafeex::window::view &grafeex::window::view::background_color(const color_type 
 
 grafeex::window::view &grafeex::window::view::background_color(const d2d_color_type &value){
 	background_color_ = std::make_shared<d2d_color_type>(value);
-	object_.value_.invalidate();
+	object_->value_.invalidate();
 	return *this;
 }
 

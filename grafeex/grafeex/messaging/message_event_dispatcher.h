@@ -4,7 +4,7 @@
 #define GRAFEEX_MESSAGE_EVENT_DISPATCHER_H
 
 #include <memory>
-#include "message_object.h"
+#include "message_event.h"
 
 namespace grafeex{
 	namespace messaging{

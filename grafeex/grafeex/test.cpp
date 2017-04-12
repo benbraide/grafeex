@@ -2,19 +2,28 @@
 #include "common/hook.h"
 #include "window/frame_window.h"
 #include "window/top_level_window.h"
+#include "window/modal_dialog_window.h"
 #include "menu/menu_bar.h"
 #include "menu/menu_check_item.h"
 #include "collections/menu_collection.h"
 
 int WINAPI wWinMain(::HINSTANCE app_instance, ::HINSTANCE, ::LPWSTR cmd_line, int show_type){
+	typedef grafeex::window::object::d2d_point_type d2d_point_type;
+	typedef grafeex::window::object::d2d_size_type d2d_size_type;
+
+	typedef grafeex::structures::float_size float_size_type;
+	typedef grafeex::structures::rect_origin_type alignment_type;
+
 	grafeex::application::object app;
 
-	grafeex::window::top_level fw(L"Test Window", grafeex::structures::point{ 10 }, { 500, 400 });
+	grafeex::window::top_level fw(L"Test Window", d2d_point_type{ 10.0f, 10.0f }, d2d_size_type{ 500.0f, 400.0f });
 	fw.view().show();
 
-	grafeex::window::dialog_frame dfm(L"Modal Dialog", grafeex::structures::point{ 10 }, { 200, 150 });
+	grafeex::window::dialog_frame dfm(fw, L"Modal Dialog", grafeex::structures::point{ 10 }, { 300, 200 });
+	dfm.attributes().fill_parent(float_size_type{ 0.5f, 1.0f });
+	dfm.attributes().align(true, alignment_type::top | alignment_type::right);
 	dfm.view().show();
-	dfm.do_modal(fw);
+	//dfm.do_modal(fw);
 
 	auto count = 0;
 	grafeex::common::random_bool rand;

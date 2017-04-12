@@ -15,12 +15,20 @@ namespace grafeex{
 			typedef typename window_type::point_type point_type;
 			typedef typename window_type::size_type size_type;
 
+			typedef typename window_type::d2d_point_type d2d_point_type;
+			typedef typename window_type::d2d_size_type d2d_size_type;
+
 			basic_top_level(){
-				window_type::persistent_styles_.basic = WS_OVERLAPPEDWINDOW;
+				reset_persistent_styles_();
 			}
 
 			basic_top_level(const std::wstring &caption, const point_type &offset, const size_type &size){
-				window_type::persistent_styles_.basic = WS_OVERLAPPEDWINDOW;
+				reset_persistent_styles_();
+				create(caption, offset, size);
+			}
+
+			basic_top_level(const std::wstring &caption, const d2d_point_type &offset, const d2d_size_type &size){
+				reset_persistent_styles_();
 				create(caption, offset, size);
 			}
 
@@ -32,6 +40,15 @@ namespace grafeex{
 
 			virtual bool create(const std::wstring &caption, const point_type &offset, const size_type &size){
 				return window_type::create_(caption, offset, size);
+			}
+
+			virtual bool create(const std::wstring &caption, const d2d_point_type &offset, const d2d_size_type &size){
+				return window_type::create_(caption, offset, size);
+			}
+
+		protected:
+			virtual void reset_persistent_styles_() override{
+				window_type::persistent_styles_.basic = WS_OVERLAPPEDWINDOW;
 			}
 		};
 

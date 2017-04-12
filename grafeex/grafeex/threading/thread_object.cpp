@@ -1,7 +1,9 @@
 #include "thread_object.h"
 
 grafeex::threading::object::object()
-	: id_(get_current_id()), status_(status_info{}){}
+	: id_(get_current_id()), status_(status_info{}), modal_(nullptr){
+	status_.is_posted = false;
+}
 
 grafeex::threading::object::~object(){}
 
@@ -35,7 +37,7 @@ int grafeex::threading::object::run(){
 }
 
 bool grafeex::threading::object::wake_wait(){
-	return queue_.wake_wait();
+	return (modal_ == nullptr) ? queue_.wake_wait() : modal_->queue_.wake_wait();
 }
 
 const grafeex::threading::id &grafeex::threading::object::get_id() const{
@@ -43,7 +45,7 @@ const grafeex::threading::id &grafeex::threading::object::get_id() const{
 }
 
 bool grafeex::threading::object::is_sent_() const{
-	return !status_.is_posted;
+	return (modal_ == nullptr) ? !status_.is_posted : !modal_->status_.is_posted;
 }
 
 bool grafeex::threading::object::is_filtered_message_() const{
@@ -51,17 +53,26 @@ bool grafeex::threading::object::is_filtered_message_() const{
 }
 
 void grafeex::threading::object::translate_() const{
-	cache_.translate();
+	if (modal_ == nullptr)
+		cache_.translate();
+	else
+		modal_->cache_.translate();
 }
 
 void grafeex::threading::object::dispatch_(){
 	translate_();
-	cache_.dispatch();
+	if (modal_ == nullptr)
+		cache_.dispatch();
+	else
+		modal_->cache_.dispatch();
 }
 
 void grafeex::threading::object::dispatch_thread_message_(){
 	translate_();
-	cache_.dispatch();
+	if (modal_ == nullptr)
+		cache_.dispatch();
+	else
+		modal_->cache_.dispatch();
 }
 
 bool grafeex::threading::object::on_idle_(int index){

@@ -87,6 +87,11 @@ namespace grafeex{
 			friend class input_language_change_request_event;
 			friend class display_changed_event;
 
+			friend class command_event;
+			friend class notify_event;
+
+			friend class timer_event;
+
 			virtual void on_unhandled_event(message_event &e);
 
 			virtual void on_event(message_event &e);
@@ -203,13 +208,13 @@ namespace grafeex{
 
 			virtual void on_display_changed(display_changed_event &e);
 
-			//virtual void on_timer(events::timer &e);
+			virtual void on_timer(timer_event &e);
 
-			//virtual void on_notification(events::notification &e);
+			virtual void on_command(command_event &e);
 
-			//virtual void on_command(events::command &e);
+			virtual void on_accelerator(command_event &e);
 
-			//virtual void on_menu_command(events::command &e);
+			virtual void on_notify(notify_event &e);
 		};
 	}
 }

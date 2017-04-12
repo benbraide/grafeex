@@ -17,3 +17,5 @@ void grafeex::messaging::menu_event_handler::on_menu_rbutton_up(menu_rbutton_up_
 void grafeex::messaging::menu_event_handler::on_menu_select(menu_command_event &e){}
 
 void grafeex::messaging::menu_event_handler::on_menu_highlight(menu_select_event &e){}
+
+void grafeex::messaging::menu_event_handler::on_menu_command(command_event &e){}

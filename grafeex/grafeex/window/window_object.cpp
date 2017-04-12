@@ -1,4 +1,7 @@
 #include "window_object.h"
+#include "modal_dialog_window.h"
+
+#include "../messaging/message_event_forwarder.h"
 
 grafeex::window::object::event_tunnel::event_tunnel(){
 	event_list_[menu_select_event_.group()] = &menu_select_event_;
@@ -26,7 +29,9 @@ grafeex::window::object::event_tunnel::event_tunnel(){
 grafeex::window::object::event_tunnel::~event_tunnel(){}
 
 grafeex::window::object::object(procedure_type previous_procedure)
-	: previous_procedure_(previous_procedure){}
+	: previous_procedure_(previous_procedure), command_forwarder_list_ref_(nullptr), notify_forwarder_list_ref_(nullptr), synced_(nullptr){
+	relative_info_ = relative_info{ false };
+}
 
 grafeex::window::object::~object(){
 	destroy();
@@ -169,6 +174,14 @@ bool grafeex::window::object::is_top_level() const{
 	return false;
 }
 
+bool grafeex::window::object::is_ancestor(const object_type &target) const{
+	auto parent = this->parent();
+	while (parent != nullptr && parent != &target)
+		parent = parent->parent();
+
+	return (parent != nullptr);
+}
+
 bool grafeex::window::object::has_menu() const{
 	return (menu_ != nullptr);
 }
@@ -187,10 +200,30 @@ grafeex::window::object::view_type &grafeex::window::object::view(){
 	return *get_view_();
 }
 
+grafeex::window::object::style_type & grafeex::window::object::style(){
+	return *get_style_();
+}
+
 grafeex::window::object::render_type &grafeex::window::object::renderer(){
 	if (renderer_ == nullptr)
-		renderer_ = std::make_shared<render_manager_type>(app_instance->d2d_factory, value_);
+		renderer_ = std::make_shared<render_manager_type>(app_instance->d2d_factory, value_, relative_info_.active);
 	return renderer_->get();
+}
+
+grafeex::window::object::d2d_point_type grafeex::window::object::point_to_dip(const point_type &value){
+	return d2d_point_type{ app_type::pixel_to_dip_x(value.x()), app_type::pixel_to_dip_y(value.y()) };
+}
+
+grafeex::window::object::d2d_size_type grafeex::window::object::size_to_dip(const size_type &value){
+	return d2d_size_type{ app_type::pixel_to_dip_x(value.width()), app_type::pixel_to_dip_y(value.height()) };
+}
+
+grafeex::window::object::point_type grafeex::window::object::point_to_pixel(const d2d_point_type &value){
+	return point_type{ app_type::dip_to_pixel_x(value.x), app_type::dip_to_pixel_y(value.y) };
+}
+
+grafeex::window::object::size_type grafeex::window::object::size_to_pixel(const d2d_size_type &value){
+	return size_type{ app_type::dip_to_pixel_x(value.width), app_type::dip_to_pixel_y(value.height) };
 }
 
 grafeex::gui::generic_object::events_type grafeex::window::object::get_events_(){
@@ -217,7 +250,9 @@ bool grafeex::window::object::create_(const std::wstring &caption, const point_t
 	dword_type extended_styles, const wchar_t *class_name){
 	point_type computed_offset;
 	if (parent_ != nullptr){
-		GRAFEEX_SET(styles, WS_CHILD);//Set child flag
+		if (dynamic_cast<modal_dialog *>(this) == nullptr)
+			GRAFEEX_SET(styles, WS_CHILD);//Set child flag
+
 		if (offset.is_absolute())//Convert absolute to relative
 			computed_offset = parent_->convert_from_screen(offset);
 		else//Relative offset
@@ -226,8 +261,8 @@ bool grafeex::window::object::create_(const std::wstring &caption, const point_t
 	else//Relative offset
 		computed_offset = offset;
 
-	GRAFEEX_SET(styles, filter_style(persistent_styles_.basic, false));
-	GRAFEEX_SET(extended_styles, filter_style(persistent_styles_.extended, true));
+	GRAFEEX_SET(styles, persistent_styles_.basic);
+	GRAFEEX_SET(extended_styles, persistent_styles_.extended);
 
 	size_type computed_size;
 	if (size.is_inner()){//Convert inner to outer
@@ -252,6 +287,12 @@ bool grafeex::window::object::create_(const std::wstring &caption, const point_t
 		class_name,											//Class name
 		extended_styles										//Extended styles
 	});
+}
+
+bool grafeex::window::object::create_(const std::wstring &caption, const d2d_point_type &offset, const d2d_size_type &size,
+	dword_type styles, dword_type extended_styles, const wchar_t *class_name){
+	relative_info_ = relative_info{ true, offset, size };
+	return create_(caption, point_to_pixel(offset), size_to_pixel(size), styles, extended_styles, class_name);
 }
 
 bool grafeex::window::object::create_(const create_info_type &info){
@@ -287,8 +328,32 @@ void grafeex::window::object::initialize_(){}
 
 void grafeex::window::object::uninitialize_(){}
 
+void grafeex::window::object::reset_persistent_styles_(){
+	persistent_styles_ = {};
+}
+
+void grafeex::window::object::sync_(object &target, bool add){
+	if (add){
+		synced_ = &target;
+		target.synced_ = this;
+	}
+	else{
+		synced_ = nullptr;
+		target.synced_ = nullptr;
+	}
+}
+
+void grafeex::window::object::unsync_(){
+	if (synced_ != nullptr)
+		sync_(*synced_, false);
+}
+
 grafeex::window::object::view_ptr_type grafeex::window::object::get_view_(){
 	return create_view_<view_type>();
+}
+
+grafeex::window::object::style_ptr_type grafeex::window::object::get_style_(){
+	return create_style_<style_type>();
 }
 
 grafeex::window::object::app_type *&grafeex::window::object::app_instance = grafeex::window::object::app_type::instance;

@@ -3,7 +3,15 @@
 
 grafeex::messaging::style_event::style_event(object &value)
 	: message_event(value), info_(value.info().lparam<info_type *>()){
-	//TODO: Implement
+	auto styles_removed = object_->target()->filter_style(info_->styleOld & ~info_->styleNew, is_extended());
+	auto styles_added = object_->target()->filter_style(~info_->styleOld & info_->styleNew, is_extended());
+
+	if (!is_extended()){//Exclude 'child' style
+		GRAFEEX_REMOVE(styles_removed, WS_CHILD);
+		GRAFEEX_REMOVE(styles_added, WS_CHILD);
+	}
+
+	filtered_ = GRAFEEX_REMOVE_V(GRAFEEX_SET_V(info_->styleOld, styles_added), styles_removed);
 }
 
 grafeex::messaging::style_event::~style_event(){}
@@ -66,7 +74,6 @@ bool grafeex::messaging::changing_style_event::is_changing() const{
 grafeex::messaging::message_event &grafeex::messaging::changing_style_event::write_bool_(bool value){
 	if (!value)//Change rejected
 		filtered_ = info_->styleOld;
-
 	return message_event::write_(static_cast<result_type>(0));
 }
 

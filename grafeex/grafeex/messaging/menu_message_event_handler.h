@@ -20,6 +20,7 @@ namespace grafeex{
 			friend class menu_rbutton_up_event;
 			friend class menu_command_event;
 			friend class menu_select_event;
+			friend class command_event;
 
 			virtual void on_context_menu(context_menu_event &e);
 
@@ -36,6 +37,8 @@ namespace grafeex{
 			virtual void on_menu_select(menu_command_event &e);
 
 			virtual void on_menu_highlight(menu_select_event &e);
+
+			virtual void on_menu_command(command_event &e);
 		};
 	}
 }

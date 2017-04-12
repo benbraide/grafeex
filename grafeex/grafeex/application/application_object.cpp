@@ -1,5 +1,7 @@
 #include "application_object.h"
-#include "../window/dialog_window.h"
+
+#include "../window/modal_dialog_window.h"
+#include "../messaging/command_message_event_handler.h"
 
 grafeex::application::object::~object(){}
 
@@ -17,6 +19,19 @@ void grafeex::application::object::quit(int exit_code){
 grafeex::application::object::hwnd_type grafeex::application::object::create(window_type &owner, const create_info_type &info){
 	return execute<hwnd_type>([&]() -> hwnd_type{
 		return create_(owner, info);
+	}, 1);
+}
+
+grafeex::application::object::unit_ptr_type grafeex::application::object::set_timer(window_type &owner,
+	unit_ptr_type id, uint_type duration){
+	return execute<unit_ptr_type>([&]() -> unit_ptr_type{
+		return ::SetTimer(owner, id, duration, nullptr);
+	}, 1);
+}
+
+bool grafeex::application::object::kill_timer(window_type &owner, unit_ptr_type id){
+	return execute<bool>([&]() -> bool{
+		return (::KillTimer(owner, id) != FALSE);
 	}, 1);
 }
 
@@ -65,10 +80,14 @@ grafeex::application::object::result_type CALLBACK grafeex::application::object:
 		return ::CallWindowProcW(::DefWindowProcW, window_handle, msg, wparam, lparam);
 	}
 
-	auto is_sent = instance->is_sent_();
-	instance->status_.is_posted = false;
+	auto is_modal = (instance->modal_ != nullptr);
+	if (is_modal && dynamic_cast<threading::modal_loop *>(instance->modal_)->consume(*target, msg, wparam, lparam))
+		return 0;//Message consumed
 
-	if (is_sent){//Sent on same thread
+	auto is_sent = !is_modal ? instance->is_sent_() : instance->modal_->is_sent_();
+	auto &cache = !is_modal ? instance->cache_ : instance->modal_->cache_;
+
+	if (is_sent || (!is_sent && cache.code() != msg)){//Sent on same thread
 		dword_type time;
 		point_type mouse_position;
 
@@ -82,7 +101,7 @@ grafeex::application::object::result_type CALLBACK grafeex::application::object:
 			::GetCursorPos(mouse_position);//Get current mouse position
 		}
 
-		instance->cache_ = msg_type(msg_type::value_type{//Populate message
+		msg_type msg_object(msg_type::value_type{//Populate message
 			window_handle,
 			msg,
 			wparam,
@@ -90,21 +109,19 @@ grafeex::application::object::result_type CALLBACK grafeex::application::object:
 			time,
 			mouse_position
 		});
+
+		return instance->dispatch_(msg_object, is_sent, *target);
 	}
 
-	messaging::object meesage_object(instance->cache_, is_sent, target->previous_procedure_);
-	auto message_dispatcher = instance->dispatcher_list_.find(instance->cache_.code());
-	if (message_dispatcher == instance->dispatcher_list_.end())//Unrecognized message
-		instance->dispatcher_list_[WM_NULL]->dispatch(meesage_object);
-	else//Dispatch message
-		message_dispatcher->second->dispatch(meesage_object);
-
-	return meesage_object.handle().value();
+	instance->status_.is_posted = false;
+	return instance->dispatch_(cache, is_sent, *target);
 }
 
 grafeex::application::object *grafeex::application::object::instance;
 
 grafeex::application::object::factory_type grafeex::application::object::d2d_factory;
+
+grafeex::application::object::d2d_point_type grafeex::application::object::d2d_dpi_scale = { 1.0f, 1.0f };
 
 bool grafeex::application::object::is_filtered_message_() const{
 	return false;
@@ -123,22 +140,35 @@ bool grafeex::application::object::is_dialog_message_(){
 	return (active_dialog_ != nullptr && cache_.is_dialog(*active_dialog_));
 }
 
+grafeex::application::object::result_type grafeex::application::object::dispatch_(msg_type &msg, bool is_sent, window_type &target){
+	messaging::object meesage_object(msg, is_sent, target.previous_procedure_);
+	auto message_dispatcher = dispatcher_list_.find(msg.code());
+	if (message_dispatcher == dispatcher_list_.end())//Unrecognized message
+		dispatcher_list_[WM_NULL]->dispatch(meesage_object);
+	else//Dispatch message
+		message_dispatcher->second->dispatch(meesage_object);
+
+	return meesage_object.handle().value();
+}
+
+void grafeex::application::object::init_(){
+	create_dispatchers_();
+	messaging::static_command_event_handler::create_forwarder_list();
+}
+
 grafeex::application::object::hwnd_type grafeex::application::object::create_(window_type &owner, const create_info_type &info){
 	auto hook = ::SetWindowsHookExW(WH_CBT, hook_, nullptr, id_);//Install hook to intercept window creation
-	auto is_dialog = (dynamic_cast<window::dialog *>(&owner) != nullptr);
-	if (is_dialog)
-		pending_dialog_info_ = { &owner, point_type{ info.x, info.y }, size_type{ info.cx, info.cy } };
+	auto &target_class = (dynamic_cast<window::dialog *>(&owner) != nullptr) ? dialog_class_ : class_;
 
-	auto &target_class = is_dialog ? dialog_class_ : class_;
 	auto value = ::CreateWindowExW(
 		info.dwExStyle,
 		(info.lpszClass == nullptr) ? target_class : info.lpszClass,
 		info.lpszName,
 		info.style,
-		is_dialog ? 0 : info.x,
-		is_dialog ? 0 : info.y,
-		is_dialog ? 0 : info.cx,
-		is_dialog ? 0 : info.cy,
+		info.x,
+		info.y,
+		info.cx,
+		info.cy,
 		info.hwndParent,
 		info.hMenu,
 		(info.hInstance == nullptr) ? instance_ : info.hInstance,
@@ -146,9 +176,6 @@ grafeex::application::object::hwnd_type grafeex::application::object::create_(wi
 	);
 
 	::UnhookWindowsHookEx(hook);//Uninstall hook
-	if (is_dialog)//Clear pending info
-		pending_dialog_info_ = {};
-
 	return value;
 }
 
@@ -208,6 +235,11 @@ void grafeex::application::object::create_dispatchers_(){
 	GAPP_DISPATCH(WM_INPUTLANGCHANGE, input_language_changed_event);
 	GAPP_DISPATCH(WM_INPUTLANGCHANGEREQUEST, input_language_change_request_event);
 	GAPP_DISPATCH(WM_DISPLAYCHANGE, display_changed_event);
+
+	GAPP_DISPATCH(WM_COMMAND, command_event);
+	GAPP_DISPATCH(WM_NOTIFY, notify_event);
+
+	GAPP_DISPATCH(WM_TIMER, timer_event);
 }
 
 void grafeex::application::object::app_activate_(messaging::activate_app_event &e){}
@@ -223,7 +255,6 @@ grafeex::application::object::result_type CALLBACK grafeex::application::object:
 			if (owner_window->previous_procedure_ == nullptr)//Replace window procedure
 				owner_window->previous_procedure_ = target_hwnd.set_data<procedure_type>(&object::entry, hwnd_type::data_index::procedure);
 
-			owner_window->background_color_;//TODO: Retrieve color from brush inside class
 			instance->recent_owner_ = nullptr;//Reset
 		}
 	}

@@ -61,7 +61,7 @@ namespace grafeex{
 			virtual bool has_background_color() const;
 
 		protected:
-			object &object_;
+			object *object_;
 			background_color_type background_color_;
 		};
 	}

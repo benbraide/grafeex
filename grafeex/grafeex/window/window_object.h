@@ -4,6 +4,7 @@
 #define GRAFEEX_WINDOW_OBJECT_H
 
 #include "window_view.h"
+#include "window_style.h"
 
 #include "../gui/gui_object_tree.h"
 #include "../d2d/d2d_render_target_manager.h"
@@ -18,6 +19,10 @@
 #include "../collections/menu_collection.h"
 
 namespace grafeex{
+	namespace messaging{
+		class event_forwarder_base;
+	}
+
 	namespace window{
 		class object : public gui::object_tree, public messaging::general_event_handler, public messaging::menu_event_handler{
 		public:
@@ -44,6 +49,9 @@ namespace grafeex{
 			typedef structures::float_size float_size_type;
 			typedef structures::color color_type;
 
+			typedef application::object::d2d_point_type d2d_point_type;
+			typedef application::object::d2d_size_type d2d_size_type;
+
 			typedef wnd_class_type::procedure_type procedure_type;
 			typedef wnd_class_type::instance_type instance_type;
 
@@ -56,6 +64,9 @@ namespace grafeex{
 			typedef window::view view_type;
 			typedef std::shared_ptr<view_type> view_ptr_type;
 
+			typedef window::style style_type;
+			typedef std::shared_ptr<style_type> style_ptr_type;
+
 			typedef menu::object menu_type;
 			typedef menu::shared shared_menu_type;
 			typedef collections::menu_bar menu_collection_type;
@@ -63,15 +74,21 @@ namespace grafeex{
 			typedef std::shared_ptr<menu_type> menu_ptr_type;
 			typedef std::shared_ptr<menu_collection_type> menu_collection_ptr_type;
 
+			typedef std::shared_ptr<messaging::event_forwarder_base> forwarder_type;
+			typedef std::unordered_map<uint_type, forwarder_type> forwarder_list_type;
+
 			typedef general_event_handler::d2d_color_type d2d_color_type;
 			typedef general_event_handler::render_type render_type;
 
 			typedef d2d::render_target_manager<render_type> render_manager_type;
 			typedef std::shared_ptr<render_manager_type> render_manager_ptr_type;
 
-			struct persistent_styles{
-				dword_type basic;
-				dword_type extended;
+			typedef style_type::info_type persistent_styles;
+
+			struct relative_info{
+				bool active;
+				d2d_point_type offset;
+				d2d_size_type size;
 			};
 
 			class event_tunnel : public gui::object_tree::event_tunnel{
@@ -169,6 +186,8 @@ namespace grafeex{
 
 			virtual bool is_top_level() const;
 
+			virtual bool is_ancestor(const object_type &target) const;
+
 			virtual bool has_menu() const;
 
 			virtual menu_collection_type &menu();
@@ -177,7 +196,17 @@ namespace grafeex{
 
 			virtual view_type &view() override;
 
+			virtual style_type &style();
+
 			virtual render_type &renderer() override;
+
+			static d2d_point_type point_to_dip(const point_type &value);
+
+			static d2d_size_type size_to_dip(const size_type &value);
+
+			static point_type point_to_pixel(const d2d_point_type &value);
+
+			static size_type size_to_pixel(const d2d_size_type &value);
 
 			static app_type *&app_instance;
 
@@ -188,10 +217,17 @@ namespace grafeex{
 			friend class messaging::nc_create_event;
 			friend class messaging::nc_destroy_event;
 
+			friend class messaging::activate_event;
+			friend class messaging::changed_size_event;
+
 			friend class messaging::erase_background_event;
 			friend class messaging::paint_event;
 
+			friend class messaging::command_event;
+			friend class messaging::notify_event;
+
 			friend class window::view;
+			friend class window::style;
 
 			object(procedure_type previous_procedure = ::DefWindowProcW);
 
@@ -208,6 +244,9 @@ namespace grafeex{
 			virtual bool create_(const std::wstring &caption, const point_type &offset, const size_type &size, dword_type styles = 0,
 				dword_type extended_styles = 0, const wchar_t *class_name = nullptr);
 
+			virtual bool create_(const std::wstring &caption, const d2d_point_type &offset, const d2d_size_type &size, dword_type styles = 0,
+				dword_type extended_styles = 0, const wchar_t *class_name = nullptr);
+
 			virtual bool create_(const create_info_type &info);
 
 			virtual hwnd_type get_parent_handle_();
@@ -218,6 +257,12 @@ namespace grafeex{
 
 			virtual void uninitialize_();
 
+			virtual void reset_persistent_styles_();
+
+			virtual void sync_(object &target, bool add);
+
+			virtual void unsync_();
+
 			virtual view_ptr_type get_view_();
 
 			template <typename view_type>
@@ -227,15 +272,28 @@ namespace grafeex{
 				return view_;
 			}
 
+			virtual style_ptr_type get_style_();
+
+			template <typename style_type>
+			style_ptr_type create_style_(){
+				if (style_ == nullptr)
+					style_ = std::make_shared<style_type>(*this);
+				return style_;
+			}
+
 			hwnd_type value_;
 			std::wstring text_;
+			relative_info relative_info_;
 			procedure_type previous_procedure_;
-			color_type background_color_;
-			persistent_styles persistent_styles_ = {};
+			persistent_styles persistent_styles_{};
 			menu_ptr_type system_menu_;
 			menu_collection_ptr_type menu_;
 			view_ptr_type view_;
+			style_ptr_type style_;
 			render_manager_ptr_type renderer_;
+			forwarder_list_type *command_forwarder_list_ref_;
+			forwarder_list_type *notify_forwarder_list_ref_;
+			object *synced_;
 		};
 	}
 }

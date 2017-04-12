@@ -7,7 +7,13 @@
 #include "thread_scheduler.h"
 
 namespace grafeex{
+	namespace application{
+		class object;
+	}
+
 	namespace threading{
+		class modal_loop;
+
 		class object{
 		public:
 			typedef wrappers::msg msg_type;
@@ -41,6 +47,9 @@ namespace grafeex{
 			virtual const id &get_id() const;
 
 		protected:
+			friend class application::object;
+			friend class modal_loop;
+
 			virtual bool is_sent_() const;
 
 			virtual bool is_filtered_message_() const;
@@ -60,6 +69,7 @@ namespace grafeex{
 			scheduler scheduler_;
 			msg_type cache_;
 			status_info status_;
+			object *modal_;
 		};
 	}
 }

@@ -17,17 +17,23 @@ namespace grafeex{
 			typedef wrappers::hwnd::size_type size_type;
 
 			typedef ::Microsoft::WRL::ComPtr<::ID2D1HwndRenderTarget> base_type;
+			typedef ::D2D1_SIZE_F relative_size_type;
+
 			typedef base_type::InterfaceType interface_type;
 
 			hwnd_render_target();
 
-			hwnd_render_target(factory_type &factory, hwnd_value_type target);
+			hwnd_render_target(factory_type &factory, hwnd_value_type target, bool is_relative = false);
+
+			hwnd_render_target(factory_type &factory, hwnd_value_type target, const relative_size_type &size);
 
 			hwnd_render_target(factory_type &factory, hwnd_value_type target, const size_type &size);
 
 			~hwnd_render_target();
 
-			bool create(factory_type &factory, hwnd_value_type target);
+			bool create(factory_type &factory, hwnd_value_type target, bool is_relative = false);
+
+			bool create(factory_type &factory, hwnd_value_type target, const relative_size_type &size);
 
 			bool create(factory_type &factory, hwnd_value_type target, const size_type &size);
 		};

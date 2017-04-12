@@ -171,3 +171,11 @@ bool grafeex::messaging::general_event_handler::on_input_language_change_request
 }
 
 void grafeex::messaging::general_event_handler::on_display_changed(display_changed_event &e){}
+
+void grafeex::messaging::general_event_handler::on_timer(timer_event &e){}
+
+void grafeex::messaging::general_event_handler::on_command(command_event &e){}
+
+void grafeex::messaging::general_event_handler::on_accelerator(command_event &e){}
+
+void grafeex::messaging::general_event_handler::on_notify(notify_event &e){}

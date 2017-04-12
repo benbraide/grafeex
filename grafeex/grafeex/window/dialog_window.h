@@ -19,7 +19,7 @@ namespace grafeex{
 
 			virtual bool is_modal() const;
 
-			virtual bool do_modal(object &owner, bool center = true);
+			virtual bool do_modal(object &owner, bool center = true, bool update_styles = true);
 
 			virtual bool cancel_modal();
 

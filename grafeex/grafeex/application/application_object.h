@@ -15,7 +15,7 @@
 
 #include "../structures/dialog_template.h"
 #include "../wrappers/wnd_class_wrapper.h"
-#include "../threading/thread_object.h"
+#include "../threading/thread_modal_loop.h"
 
 #include "../messaging/message_event_dispatcher.h"
 #include "../messaging/scope_message_event.h"
@@ -27,6 +27,9 @@
 #include "../messaging/menu_message_event.h"
 #include "../messaging/dimensions_message_event.h"
 #include "../messaging/system_message_event.h"
+#include "../messaging/timer_message_event.h"
+#include "../messaging/command_message_event.h"
+#include "../messaging/notify_message_event.h"
 
 #include "../gdi/gdi_manager.h"
 #include "../d2d/d2d_factory.h"
@@ -50,10 +53,13 @@ namespace grafeex{
 			typedef ::UINT uint_type;
 			typedef ::WORD word_type;
 			typedef ::DWORD dword_type;
+			typedef ::UINT_PTR unit_ptr_type;
 
 			typedef std::list<wrappers::hwnd> hwnd_list_type;
+
 			typedef std::shared_ptr<messaging::event_dispatcher_base> dispatcher_type;
 			typedef std::unordered_map<uint_type, dispatcher_type> dispatcher_list_type;
+			typedef std::unordered_map<unit_ptr_type, window::timer *> timer_cache_type;
 
 			typedef std::recursive_mutex lock_type;
 			typedef std::lock_guard<lock_type> guard_type;
@@ -76,6 +82,9 @@ namespace grafeex{
 			typedef common::com com_type;
 			typedef d2d::factory factory_type;
 
+			typedef ::D2D1_SIZE_F d2d_size_type;
+			typedef ::D2D1_POINT_2F d2d_point_type;
+
 			enum class gdi_manager_state : unsigned int{
 				nil				= (0 << 0x0000),
 				active			= (1 << 0x0000),
@@ -88,17 +97,12 @@ namespace grafeex{
 				point_type mouse_position;
 			};
 
-			struct pending_dialog_info{
-				window_type *target;
-				point_type offset;
-				size_type size;
-			};
-
 			template <typename... types>
 			object(types... class_args)
 				: instance_(nullptr), active_dialog_(nullptr), recent_owner_(nullptr){
 				typedef std::wstring::size_type size_type;
 
+				instance = this;
 				class_.set(entry, class_args...);
 				if ((instance_ = class_.instance()) == nullptr)
 					class_.instance(instance_ = ::GetModuleHandleW(nullptr));
@@ -115,8 +119,11 @@ namespace grafeex{
 					dialog_class_.create();
 				}
 
-				create_dispatchers_();
-				instance = this;
+				d2d_factory->GetDesktopDpi(&d2d_dpi_scale.x, &d2d_dpi_scale.y);
+				d2d_dpi_scale.x /= 96.0f;
+				d2d_dpi_scale.y /= 96.0f;
+
+				init_();
 			}
 
 			virtual ~object();
@@ -124,6 +131,10 @@ namespace grafeex{
 			virtual void quit(int exit_code = 0);
 
 			virtual hwnd_type create(window_type &owner, const create_info_type &info);
+
+			virtual unit_ptr_type set_timer(window_type &owner, unit_ptr_type id, uint_type duration);
+
+			virtual bool kill_timer(window_type &owner, unit_ptr_type id);
 
 			virtual instance_type get_instance() const;
 
@@ -156,16 +167,44 @@ namespace grafeex{
 				return (object.*method)(values...);
 			}
 
+			template <typename value_type = int>
+			static float pixel_to_dip_x(value_type value){
+				return (static_cast<float>(value) / d2d_dpi_scale.x);
+			}
+
+			template <typename value_type = int>
+			static float pixel_to_dip_y(value_type value){
+				return (static_cast<float>(value) / d2d_dpi_scale.y);
+			}
+
+			template <typename value_type = int>
+			static value_type dip_to_pixel_x(float value){
+				return static_cast<value_type>(value * d2d_dpi_scale.x);
+			}
+
+			template <typename value_type = int>
+			static value_type dip_to_pixel_y(float value){
+				return static_cast<value_type>(value * d2d_dpi_scale.y);
+			}
+
 			stored_message_info_type stored_message_info = {};
 
 			static object *instance;
 			static factory_type d2d_factory;
+			static d2d_point_type d2d_dpi_scale;
 
 		protected:
+			friend class threading::modal_loop;
+
 			friend class messaging::create_event;
 			friend class messaging::nc_destroy_event;
 			friend class messaging::activate_event;
 			friend class messaging::activate_app_event;
+			friend class messaging::timer_event;
+			friend class messaging::command_event;
+			friend class messaging::notify_event;
+
+			friend class window::timer;
 
 			virtual bool is_filtered_message_() const override;
 
@@ -174,6 +213,10 @@ namespace grafeex{
 			virtual bool is_stopped_() const override;
 
 			virtual bool is_dialog_message_();
+
+			virtual result_type dispatch_(msg_type &msg, bool is_sent, window_type &target);
+
+			virtual void init_();
 
 			virtual hwnd_type create_(window_type &owner, const create_info_type &info);
 
@@ -220,16 +263,17 @@ namespace grafeex{
 
 			com_type com_;
 			gdi_manager_state gdi_manager_states_;
-			wnd_class_type class_, dialog_class_;
+			
+			wnd_class_type class_;
+			wnd_class_type dialog_class_;
 
 			hwnd_list_type top_level_windows_;
 			window_type *active_dialog_;
-
 			instance_type instance_;
-			dispatcher_list_type dispatcher_list_;
 
+			dispatcher_list_type dispatcher_list_;
+			timer_cache_type timer_cache_;
 			void *recent_owner_;
-			pending_dialog_info pending_dialog_info_{};
 
 			mutable lock_type lock_;
 		};

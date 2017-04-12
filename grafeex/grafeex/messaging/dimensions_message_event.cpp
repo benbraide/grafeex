@@ -39,6 +39,14 @@ grafeex::messaging::changed_position_event::~changed_position_event(){}
 grafeex::messaging::message_event &grafeex::messaging::changed_position_event::dispatch(){
 	if (position_event::dispatch().is_propagating())
 		object_->target()->on_position_changed(*this);
+
+	auto flags = info().flags;
+	if (!GRAFEEX_IS(flags, SWP_NOSIZE))
+		object_->target()->sized_();
+
+	if (!GRAFEEX_IS(flags, SWP_NOMOVE))
+		object_->target()->moved_();
+
 	return *this;
 }
 

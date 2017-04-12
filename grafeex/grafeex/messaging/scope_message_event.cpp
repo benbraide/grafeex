@@ -60,15 +60,6 @@ grafeex::messaging::message_event &grafeex::messaging::create_event::dispatch(){
 	if (scope_event::dispatch().is_propagating())
 		*this << object_->target()->on_create(*this);
 
-	if (object_->value() != static_cast<result_type>(-1)){//Accepted
-		if (application::object::instance->pending_dialog_info_.target != nullptr){//Apply pending updates
-			application::object::instance->pending_dialog_info_.target->dimensions(structures::rect{
-				application::object::instance->pending_dialog_info_.offset,
-				application::object::instance->pending_dialog_info_.size
-			});
-		}
-	}
-
 	return *this;
 }
 
@@ -90,25 +81,29 @@ grafeex::messaging::nc_destroy_event::nc_destroy_event(object &value)
 grafeex::messaging::nc_destroy_event::~nc_destroy_event(){}
 
 grafeex::messaging::message_event &grafeex::messaging::nc_destroy_event::dispatch(){
+	auto target = object_->target();
 	if (scope_event::dispatch().is_propagating())
-		object_->target()->on_nc_destroy(*this);
+		target->on_nc_destroy(*this);
 
 	if (!event_is_disabled()){//Raise event
-		events::object e(*object_->target(), *this);
+		events::object e(*target, *this);
 		dynamic_cast<window::object::event_tunnel *>(get_event_())->destroy_event_.fire(e);
 	}
 
-	object_->target()->uninitialize_();
-	object_->target()->system_menu_ = nullptr;
-	object_->target()->menu_ = nullptr;//Destroy menu
-	object_->target()->value_ = nullptr;//Reset
-	object_->target()->renderer_ = nullptr;//Release renderer
+	target->uninitialize_();
+	target->unsync_();
+	target->reset_persistent_styles_();
 
-	auto tree_parent = dynamic_cast<gui::object_tree *>(object_->target()->parent());
+	target->system_menu_ = nullptr;
+	target->menu_ = nullptr;//Destroy menu
+	target->value_ = nullptr;//Reset
+	target->renderer_ = nullptr;//Release renderer
+
+	auto tree_parent = dynamic_cast<gui::object_tree *>(target->parent());
 	if (tree_parent != nullptr)//Remove from parent
-		tree_parent->remove(*object_->target());
+		tree_parent->remove(*target);
 
-	if (object_->target()->parent() == nullptr){
+	if (target->parent() == nullptr){
 		application::object::instance->lock_.lock();
 
 		auto &list = application::object::instance->top_level_windows_;
@@ -119,7 +114,7 @@ grafeex::messaging::message_event &grafeex::messaging::nc_destroy_event::dispatc
 		application::object::instance->lock_.unlock();
 	}
 
-	if (application::object::instance->active_dialog_ == object_->target())
+	if (application::object::instance->active_dialog_ == target)
 		application::object::instance->active_dialog_ = nullptr;
 
 	return *this;

@@ -98,7 +98,7 @@ namespace grafeex{
 			basic_brush(const basic_brush &target)
 				: brush_common(target){}
 
-			virtual ~basic_brush(){}
+			virtual ~basic_brush() = default;
 
 			basic_brush &operator =(const basic_brush &target){
 				brush_common::operator=(target);
@@ -130,7 +130,7 @@ namespace grafeex{
 			basic_brush(const basic_brush &target)
 				: brush_common(target){}
 
-			virtual ~basic_brush(){}
+			virtual ~basic_brush() = default;
 
 			basic_brush &operator =(const basic_brush &target){
 				brush_common::operator=(target);
@@ -165,7 +165,7 @@ namespace grafeex{
 			basic_brush(const basic_brush &target)
 				: brush_common(target){}
 
-			virtual ~basic_brush(){}
+			virtual ~basic_brush() = default;
 
 			basic_brush &operator =(const basic_brush &target){
 				brush_common::operator=(target);

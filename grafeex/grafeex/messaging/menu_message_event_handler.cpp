@@ -1,6 +1,6 @@
 #include "menu_message_event_handler.h"
 
-grafeex::messaging::menu_event_handler::~menu_event_handler(){}
+grafeex::messaging::menu_event_handler::~menu_event_handler() = default;
 
 void grafeex::messaging::menu_event_handler::on_context_menu(context_menu_event &e){}
 

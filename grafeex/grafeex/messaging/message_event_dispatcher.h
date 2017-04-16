@@ -10,7 +10,7 @@ namespace grafeex{
 	namespace messaging{
 		class event_dispatcher_base{
 		public:
-			virtual ~event_dispatcher_base(){}
+			virtual ~event_dispatcher_base() = default;
 
 			virtual void dispatch(object &object) = 0;
 		};
@@ -18,7 +18,7 @@ namespace grafeex{
 		template <class event_type>
 		class event_dispatcher : public event_dispatcher_base{
 		public:
-			virtual ~event_dispatcher(){}
+			virtual ~event_dispatcher() = default;
 
 			virtual void dispatch(object &object) override{
 				event_type(object).dispatch();

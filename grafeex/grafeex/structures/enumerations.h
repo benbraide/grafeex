@@ -9,6 +9,33 @@
 namespace grafeex{
 	namespace structures{
 		namespace enumerations{
+			enum class key_state_type : unsigned int{
+				nil				= (0 << 0x0000),
+				left_shift		= (1 << 0x0000),
+				right_shift		= (1 << 0x0001),
+				left_ctrl		= (1 << 0x0002),
+				right_ctrl		= (1 << 0x0003),
+				left_alt		= (1 << 0x0004),
+				right_alt		= (1 << 0x0005),
+				left_win		= (1 << 0x0006),
+				right_win		= (1 << 0x0007),
+				caps			= (1 << 0x0008),
+				numpad			= (1 << 0x0009),
+				insert			= (1 << 0x000A),
+				scroll			= (1 << 0x000B),
+			};
+
+			enum class mouse_key_state_type : unsigned int{
+				nil				= 0,
+				left_button		= MK_LBUTTON,
+				middle_button	= MK_MBUTTON,
+				right_button	= MK_RBUTTON,
+				x_button_1		= MK_XBUTTON1,
+				x_button_2		= MK_XBUTTON2,
+				control			= MK_CONTROL,
+				shift			= MK_SHIFT,
+			};
+
 			enum class hit_target_type{
 				nil						= HTNOWHERE,
 				border					= HTBORDER,
@@ -112,6 +139,8 @@ namespace grafeex{
 				all				= LWA_COLORKEY | LWA_ALPHA,
 			};
 
+			GRAFEEX_MAKE_OPERATORS(key_state_type)
+			GRAFEEX_MAKE_OPERATORS(mouse_key_state_type)
 			GRAFEEX_MAKE_OPERATORS(animation_type)
 			GRAFEEX_MAKE_OPERATORS(position_type)
 			GRAFEEX_MAKE_OPERATORS(placement_type)

@@ -42,10 +42,10 @@ namespace grafeex{
 
 			class event_tunnel{
 			public:
-				virtual ~event_tunnel(){}
+				virtual ~event_tunnel() = default;
 			};
 
-			virtual ~object(){}
+			virtual ~object() = default;
 
 			virtual object *non_sibling() = 0;
 

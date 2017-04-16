@@ -3,7 +3,8 @@
 #ifndef GRAFEEX_APPLICATION_OBJECT_H
 #define GRAFEEX_APPLICATION_OBJECT_H
 
-#define GAPP_DISPATCH(e, d) dispatcher_list_[e] = std::make_shared<messaging::event_dispatcher<messaging::d> >()
+#define GAPP_MAKE_DISPATCHER(d) std::make_shared<messaging::event_dispatcher<messaging::d> >()
+#define GAPP_DISPATCH(e, d) dispatcher_list_[e] = GAPP_MAKE_DISPATCHER(d)
 
 #include <atomic>
 #include <memory>
@@ -30,6 +31,7 @@
 #include "../messaging/timer_message_event.h"
 #include "../messaging/command_message_event.h"
 #include "../messaging/notify_message_event.h"
+#include "../messaging/input_message_event.h"
 
 #include "../gdi/gdi_manager.h"
 #include "../d2d/d2d_factory.h"
@@ -271,6 +273,7 @@ namespace grafeex{
 			window_type *active_dialog_;
 			instance_type instance_;
 
+			dispatcher_type unhandled_dispatcher_;
 			dispatcher_list_type dispatcher_list_;
 			timer_cache_type timer_cache_;
 			void *recent_owner_;

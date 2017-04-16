@@ -10,7 +10,7 @@ namespace grafeex{
 	namespace events{
 		class tunnel_interface{
 		public:
-			virtual ~tunnel_interface(){}
+			virtual ~tunnel_interface() = default;
 
 			virtual tunnel_interface &remove(const entry &entry) = 0;
 		};
@@ -30,7 +30,7 @@ namespace grafeex{
 			typedef typename listeners_type::callback_type callback_type;
 			typedef typename listeners_type::no_args_callback_type no_args_callback_type;
 
-			virtual ~tunnel(){}
+			virtual ~tunnel() = default;
 
 			template <typename... value_types>
 			entry_type add(std::function<return_type(value_types &...)> callback){

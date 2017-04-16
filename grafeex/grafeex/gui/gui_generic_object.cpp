@@ -1,6 +1,6 @@
 #include "gui_generic_object.h"
 
-grafeex::gui::generic_object::event_tunnel::~event_tunnel(){}
+grafeex::gui::generic_object::event_tunnel::~event_tunnel() = default;
 
 void grafeex::gui::generic_object::event_tunnel::unbind(const entry_type &entry){
 	auto item = event_list_.find(entry.group());
@@ -8,7 +8,7 @@ void grafeex::gui::generic_object::event_tunnel::unbind(const entry_type &entry)
 		item->second->remove(entry);
 }
 
-grafeex::gui::generic_object::~generic_object(){}
+grafeex::gui::generic_object::~generic_object() = default;
 
 grafeex::gui::object *grafeex::gui::generic_object::non_sibling(){
 	return this;
@@ -95,10 +95,10 @@ grafeex::gui::object::point_type grafeex::gui::generic_object::compute_alignment
 }
 
 grafeex::gui::object::hit_target_type grafeex::gui::generic_object::test(const point_type &value) const{
-	if (dimensions(true).contains(value))
+	if (convert_to_screen(dimensions(true)).contains(value))
 		return hit_target_type::client;
 
-	return dimensions().contains(value) ? hit_target_type::border : hit_target_type::nil;
+	return dimensions(false).contains(value) ? hit_target_type::border : hit_target_type::nil;
 }
 
 grafeex::gui::object::point_type grafeex::gui::generic_object::convert_to_screen(const point_type &value) const{

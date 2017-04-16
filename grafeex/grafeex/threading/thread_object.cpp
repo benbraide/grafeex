@@ -5,7 +5,7 @@ grafeex::threading::object::object()
 	status_.is_posted = false;
 }
 
-grafeex::threading::object::~object(){}
+grafeex::threading::object::~object() = default;
 
 int grafeex::threading::object::run(){
 	if (get_current_id() != id_)

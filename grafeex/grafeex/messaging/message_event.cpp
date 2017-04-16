@@ -7,7 +7,7 @@ grafeex::messaging::message_event::message_event()
 grafeex::messaging::message_event::message_event(object &value)
 	: object_(&value), states_(state::nil){}
 
-grafeex::messaging::message_event::~message_event(){}
+grafeex::messaging::message_event::~message_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::message_event::dispatch(){
 	object_->target()->on_event(*this);
@@ -117,4 +117,26 @@ grafeex::messaging::message_event::event_type *grafeex::messaging::message_event
 	if (object == nullptr)
 		return &dynamic_cast<gui::generic_object *>(object_->target())->events();
 	return &dynamic_cast<gui::generic_object *>(object)->events();
+}
+
+grafeex::messaging::null_event::null_event(object &value)
+	: message_event(value){}
+
+grafeex::messaging::null_event::~null_event() = default;
+
+grafeex::messaging::message_event &grafeex::messaging::null_event::dispatch(){
+	if (message_event::dispatch().is_propagating())
+		object_->target()->on_null(*this);
+	return *this;
+}
+
+grafeex::messaging::unhandled_event::unhandled_event(object &value)
+	: message_event(value){}
+
+grafeex::messaging::unhandled_event::~unhandled_event() = default;
+
+grafeex::messaging::message_event &grafeex::messaging::unhandled_event::dispatch(){
+	if (message_event::dispatch().is_propagating())
+		object_->target()->on_unhandled(*this);
+	return *this;
 }

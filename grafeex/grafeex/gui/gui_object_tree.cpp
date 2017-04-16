@@ -1,6 +1,6 @@
 #include "gui_object_tree.h"
 
-grafeex::gui::object_tree::~object_tree(){}
+grafeex::gui::object_tree::~object_tree() = default;
 
 grafeex::gui::object *grafeex::gui::object_tree::get_hit_target(const point_type &value) const{
 	guard_type guard(lock_);
@@ -33,7 +33,7 @@ grafeex::gui::object_tree::attributes_type &grafeex::gui::object_tree::attribute
 	return *get_attributes_();
 }
 
-void grafeex::gui::object_tree::attribute_set_(attributes_state_type state){
+void grafeex::gui::object_tree::attribute_set_(attributes_state_value_type state){
 	if (state == attributes_state_type::fill_content){
 		object_tree *tree_child = nullptr;
 		for (auto child : children_){
@@ -48,7 +48,7 @@ void grafeex::gui::object_tree::attribute_set_(attributes_state_type state){
 	}
 }
 
-void grafeex::gui::object_tree::attribute_removed_(attributes_state_type state){
+void grafeex::gui::object_tree::attribute_removed_(attributes_state_value_type state){
 	if (state == attributes_state_type::fill_content){
 		object_tree *tree_child = nullptr;
 		for (auto child : children_){
@@ -63,12 +63,12 @@ void grafeex::gui::object_tree::attribute_removed_(attributes_state_type state){
 	}
 }
 
-void grafeex::gui::object_tree::set_attribute_cache_(attributes_state_type state, object_tree &target){
+void grafeex::gui::object_tree::set_attribute_cache_(attributes_state_value_type state, object_tree &target){
 	guard_type guard(lock_);
 	attributes_cache_[state].push_back(&target);
 }
 
-void grafeex::gui::object_tree::remove_attribute_cache_(attributes_state_type state, object_tree &target){
+void grafeex::gui::object_tree::remove_attribute_cache_(attributes_state_value_type state, object_tree &target){
 	guard_type guard(lock_);
 	
 	auto entry = attributes_cache_.find(state);

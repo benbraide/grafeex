@@ -6,7 +6,7 @@
 grafeex::messaging::notify_event::notify_event(object &value)
 	: message_event(value){}
 
-grafeex::messaging::notify_event::~notify_event(){}
+grafeex::messaging::notify_event::~notify_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::notify_event::dispatch(){
 	if (message_event::dispatch().is_propagating())

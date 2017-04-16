@@ -4,7 +4,7 @@
 grafeex::messaging::theme_changed_event::theme_changed_event(object &value)
 	: message_event(value){}
 
-grafeex::messaging::theme_changed_event::~theme_changed_event(){}
+grafeex::messaging::theme_changed_event::~theme_changed_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::theme_changed_event::dispatch(){
 	if (message_event::dispatch().is_propagating())
@@ -15,7 +15,7 @@ grafeex::messaging::message_event &grafeex::messaging::theme_changed_event::disp
 grafeex::messaging::user_changed_event::user_changed_event(object &value)
 	: message_event(value){}
 
-grafeex::messaging::user_changed_event::~user_changed_event(){}
+grafeex::messaging::user_changed_event::~user_changed_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::user_changed_event::dispatch(){
 	if (message_event::dispatch().is_propagating())
@@ -26,7 +26,7 @@ grafeex::messaging::message_event &grafeex::messaging::user_changed_event::dispa
 grafeex::messaging::input_language_changed_event::input_language_changed_event(object &value)
 	: message_event(value){}
 
-grafeex::messaging::input_language_changed_event::~input_language_changed_event(){}
+grafeex::messaging::input_language_changed_event::~input_language_changed_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::input_language_changed_event::dispatch(){
 	if (message_event::dispatch().is_propagating())
@@ -45,7 +45,7 @@ grafeex::messaging::input_language_changed_event::lparam_type grafeex::messaging
 grafeex::messaging::input_language_change_request_event::input_language_change_request_event(object &value)
 	: message_event(value){}
 
-grafeex::messaging::input_language_change_request_event::~input_language_change_request_event(){}
+grafeex::messaging::input_language_change_request_event::~input_language_change_request_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::input_language_change_request_event::dispatch(){
 	if (message_event::dispatch().is_propagating())
@@ -68,7 +68,7 @@ grafeex::messaging::input_language_change_request_event::lparam_type grafeex::me
 grafeex::messaging::display_changed_event::display_changed_event(object &value)
 	: message_event(value){}
 
-grafeex::messaging::display_changed_event::~display_changed_event(){}
+grafeex::messaging::display_changed_event::~display_changed_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::display_changed_event::dispatch(){
 	if (message_event::dispatch().is_propagating())
@@ -86,4 +86,19 @@ grafeex::messaging::display_changed_event::word_type grafeex::messaging::display
 
 grafeex::messaging::display_changed_event::word_type grafeex::messaging::display_changed_event::vertical_resolution() const{
 	return object_->info().high_lparam();
+}
+
+grafeex::messaging::capture_changed_event::capture_changed_event(object &value)
+	: message_event(value){}
+
+grafeex::messaging::capture_changed_event::~capture_changed_event() = default;
+
+grafeex::messaging::message_event &grafeex::messaging::capture_changed_event::dispatch(){
+	if (message_event::dispatch().is_propagating())
+		object_->target()->on_capture_changed(*this);
+	return *this;
+}
+
+grafeex::messaging::message_event::window_type *grafeex::messaging::capture_changed_event::window_with_capture() const{
+	return wrappers::hwnd(object_->info().lparam<wrappers::hwnd::value_type>()).get_data<window_type *>();
 }

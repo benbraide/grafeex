@@ -11,7 +11,7 @@ grafeex::messaging::object::object(const msg &info, bool is_sent, procedure_type
 		GRAFEEX_SET(states_, state::skipped);
 }
 
-grafeex::messaging::object::~object(){}
+grafeex::messaging::object::~object() = default;
 
 grafeex::messaging::object &grafeex::messaging::object::modify(const msg &value){
 	GRAFEEX_SET(states_, state::modified);

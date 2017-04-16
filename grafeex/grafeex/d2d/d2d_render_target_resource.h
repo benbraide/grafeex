@@ -23,7 +23,7 @@ namespace grafeex{
 			explicit render_target_resource(target_interface_type *&target_interface)
 				: target_interface_(target_interface){}
 
-			~render_target_resource(){}
+			~render_target_resource() = default;
 
 			solid_brush_type::InterfaceType &solid_brush(const color_type &color){
 				if (!solid_brush_.valid())

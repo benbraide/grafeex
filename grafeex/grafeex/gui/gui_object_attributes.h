@@ -15,16 +15,19 @@ namespace grafeex{
 
 		class object_attributes{
 		public:
-			enum class state : unsigned int{
-				nil				= (0 << 0x0000),
-				real_time		= (1 << 0x0000),
-				fill_parent		= (1 << 0x0001),
-				fill_content	= (1 << 0x0002),
-				align			= (1 << 0x0003),
+			typedef unsigned long long state_type;
+
+			struct state{
+				static const state_type nil				= (0 << 0x0000);
+				static const state_type real_time		= (1 << 0x0000);
+				static const state_type fill_parent		= (1 << 0x0001);
+				static const state_type fill_content	= (1 << 0x0002);
+				static const state_type align			= (1 << 0x0003);
+				static const state_type last			= (0x0003);
 			};
 
-			typedef std::function<void(state)> handler_type;
-			typedef std::unordered_map<state, handler_type> handlers_cache_type;
+			typedef std::function<void(state_type)> handler_type;
+			typedef std::unordered_map<state_type, handler_type> handlers_cache_type;
 
 			typedef structures::point point_type;
 			typedef structures::size size_type;
@@ -62,14 +65,12 @@ namespace grafeex{
 		private:
 			friend class object_tree;
 
-			virtual void trigger_(state states);
+			virtual void trigger_(state_type states);
 
 			object_tree *object_;
-			state active_states_;
+			state_type active_states_;
 			handlers_cache_type handlers_cache_;
 		};
-
-		GRAFEEX_MAKE_OPERATORS(object_attributes::state)
 	}
 }
 

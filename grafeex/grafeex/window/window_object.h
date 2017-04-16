@@ -14,6 +14,7 @@
 
 #include "../messaging/general_message_event_handler.h"
 #include "../messaging/menu_message_event_handler.h"
+#include "../messaging/input_message_event_handler.h"
 
 #include "../menu/shared_menu.h"
 #include "../collections/menu_collection.h"
@@ -24,7 +25,8 @@ namespace grafeex{
 	}
 
 	namespace window{
-		class object : public gui::object_tree, public messaging::general_event_handler, public messaging::menu_event_handler{
+		class object : public gui::object_tree, public messaging::general_event_handler, public messaging::menu_event_handler,
+			public messaging::input_event_handler{
 		public:
 			typedef ::UINT uint_type;
 			typedef ::WORD word_type;

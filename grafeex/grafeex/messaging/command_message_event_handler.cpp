@@ -1,11 +1,11 @@
 #include "command_message_event_handler.h"
 #include "message_event_forwarder.h"
 
-grafeex::messaging::command_event_handler::~command_event_handler(){}
+grafeex::messaging::command_event_handler::~command_event_handler() = default;
 
 grafeex::messaging::command_event_handler::forwarder_list_type grafeex::messaging::command_event_handler::forwarder_list_;
 
-grafeex::messaging::static_command_event_handler::~static_command_event_handler(){}
+grafeex::messaging::static_command_event_handler::~static_command_event_handler() = default;
 
 void grafeex::messaging::static_command_event_handler::create_forwarder_list(){
 	GMEH_UNIFORM_SCMD_DISPATCH(STN_DISABLE, disable);
@@ -22,7 +22,7 @@ void grafeex::messaging::static_command_event_handler::on_static_clicked(command
 
 void grafeex::messaging::static_command_event_handler::on_static_dbl_clicked(command_event &e){}
 
-grafeex::messaging::button_command_event_handler::~button_command_event_handler(){}
+grafeex::messaging::button_command_event_handler::~button_command_event_handler() = default;
 
 void grafeex::messaging::button_command_event_handler::create_forwarder_list(){
 	GMEH_UNIFORM_BCMD_DISPATCH(STN_DISABLE, kill_focus);

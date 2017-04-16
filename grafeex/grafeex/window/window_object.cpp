@@ -26,11 +26,13 @@ grafeex::window::object::event_tunnel::event_tunnel(){
 	event_list_[timer_event_.group()] = &timer_event_;
 }
 
-grafeex::window::object::event_tunnel::~event_tunnel(){}
+grafeex::window::object::event_tunnel::~event_tunnel() = default;
 
 grafeex::window::object::object(procedure_type previous_procedure)
 	: previous_procedure_(previous_procedure), command_forwarder_list_ref_(nullptr), notify_forwarder_list_ref_(nullptr), synced_(nullptr){
 	relative_info_ = relative_info{ false };
+	mouse_state_.object_info_.general_event_owner = this;
+	mouse_state_.object_info_.object_owner = this;
 }
 
 grafeex::window::object::~object(){
@@ -305,6 +307,8 @@ bool grafeex::window::object::create_(const create_info_type &info){
 
 		return false;
 	}
+	else//Success
+		mouse_state_.object_info_.parent = dynamic_cast<input_event_handler *>(parent_);
 
 	return true;
 }

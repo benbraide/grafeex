@@ -4,7 +4,7 @@
 grafeex::window::view::view(object &object)
 	: object_(&object){}
 
-grafeex::window::view::~view(){}
+grafeex::window::view::~view() = default;
 
 grafeex::window::view &grafeex::window::view::enable(){
 	object_->value_.enable(true);

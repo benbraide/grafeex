@@ -6,7 +6,7 @@
 grafeex::messaging::context_menu_event::context_menu_event(object &value)
 	: message_event(value){}
 
-grafeex::messaging::context_menu_event::~context_menu_event(){}
+grafeex::messaging::context_menu_event::~context_menu_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::context_menu_event::dispatch(){
 	if (message_event::dispatch().is_propagating())
@@ -52,7 +52,7 @@ grafeex::messaging::context_menu_event::point_type grafeex::messaging::context_m
 grafeex::messaging::menu_init_event::menu_init_event(object &value)
 	: message_event(value){}
 
-grafeex::messaging::menu_init_event::~menu_init_event(){}
+grafeex::messaging::menu_init_event::~menu_init_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::menu_init_event::dispatch(){
 	auto target = menu();
@@ -72,7 +72,7 @@ grafeex::messaging::menu_init_event::menu_type *grafeex::messaging::menu_init_ev
 grafeex::messaging::menu_popup_init_event::menu_popup_init_event(object &value)
 	: message_event(value){}
 
-grafeex::messaging::menu_popup_init_event::~menu_popup_init_event(){}
+grafeex::messaging::menu_popup_init_event::~menu_popup_init_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::menu_popup_init_event::dispatch(){
 	auto target = menu();
@@ -105,7 +105,7 @@ bool grafeex::messaging::menu_popup_init_event::is_window() const{
 grafeex::messaging::menu_popup_uninit_event::menu_popup_uninit_event(object &value)
 	: message_event(value){}
 
-grafeex::messaging::menu_popup_uninit_event::~menu_popup_uninit_event(){}
+grafeex::messaging::menu_popup_uninit_event::~menu_popup_uninit_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::menu_popup_uninit_event::dispatch(){
 	auto target = menu();
@@ -129,7 +129,7 @@ bool grafeex::messaging::menu_popup_uninit_event::is_window() const{
 grafeex::messaging::menu_next_event::menu_next_event(object &value)
 	: message_event(value){}
 
-grafeex::messaging::menu_next_event::~menu_next_event(){}
+grafeex::messaging::menu_next_event::~menu_next_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::menu_next_event::dispatch(){
 	auto target = menu();
@@ -183,7 +183,7 @@ bool grafeex::messaging::menu_next_event::is_left() const{
 grafeex::messaging::menu_rbutton_up_event::menu_rbutton_up_event(object &value)
 	: message_event(value){}
 
-grafeex::messaging::menu_rbutton_up_event::~menu_rbutton_up_event(){}
+grafeex::messaging::menu_rbutton_up_event::~menu_rbutton_up_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::menu_rbutton_up_event::dispatch(){
 	typedef menu::object::track_option track_option_type;
@@ -238,7 +238,7 @@ grafeex::messaging::menu_rbutton_up_event::point_type grafeex::messaging::menu_r
 grafeex::messaging::menu_command_event::menu_command_event(object &value)
 	: message_event(value){}
 
-grafeex::messaging::menu_command_event::~menu_command_event(){}
+grafeex::messaging::menu_command_event::~menu_command_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::menu_command_event::dispatch(){
 	menu::check_item *check_item = nullptr;
@@ -315,7 +315,7 @@ grafeex::messaging::menu_command_event::menu_item_type *grafeex::messaging::menu
 grafeex::messaging::menu_select_event::menu_select_event(object &value)
 	: message_event(value){}
 
-grafeex::messaging::menu_select_event::~menu_select_event(){}
+grafeex::messaging::menu_select_event::~menu_select_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::menu_select_event::dispatch(){
 	if (!GRAFEEX_IS(object_->info().high_wparam(), MF_MOUSESELECT)){

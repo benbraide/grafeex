@@ -30,7 +30,7 @@ namespace grafeex{
 
 		class hook_interface{
 		public:
-			virtual ~hook_interface(){}
+			virtual ~hook_interface() = default;
 
 			virtual bool hook() = 0;
 

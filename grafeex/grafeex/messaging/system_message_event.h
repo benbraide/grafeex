@@ -84,6 +84,19 @@ namespace grafeex{
 
 			virtual word_type vertical_resolution() const;
 		};
+
+		class capture_changed_event : public message_event{
+		public:
+			using message_event::operator=;
+
+			explicit capture_changed_event(object &value);
+
+			virtual ~capture_changed_event();
+
+			virtual message_event &dispatch() override;
+
+			virtual window_type *window_with_capture() const;
+		};
 	}
 }
 

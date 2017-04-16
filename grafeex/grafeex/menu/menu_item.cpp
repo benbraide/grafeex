@@ -8,7 +8,7 @@ grafeex::menu::item::event_tunnel::event_tunnel(){
 	event_list_[measure_event_.group()] = &measure_event_;
 }
 
-grafeex::menu::item::event_tunnel::~event_tunnel(){}
+grafeex::menu::item::event_tunnel::~event_tunnel() = default;
 
 grafeex::menu::item::event_tunnel &grafeex::menu::item::event_tunnel::select(){
 	grafeex::events::object e(*owner_);

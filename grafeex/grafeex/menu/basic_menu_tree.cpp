@@ -1,7 +1,7 @@
 #include "basic_menu_tree.h"
 #include "menu_item.h"
 
-grafeex::menu::basic_tree::~basic_tree(){}
+grafeex::menu::basic_tree::~basic_tree() = default;
 
 grafeex::menu::tree &grafeex::menu::basic_tree::traverse_children_absolute(traverser_type traverser){
 	guard_type guard(lock_);

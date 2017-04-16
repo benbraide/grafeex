@@ -14,7 +14,7 @@ grafeex::messaging::style_event::style_event(object &value)
 	filtered_ = GRAFEEX_REMOVE_V(GRAFEEX_SET_V(info_->styleOld, styles_added), styles_removed);
 }
 
-grafeex::messaging::style_event::~style_event(){}
+grafeex::messaging::style_event::~style_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::style_event::handle(handle_type type){
 	info_->styleNew = filtered_;//Copy value
@@ -51,7 +51,7 @@ grafeex::messaging::style_event::value_type grafeex::messaging::style_event::fil
 grafeex::messaging::changing_style_event::changing_style_event(object &value)
 	: style_event(value){}
 
-grafeex::messaging::changing_style_event::~changing_style_event(){}
+grafeex::messaging::changing_style_event::~changing_style_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::changing_style_event::dispatch(){
 	if (style_event::dispatch().is_propagating())
@@ -80,7 +80,7 @@ grafeex::messaging::message_event &grafeex::messaging::changing_style_event::wri
 grafeex::messaging::changed_style_event::changed_style_event(object &value)
 	: style_event(value){}
 
-grafeex::messaging::changed_style_event::~changed_style_event(){}
+grafeex::messaging::changed_style_event::~changed_style_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::changed_style_event::dispatch(){
 	if (style_event::dispatch().is_propagating())

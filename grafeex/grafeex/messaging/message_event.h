@@ -116,6 +116,28 @@ namespace grafeex{
 			state states_;
 		};
 
+		class null_event : public message_event{
+		public:
+			using message_event::operator=;
+
+			explicit null_event(object &value);
+
+			virtual ~null_event();
+
+			virtual message_event &dispatch() override;
+		};
+
+		class unhandled_event : public message_event{
+		public:
+			using message_event::operator=;
+
+			explicit unhandled_event(object &value);
+
+			virtual ~unhandled_event();
+
+			virtual message_event &dispatch() override;
+		};
+
 		GRAFEEX_MAKE_OPERATORS(message_event::state)
 	}
 }

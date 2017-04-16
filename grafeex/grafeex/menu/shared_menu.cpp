@@ -7,7 +7,7 @@ grafeex::menu::shared::shared(const hwnd_type &target, option options)
 		populate_items_();
 }
 
-grafeex::menu::shared::~shared(){}
+grafeex::menu::shared::~shared() = default;
 
 void grafeex::menu::shared::populate_items_(){
 	item_type item;

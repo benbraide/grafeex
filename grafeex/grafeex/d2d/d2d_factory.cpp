@@ -7,7 +7,7 @@ grafeex::d2d::factory::factory(bool multi_threaded){
 	}
 }
 
-grafeex::d2d::factory::~factory(){}
+grafeex::d2d::factory::~factory() = default;
 
 grafeex::d2d::factory::operator interface_type &() const{
 	return *ptr_;

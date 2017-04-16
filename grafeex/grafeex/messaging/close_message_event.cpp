@@ -4,7 +4,7 @@
 grafeex::messaging::close_event::close_event(object &value)
 	: message_event(value){}
 
-grafeex::messaging::close_event::~close_event(){}
+grafeex::messaging::close_event::~close_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::close_event::dispatch(){
 	if (message_event::dispatch().is_propagating())

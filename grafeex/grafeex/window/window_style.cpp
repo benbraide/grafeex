@@ -6,7 +6,7 @@ grafeex::window::style::style(object &object)
 	update_info_ = update_info{ false, info_type{}, info_type{} };//Reset
 }
 
-grafeex::window::style::~style(){}
+grafeex::window::style::~style() = default;
 
 grafeex::window::style &grafeex::window::style::begin(){
 	update_info_.active = true;

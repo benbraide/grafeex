@@ -63,7 +63,7 @@ grafeex::threading::manual_event_object::manual_event_object(const std::wstring 
 	create_(name, true);
 }
 
-grafeex::threading::manual_event_object::~manual_event_object(){}
+grafeex::threading::manual_event_object::~manual_event_object() = default;
 
 bool grafeex::threading::manual_event_object::create(const std::wstring &name){
 	return create_(name, true);

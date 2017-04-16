@@ -30,7 +30,7 @@ grafeex::gui::object_attributes &grafeex::gui::object_attributes::fill_parent(bo
 	if (enabled){
 		GRAFEEX_SET(active_states_, state::fill_parent);
 		if (handler == nullptr){
-			handlers_cache_[state::fill_parent] = [this, padding](state s){
+			handlers_cache_[state::fill_parent] = [this, padding](state_type s){
 				auto parent = object_->parent();
 				if (parent != nullptr)//Update bounding rectangle
 					object_->dimensions(parent->dimensions(true).get_deflated(padding), false);
@@ -52,7 +52,7 @@ grafeex::gui::object_attributes &grafeex::gui::object_attributes::fill_parent(bo
 }
 
 grafeex::gui::object_attributes &grafeex::gui::object_attributes::fill_parent(const float_size_type &size, const rect_type &padding){
-	return fill_parent(true, [=](state){
+	return fill_parent(true, [=](state_type){
 		auto parent = object_->parent();
 		if (parent != nullptr){//Update bounding rectangle
 			auto object_size = object_->size(false);
@@ -69,7 +69,7 @@ grafeex::gui::object_attributes &grafeex::gui::object_attributes::fill_parent(co
 }
 
 grafeex::gui::object_attributes &grafeex::gui::object_attributes::fill_parent_width(const rect_type &padding){
-	return fill_parent(true, [=](state){
+	return fill_parent(true, [=](state_type){
 		auto parent = object_->parent();
 		if (parent != nullptr){//Update bounding rectangle
 			object_->dimensions(rect_type(point_type{}, size_type{ parent->size(true).width(),
@@ -79,7 +79,7 @@ grafeex::gui::object_attributes &grafeex::gui::object_attributes::fill_parent_wi
 }
 
 grafeex::gui::object_attributes &grafeex::gui::object_attributes::fill_parent_height(const rect_type &padding){
-	return fill_parent(true, [=](state){
+	return fill_parent(true, [=](state_type){
 		auto parent = object_->parent();
 		if (parent != nullptr){//Update bounding rectangle
 			object_->dimensions(rect_type(point_type{}, size_type{ object_->size().width(),
@@ -104,7 +104,7 @@ grafeex::gui::object_attributes &grafeex::gui::object_attributes::fill_content(b
 	if (enabled){
 		GRAFEEX_SET(active_states_, state::fill_content);
 		if (handler == nullptr){
-			handlers_cache_[state::fill_content] = [this, padding](state s){
+			handlers_cache_[state::fill_content] = [this, padding](state_type s){
 
 			};
 		}
@@ -136,7 +136,7 @@ grafeex::gui::object_attributes &grafeex::gui::object_attributes::align(bool ena
 	if (enabled){
 		GRAFEEX_SET(active_states_, state::align);
 		if (handler == nullptr){
-			handlers_cache_[state::align] = [this, alignment, offset](state s){
+			handlers_cache_[state::align] = [this, alignment, offset](state_type s){
 				object_->align(alignment, offset);
 			};
 		}
@@ -159,7 +159,7 @@ bool grafeex::gui::object_attributes::aligned() const{
 	return GRAFEEX_IS(active_states_, state::align);
 }
 
-void grafeex::gui::object_attributes::trigger_(state states){
+void grafeex::gui::object_attributes::trigger_(state_type states){
 	if (GRAFEEX_IS(states, state::fill_parent))
 		(handlers_cache_[state::fill_parent])(state::fill_parent);
 

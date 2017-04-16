@@ -4,7 +4,7 @@
 grafeex::messaging::scope_event::scope_event(object &value)
 	: message_event(value){}
 
-grafeex::messaging::scope_event::~scope_event(){}
+grafeex::messaging::scope_event::~scope_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::scope_event::dispatch(){
 	if (message_event::dispatch().is_propagating())
@@ -15,7 +15,7 @@ grafeex::messaging::message_event &grafeex::messaging::scope_event::dispatch(){
 grafeex::messaging::nc_create_event::nc_create_event(object &value)
 	: scope_event(value){}
 
-grafeex::messaging::nc_create_event::~nc_create_event(){}
+grafeex::messaging::nc_create_event::~nc_create_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::nc_create_event::dispatch(){
 	object_->target()->value_ = object_->info().owner();
@@ -45,7 +45,7 @@ bool grafeex::messaging::nc_create_event::is_client() const{
 grafeex::messaging::create_event::create_event(object &value)
 	: scope_event(value){}
 
-grafeex::messaging::create_event::~create_event(){}
+grafeex::messaging::create_event::~create_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::create_event::dispatch(){
 	object_->target()->system_menu_ = std::make_shared<menu::shared>(object_->info().owner(), menu::shared::option::system);
@@ -78,7 +78,7 @@ grafeex::messaging::message_event::result_type grafeex::messaging::create_event:
 grafeex::messaging::nc_destroy_event::nc_destroy_event(object &value)
 	: scope_event(value){}
 
-grafeex::messaging::nc_destroy_event::~nc_destroy_event(){}
+grafeex::messaging::nc_destroy_event::~nc_destroy_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::nc_destroy_event::dispatch(){
 	auto target = object_->target();
@@ -98,6 +98,7 @@ grafeex::messaging::message_event &grafeex::messaging::nc_destroy_event::dispatc
 	target->menu_ = nullptr;//Destroy menu
 	target->value_ = nullptr;//Reset
 	target->renderer_ = nullptr;//Release renderer
+	target->mouse_state_.object_info_.parent = nullptr;
 
 	auto tree_parent = dynamic_cast<gui::object_tree *>(target->parent());
 	if (tree_parent != nullptr)//Remove from parent
@@ -131,7 +132,7 @@ bool grafeex::messaging::nc_destroy_event::is_client() const{
 grafeex::messaging::destroy_event::destroy_event(object &value)
 	: scope_event(value){}
 
-grafeex::messaging::destroy_event::~destroy_event(){}
+grafeex::messaging::destroy_event::~destroy_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::destroy_event::dispatch(){
 	if (scope_event::dispatch().is_propagating())

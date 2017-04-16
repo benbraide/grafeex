@@ -4,7 +4,7 @@
 grafeex::messaging::activate_app_event::activate_app_event(object &value)
 	: message_event(value){}
 
-grafeex::messaging::activate_app_event::~activate_app_event(){}
+grafeex::messaging::activate_app_event::~activate_app_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::activate_app_event::dispatch(){
 	application::object::instance->app_activate_(*this);
@@ -22,7 +22,7 @@ bool grafeex::messaging::activate_app_event::is_active() const{
 grafeex::messaging::nc_activate_event::nc_activate_event(object &value)
 	: message_event(value){}
 
-grafeex::messaging::nc_activate_event::~nc_activate_event(){}
+grafeex::messaging::nc_activate_event::~nc_activate_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::nc_activate_event::dispatch(){
 	if (message_event::dispatch().is_propagating())
@@ -45,7 +45,7 @@ bool grafeex::messaging::nc_activate_event::is_active() const{
 grafeex::messaging::activate_event::activate_event(object &value)
 	: message_event(value){}
 
-grafeex::messaging::activate_event::~activate_event(){}
+grafeex::messaging::activate_event::~activate_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::activate_event::dispatch(){
 	if (message_event::dispatch().is_propagating())
@@ -91,7 +91,7 @@ bool grafeex::messaging::activate_event::is_minimized() const{
 grafeex::messaging::child_activate_event::child_activate_event(object &value)
 	: message_event(value){}
 
-grafeex::messaging::child_activate_event::~child_activate_event(){}
+grafeex::messaging::child_activate_event::~child_activate_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::child_activate_event::dispatch(){
 	if (message_event::dispatch().is_propagating())
@@ -102,7 +102,7 @@ grafeex::messaging::message_event &grafeex::messaging::child_activate_event::dis
 grafeex::messaging::cancel_mode_event::cancel_mode_event(object &value)
 	: message_event(value){}
 
-grafeex::messaging::cancel_mode_event::~cancel_mode_event(){}
+grafeex::messaging::cancel_mode_event::~cancel_mode_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::cancel_mode_event::dispatch(){
 	if (message_event::dispatch().is_propagating())
@@ -127,7 +127,7 @@ grafeex::messaging::message_event &grafeex::messaging::enable_event::dispatch(){
 	return *this;
 }
 
-grafeex::messaging::enable_event::~enable_event(){}
+grafeex::messaging::enable_event::~enable_event() = default;
 
 bool grafeex::messaging::enable_event::is_enabled() const{
 	return (object_->info().wparam<bool_type>() != FALSE);

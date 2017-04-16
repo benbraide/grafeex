@@ -25,7 +25,7 @@ namespace grafeex{
 
 			typedef std::function<void(menu_interface &)> sub_callback_type;
 
-			virtual ~menu_interface(){}
+			virtual ~menu_interface() = default;
 
 			virtual menu_interface &set_new_line(bool bordered = false) = 0;
 

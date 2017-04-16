@@ -4,7 +4,7 @@
 grafeex::messaging::timer_event::timer_event(object &value)
 	: message_event(value){}
 
-grafeex::messaging::timer_event::~timer_event(){}
+grafeex::messaging::timer_event::~timer_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::timer_event::dispatch(){
 	if (message_event::dispatch().is_propagating())

@@ -22,6 +22,8 @@ namespace grafeex{
 			typedef d2d::hwnd_render_target render_type;
 			typedef window::view view_type;
 
+			typedef structures::enumerations::hit_target_type hit_target_type;
+
 			virtual ~general_event_handler();
 
 			virtual view_type &view() = 0;
@@ -30,6 +32,9 @@ namespace grafeex{
 
 		protected:
 			friend class message_event;
+
+			friend class null_event;
+			friend class unhandled_event;
 
 			friend class scope_event;
 			friend class nc_create_event;
@@ -81,20 +86,26 @@ namespace grafeex{
 			friend class query_open_event;
 			friend class query_drag_icon_event;
 
+			friend class hit_test_event;
+
 			friend class theme_changed_event;
 			friend class user_changed_event;
 			friend class input_language_changed_event;
 			friend class input_language_change_request_event;
 			friend class display_changed_event;
+			friend class capture_changed_event;
 
 			friend class command_event;
 			friend class notify_event;
 
 			friend class timer_event;
-
-			virtual void on_unhandled_event(message_event &e);
+			friend class mouse_state;
 
 			virtual void on_event(message_event &e);
+
+			virtual void on_null(null_event &e);
+
+			virtual void on_unhandled(unhandled_event &e);
 
 			virtual bool on_scope(scope_event &e);
 
@@ -166,6 +177,8 @@ namespace grafeex{
 
 			virtual icon_type on_query_drag_icon(query_drag_icon_event &e);
 
+			virtual hit_target_type on_hit_test(hit_test_event &e);
+
 			virtual bool on_style_change(style_event &e);
 
 			virtual bool on_style_changing(changing_style_event &e);
@@ -207,6 +220,8 @@ namespace grafeex{
 			virtual bool on_input_language_change_request(input_language_change_request_event &e);
 
 			virtual void on_display_changed(display_changed_event &e);
+
+			virtual void on_capture_changed(capture_changed_event &e);
 
 			virtual void on_timer(timer_event &e);
 

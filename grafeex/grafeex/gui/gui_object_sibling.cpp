@@ -9,7 +9,7 @@ grafeex::gui::object_sibling::object_sibling(const object &value, sibling_value_
 grafeex::gui::object_sibling::object_sibling(object &value, sibling_value_type type)
 	: value_(&value), type_(type){}
 
-grafeex::gui::object_sibling::~object_sibling(){}
+grafeex::gui::object_sibling::~object_sibling() = default;
 
 grafeex::gui::object *grafeex::gui::object_sibling::non_sibling(){
 	return value_->non_sibling();

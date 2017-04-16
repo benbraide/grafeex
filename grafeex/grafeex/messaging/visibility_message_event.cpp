@@ -4,7 +4,7 @@
 grafeex::messaging::visibility_event::visibility_event(object &value)
 	: message_event(value){}
 
-grafeex::messaging::visibility_event::~visibility_event(){}
+grafeex::messaging::visibility_event::~visibility_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::visibility_event::dispatch(){
 	if (message_event::dispatch().is_propagating())

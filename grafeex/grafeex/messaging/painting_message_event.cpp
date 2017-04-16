@@ -4,7 +4,7 @@
 grafeex::messaging::erase_background_event::erase_background_event(object &value)
 	: message_event(value){}
 
-grafeex::messaging::erase_background_event::~erase_background_event(){}
+grafeex::messaging::erase_background_event::~erase_background_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::erase_background_event::dispatch(){
 	if (object_->target()->renderer_ != nullptr)
@@ -28,7 +28,7 @@ grafeex::messaging::erase_background_event::device_type grafeex::messaging::eras
 grafeex::messaging::paint_event::paint_event(object &value)
 	: message_event(value){}
 
-grafeex::messaging::paint_event::~paint_event(){}
+grafeex::messaging::paint_event::~paint_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::paint_event::dispatch(){
 	if (object_->target()->renderer_ != nullptr)
@@ -43,7 +43,7 @@ grafeex::messaging::message_event &grafeex::messaging::paint_event::dispatch(){
 grafeex::messaging::nc_paint_event::nc_paint_event(object &value)
 	: paint_event(value){}
 
-grafeex::messaging::nc_paint_event::~nc_paint_event(){}
+grafeex::messaging::nc_paint_event::~nc_paint_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::nc_paint_event::dispatch(){
 	if (paint_event::dispatch().is_propagating())
@@ -123,7 +123,7 @@ grafeex::messaging::client_paint_event::rect_type grafeex::messaging::client_pai
 grafeex::messaging::print_client_event::print_client_event(object &value)
 	: message_event(value){}
 
-grafeex::messaging::print_client_event::~print_client_event(){}
+grafeex::messaging::print_client_event::~print_client_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::print_client_event::dispatch(){
 	if (message_event::dispatch().is_propagating())
@@ -142,7 +142,7 @@ grafeex::messaging::print_client_event::option grafeex::messaging::print_client_
 grafeex::messaging::print_event::print_event(object &value)
 	: message_event(value){}
 
-grafeex::messaging::print_event::~print_event(){}
+grafeex::messaging::print_event::~print_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::print_event::dispatch(){
 	if (message_event::dispatch().is_propagating())

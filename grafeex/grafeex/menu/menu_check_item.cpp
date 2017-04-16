@@ -5,7 +5,7 @@ grafeex::menu::check_item::event_tunnel::event_tunnel(){
 	event_list_[unchecked_event_.group()] = &unchecked_event_;
 }
 
-grafeex::menu::check_item::event_tunnel::~event_tunnel(){}
+grafeex::menu::check_item::event_tunnel::~event_tunnel() = default;
 
 grafeex::menu::check_item::check_item(option options)
 	: item(options){}
@@ -20,7 +20,7 @@ grafeex::menu::check_item::check_item(const sibling_type &sibling, const std::ws
 	create(sibling, value);
 }
 
-grafeex::menu::check_item::~check_item(){}
+grafeex::menu::check_item::~check_item() = default;
 
 grafeex::menu::check_item::event_tunnel &grafeex::menu::check_item::events(){
 	return *dynamic_cast<event_tunnel *>(get_events_().get());

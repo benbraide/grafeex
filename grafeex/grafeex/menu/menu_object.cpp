@@ -6,7 +6,7 @@ grafeex::menu::object::event_tunnel::event_tunnel(){
 	event_list_[init_event_.group()] = &init_event_;
 }
 
-grafeex::menu::object::event_tunnel::~event_tunnel(){}
+grafeex::menu::object::event_tunnel::~event_tunnel() = default;
 
 grafeex::menu::object::object(native_type value)
 	: value_(value){}
@@ -14,7 +14,7 @@ grafeex::menu::object::object(native_type value)
 grafeex::menu::object::object(value_type value)
 	: value_(value){}
 
-grafeex::menu::object::~object(){}
+grafeex::menu::object::~object() = default;
 
 grafeex::gui::object::object_type grafeex::menu::object::type() const{
 	return object_type::menu;

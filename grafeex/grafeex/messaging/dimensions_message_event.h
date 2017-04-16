@@ -264,6 +264,21 @@ namespace grafeex{
 
 			virtual message_event &dispatch() override;
 		};
+
+		class hit_test_event : public message_event{
+		public:
+			using message_event::operator=;
+
+			typedef structures::point point_type;
+
+			explicit hit_test_event(object &value);
+
+			virtual ~hit_test_event();
+
+			virtual message_event &dispatch() override;
+
+			virtual point_type position() const;
+		};
 	}
 }
 

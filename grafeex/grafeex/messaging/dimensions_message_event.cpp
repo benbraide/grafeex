@@ -4,7 +4,7 @@
 grafeex::messaging::position_event::position_event(object &value)
 	: message_event(value){}
 
-grafeex::messaging::position_event::~position_event(){}
+grafeex::messaging::position_event::~position_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::position_event::dispatch(){
 	if (message_event::dispatch().is_propagating())
@@ -19,7 +19,7 @@ grafeex::messaging::position_event::info_type &grafeex::messaging::position_even
 grafeex::messaging::changing_position_event::changing_position_event(object &value)
 	: position_event(value){}
 
-grafeex::messaging::changing_position_event::~changing_position_event(){}
+grafeex::messaging::changing_position_event::~changing_position_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::changing_position_event::dispatch(){
 	if (position_event::dispatch().is_propagating())
@@ -34,7 +34,7 @@ bool grafeex::messaging::changing_position_event::is_changing() const{
 grafeex::messaging::changed_position_event::changed_position_event(object &value)
 	: position_event(value){}
 
-grafeex::messaging::changed_position_event::~changed_position_event(){}
+grafeex::messaging::changed_position_event::~changed_position_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::changed_position_event::dispatch(){
 	if (position_event::dispatch().is_propagating())
@@ -57,7 +57,7 @@ bool grafeex::messaging::changed_position_event::is_changing() const{
 grafeex::messaging::movement_event::movement_event(object &value)
 	: message_event(value){}
 
-grafeex::messaging::movement_event::~movement_event(){}
+grafeex::messaging::movement_event::~movement_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::movement_event::dispatch(){
 	if (message_event::dispatch().is_propagating())
@@ -68,7 +68,7 @@ grafeex::messaging::message_event &grafeex::messaging::movement_event::dispatch(
 grafeex::messaging::changing_movement_event::changing_movement_event(object &value)
 	: movement_event(value), info_(value.info().lparam<info_type::value_type>()){}
 
-grafeex::messaging::changing_movement_event::~changing_movement_event(){}
+grafeex::messaging::changing_movement_event::~changing_movement_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::changing_movement_event::dispatch(){
 	if (movement_event::dispatch().is_propagating())
@@ -87,7 +87,7 @@ grafeex::messaging::changing_movement_event::info_type &grafeex::messaging::chan
 grafeex::messaging::changed_movement_event::changed_movement_event(object &value)
 	: movement_event(value){}
 
-grafeex::messaging::changed_movement_event::~changed_movement_event(){}
+grafeex::messaging::changed_movement_event::~changed_movement_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::changed_movement_event::dispatch(){
 	if (movement_event::dispatch().is_propagating())
@@ -102,7 +102,7 @@ bool grafeex::messaging::changed_movement_event::is_changing() const{
 grafeex::messaging::size_event::size_event(object &value)
 	: message_event(value){}
 
-grafeex::messaging::size_event::~size_event(){}
+grafeex::messaging::size_event::~size_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::size_event::dispatch(){
 	if (message_event::dispatch().is_propagating())
@@ -113,7 +113,7 @@ grafeex::messaging::message_event &grafeex::messaging::size_event::dispatch(){
 grafeex::messaging::changing_size_event::changing_size_event(object &value)
 	: size_event(value), info_(value.info().lparam<info_type::value_type>()){}
 
-grafeex::messaging::changing_size_event::~changing_size_event(){}
+grafeex::messaging::changing_size_event::~changing_size_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::changing_size_event::dispatch(){
 	if (size_event::dispatch().is_propagating())
@@ -136,7 +136,7 @@ grafeex::messaging::changing_size_event::edge_type grafeex::messaging::changing_
 grafeex::messaging::changed_size_event::changed_size_event(object &value)
 	: size_event(value){}
 
-grafeex::messaging::changed_size_event::~changed_size_event(){}
+grafeex::messaging::changed_size_event::~changed_size_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::changed_size_event::dispatch(){
 	if (size_event::dispatch().is_propagating())
@@ -175,7 +175,7 @@ bool grafeex::messaging::changed_size_event::other_window_maximized() const{
 grafeex::messaging::min_max_event::min_max_event(object &value)
 	: message_event(value){}
 
-grafeex::messaging::min_max_event::~min_max_event(){}
+grafeex::messaging::min_max_event::~min_max_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::min_max_event::dispatch(){
 	if (message_event::dispatch().is_propagating())
@@ -190,7 +190,7 @@ grafeex::messaging::min_max_event::info_type &grafeex::messaging::min_max_event:
 grafeex::messaging::calculate_size_event::calculate_size_event(object &value)
 	: message_event(value), non_valid_info_(value.info().lparam<non_valid_info_type::value_type>()){}
 
-grafeex::messaging::calculate_size_event::~calculate_size_event(){}
+grafeex::messaging::calculate_size_event::~calculate_size_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::calculate_size_event::dispatch(){
 	if (message_event::dispatch().is_propagating())
@@ -213,7 +213,7 @@ grafeex::messaging::calculate_size_event::non_valid_info_type &grafeex::messagin
 grafeex::messaging::size_move_event::size_move_event(object &value)
 	: message_event(value){}
 
-grafeex::messaging::size_move_event::~size_move_event(){}
+grafeex::messaging::size_move_event::~size_move_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::size_move_event::dispatch(){
 	if (message_event::dispatch().is_propagating())
@@ -224,7 +224,7 @@ grafeex::messaging::message_event &grafeex::messaging::size_move_event::dispatch
 grafeex::messaging::enter_size_move_event::enter_size_move_event(object &value)
 	: size_move_event(value){}
 
-grafeex::messaging::enter_size_move_event::~enter_size_move_event(){}
+grafeex::messaging::enter_size_move_event::~enter_size_move_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::enter_size_move_event::dispatch(){
 	if (size_move_event::dispatch().is_propagating())
@@ -239,7 +239,7 @@ bool grafeex::messaging::enter_size_move_event::is_entered() const{
 grafeex::messaging::exit_size_move_event::exit_size_move_event(object &value)
 	: size_move_event(value){}
 
-grafeex::messaging::exit_size_move_event::~exit_size_move_event(){}
+grafeex::messaging::exit_size_move_event::~exit_size_move_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::exit_size_move_event::dispatch(){
 	if (size_move_event::dispatch().is_propagating())
@@ -254,7 +254,7 @@ bool grafeex::messaging::exit_size_move_event::is_entered() const{
 grafeex::messaging::query_open_event::query_open_event(object &value)
 	: message_event(value){}
 
-grafeex::messaging::query_open_event::~query_open_event(){}
+grafeex::messaging::query_open_event::~query_open_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::query_open_event::dispatch(){
 	if (message_event::dispatch().is_propagating())
@@ -265,10 +265,25 @@ grafeex::messaging::message_event &grafeex::messaging::query_open_event::dispatc
 grafeex::messaging::query_drag_icon_event::query_drag_icon_event(object &value)
 	: message_event(value){}
 
-grafeex::messaging::query_drag_icon_event::~query_drag_icon_event(){}
+grafeex::messaging::query_drag_icon_event::~query_drag_icon_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::query_drag_icon_event::dispatch(){
 	if (message_event::dispatch().is_propagating())
 		*this << object_->target()->on_query_drag_icon(*this);
 	return *this;
+}
+
+grafeex::messaging::hit_test_event::hit_test_event(object &value)
+	: message_event(value){}
+
+grafeex::messaging::hit_test_event::~hit_test_event() = default;
+
+grafeex::messaging::message_event &grafeex::messaging::hit_test_event::dispatch(){
+	if (message_event::dispatch().is_propagating())
+		*this << object_->target()->on_hit_test(*this);
+	return *this;
+}
+
+grafeex::messaging::hit_test_event::point_type grafeex::messaging::hit_test_event::position() const{
+	return point_type GRAFEEX_MAKE_MOUSE_POSITION(object_->info().lparam());
 }

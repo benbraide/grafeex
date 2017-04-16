@@ -1,11 +1,13 @@
 #include "general_message_event_handler.h"
 #include "../window/window_object.h"
 
-grafeex::messaging::general_event_handler::~general_event_handler(){}
-
-void grafeex::messaging::general_event_handler::on_unhandled_event(message_event &e){}
+grafeex::messaging::general_event_handler::~general_event_handler() = default;
 
 void grafeex::messaging::general_event_handler::on_event(message_event &e){}
+
+void grafeex::messaging::general_event_handler::on_null(null_event &e){}
+
+void grafeex::messaging::general_event_handler::on_unhandled(unhandled_event &e){}
 
 bool grafeex::messaging::general_event_handler::on_scope(scope_event &e){
 	return true;
@@ -104,7 +106,11 @@ bool grafeex::messaging::general_event_handler::on_query_open(query_open_event &
 }
 
 grafeex::messaging::general_event_handler::icon_type grafeex::messaging::general_event_handler::on_query_drag_icon(query_drag_icon_event &e){
-	return nullptr;
+	return reinterpret_cast<icon_type>(e.handle().get_object().value());
+}
+
+grafeex::messaging::general_event_handler::hit_target_type grafeex::messaging::general_event_handler::on_hit_test(hit_test_event &e){
+	return static_cast<hit_target_type>(e.handle().get_object().value());
 }
 
 bool grafeex::messaging::general_event_handler::on_style_change(style_event &e){
@@ -171,6 +177,8 @@ bool grafeex::messaging::general_event_handler::on_input_language_change_request
 }
 
 void grafeex::messaging::general_event_handler::on_display_changed(display_changed_event &e){}
+
+void grafeex::messaging::general_event_handler::on_capture_changed(capture_changed_event &e){}
 
 void grafeex::messaging::general_event_handler::on_timer(timer_event &e){}
 

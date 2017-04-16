@@ -3,7 +3,7 @@
 #include "../window/modal_dialog_window.h"
 #include "../messaging/command_message_event_handler.h"
 
-grafeex::application::object::~object(){}
+grafeex::application::object::~object() = default;
 
 void grafeex::application::object::quit(int exit_code){
 	if (threading::get_current_id() != id_){
@@ -144,7 +144,7 @@ grafeex::application::object::result_type grafeex::application::object::dispatch
 	messaging::object meesage_object(msg, is_sent, target.previous_procedure_);
 	auto message_dispatcher = dispatcher_list_.find(msg.code());
 	if (message_dispatcher == dispatcher_list_.end())//Unrecognized message
-		dispatcher_list_[WM_NULL]->dispatch(meesage_object);
+		unhandled_dispatcher_->dispatch(meesage_object);
 	else//Dispatch message
 		message_dispatcher->second->dispatch(meesage_object);
 
@@ -180,7 +180,8 @@ grafeex::application::object::hwnd_type grafeex::application::object::create_(wi
 }
 
 void grafeex::application::object::create_dispatchers_(){
-	GAPP_DISPATCH(WM_NULL, message_event);
+	unhandled_dispatcher_ = GAPP_MAKE_DISPATCHER(unhandled_event);
+	GAPP_DISPATCH(WM_NULL, null_event);
 
 	GAPP_DISPATCH(WM_NCCREATE, nc_create_event);
 	GAPP_DISPATCH(WM_CREATE, create_event);
@@ -217,6 +218,8 @@ void grafeex::application::object::create_dispatchers_(){
 	GAPP_DISPATCH(WM_QUERYOPEN, query_open_event);
 	GAPP_DISPATCH(WM_QUERYDRAGICON, query_drag_icon_event);
 
+	GAPP_DISPATCH(WM_NCHITTEST, hit_test_event);
+
 	GAPP_DISPATCH(WM_ERASEBKGND, erase_background_event);
 	GAPP_DISPATCH(WM_NCPAINT, nc_paint_event);
 	GAPP_DISPATCH(WM_PAINT, client_paint_event);
@@ -235,11 +238,52 @@ void grafeex::application::object::create_dispatchers_(){
 	GAPP_DISPATCH(WM_INPUTLANGCHANGE, input_language_changed_event);
 	GAPP_DISPATCH(WM_INPUTLANGCHANGEREQUEST, input_language_change_request_event);
 	GAPP_DISPATCH(WM_DISPLAYCHANGE, display_changed_event);
+	GAPP_DISPATCH(WM_CAPTURECHANGED, capture_changed_event);
 
 	GAPP_DISPATCH(WM_COMMAND, command_event);
 	GAPP_DISPATCH(WM_NOTIFY, notify_event);
 
 	GAPP_DISPATCH(WM_TIMER, timer_event);
+
+	GAPP_DISPATCH(WM_KEYDOWN, normal_key_down_event);
+	GAPP_DISPATCH(WM_KEYUP, normal_key_up_event);
+	GAPP_DISPATCH(WM_CHAR, normal_char_event);
+	GAPP_DISPATCH(WM_DEADCHAR, normal_dead_char_event);
+
+	GAPP_DISPATCH(WM_SYSKEYDOWN, system_key_down_event);
+	GAPP_DISPATCH(WM_SYSKEYUP, system_key_up_event);
+	GAPP_DISPATCH(WM_SYSCHAR, system_char_event);
+	GAPP_DISPATCH(WM_SYSDEADCHAR, system_dead_char_event);
+
+	GAPP_DISPATCH(WM_NCMOUSELEAVE, mouse_leave_event);
+	GAPP_DISPATCH(WM_MOUSELEAVE, mouse_client_leave_event);
+
+	GAPP_DISPATCH(WM_NCMOUSEMOVE, mouse_nc_move_event);
+	GAPP_DISPATCH(WM_MOUSEMOVE, mouse_client_move_event);
+
+	GAPP_DISPATCH(WM_NCLBUTTONDOWN, mouse_nc_left_button_down_event);
+	GAPP_DISPATCH(WM_LBUTTONDOWN, mouse_client_left_button_down_event);
+	GAPP_DISPATCH(WM_NCMBUTTONDOWN, mouse_nc_middle_button_down_event);
+	GAPP_DISPATCH(WM_MBUTTONDOWN, mouse_client_middle_button_down_event);
+	GAPP_DISPATCH(WM_NCRBUTTONDOWN, mouse_nc_right_button_down_event);
+	GAPP_DISPATCH(WM_RBUTTONDOWN, mouse_client_right_button_down_event);
+
+	GAPP_DISPATCH(WM_NCLBUTTONUP, mouse_nc_left_button_up_event);
+	GAPP_DISPATCH(WM_LBUTTONUP, mouse_client_left_button_up_event);
+	GAPP_DISPATCH(WM_NCMBUTTONUP, mouse_nc_middle_button_up_event);
+	GAPP_DISPATCH(WM_MBUTTONUP, mouse_client_middle_button_up_event);
+	GAPP_DISPATCH(WM_NCRBUTTONUP, mouse_nc_right_button_up_event);
+	GAPP_DISPATCH(WM_RBUTTONUP, mouse_client_right_button_up_event);
+
+	GAPP_DISPATCH(WM_NCLBUTTONDBLCLK, mouse_nc_left_button_dbl_click_event);
+	GAPP_DISPATCH(WM_LBUTTONDBLCLK, mouse_client_left_button_dbl_click_event);
+	GAPP_DISPATCH(WM_NCMBUTTONDBLCLK, mouse_nc_middle_button_dbl_click_event);
+	GAPP_DISPATCH(WM_MBUTTONDBLCLK, mouse_client_middle_button_dbl_click_event);
+	GAPP_DISPATCH(WM_NCRBUTTONDBLCLK, mouse_nc_right_button_dbl_click_event);
+	GAPP_DISPATCH(WM_RBUTTONDBLCLK, mouse_client_right_button_dbl_click_event);
+
+	GAPP_DISPATCH(WM_MOUSEWHEEL, mouse_vertical_wheel_event);
+	GAPP_DISPATCH(WM_MOUSEHWHEEL, mouse_horizontal_wheel_event);
 }
 
 void grafeex::application::object::app_activate_(messaging::activate_app_event &e){}

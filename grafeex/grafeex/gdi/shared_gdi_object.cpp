@@ -3,7 +3,7 @@
 grafeex::gdi::shared_object::shared_object(value_type value)
 	: value_(value){}
 
-grafeex::gdi::shared_object::~shared_object(){}
+grafeex::gdi::shared_object::~shared_object() = default;
 
 grafeex::gdi::shared_object &grafeex::gdi::shared_object::operator =(value_type value){
 	value_ = value;

@@ -9,7 +9,7 @@ namespace grafeex{
 	namespace messaging{
 		class event_forwarder_base{
 		public:
-			virtual ~event_forwarder_base(){}
+			virtual ~event_forwarder_base() = default;
 
 			virtual void dispatch(message_event &e) = 0;
 		};
@@ -26,7 +26,7 @@ namespace grafeex{
 			uniform_event_forwarder(method_type method)
 				: method_(method){}
 
-			virtual ~uniform_event_forwarder(){}
+			virtual ~uniform_event_forwarder() = default;
 
 			virtual void dispatch(message_event &e) override{
 				(dynamic_cast<window_type *>(e.get_object().target())->*method_)(*dynamic_cast<event_type *>(&e));

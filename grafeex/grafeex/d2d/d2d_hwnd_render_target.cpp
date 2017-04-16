@@ -15,7 +15,7 @@ grafeex::d2d::hwnd_render_target::hwnd_render_target(factory_type &factory, hwnd
 	create(factory, target, size);
 }
 
-grafeex::d2d::hwnd_render_target::~hwnd_render_target(){}
+grafeex::d2d::hwnd_render_target::~hwnd_render_target() = default;
 
 bool grafeex::d2d::hwnd_render_target::create(factory_type &factory, hwnd_value_type target, bool is_relative){
 	auto size = hwnd_type(target).get_client_rect().size();

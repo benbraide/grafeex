@@ -24,10 +24,12 @@ namespace grafeex{
 
 			typedef gui::object_attributes attributes_type;
 			typedef std::shared_ptr<attributes_type> attributes_ptr_type;
+
 			typedef attributes_type::state attributes_state_type;
+			typedef attributes_type::state_type attributes_state_value_type;
 
 			typedef std::list<object_tree *> object_tree_list_type;
-			typedef std::unordered_map<attributes_state_type, object_tree_list_type> attributes_cache_type;
+			typedef std::unordered_map<attributes_state_value_type, object_tree_list_type> attributes_cache_type;
 
 			virtual ~object_tree();
 
@@ -41,13 +43,13 @@ namespace grafeex{
 			friend class object_attributes;
 			friend class messaging::changed_position_event;
 
-			virtual void attribute_set_(attributes_state_type state);
+			virtual void attribute_set_(attributes_state_value_type state);
 
-			virtual void attribute_removed_(attributes_state_type state);
+			virtual void attribute_removed_(attributes_state_value_type state);
 
-			virtual void set_attribute_cache_(attributes_state_type state, object_tree &target);
+			virtual void set_attribute_cache_(attributes_state_value_type state, object_tree &target);
 
-			virtual void remove_attribute_cache_(attributes_state_type state, object_tree &target);
+			virtual void remove_attribute_cache_(attributes_state_value_type state, object_tree &target);
 
 			virtual void sized_();
 

@@ -4,31 +4,27 @@
 #define GRAFEEX_GENERAL_MESSAGE_EVENT_HANDLER_H
 
 #include "../application/application_object.h"
-#include "../d2d/d2d_hwnd_render_target.h"
+#include "../wrappers/hdc_wrapper.h"
+#include "../structures/system_color_structure.h"
 
 namespace grafeex{
-	namespace window{
-		class view;
-	}
-
 	namespace messaging{
 		class general_event_handler{
 		public:
 			typedef ::DWORD dword_type;
+			typedef ::LRESULT lresult_type;
+			typedef ::HRESULT hresult_type;
+
+			typedef ::ID2D1RenderTarget render_type;
+			typedef ::ID2D1SolidColorBrush brush_type;
 
 			typedef ::D2D1_COLOR_F d2d_color_type;
 			typedef ::HGDIOBJ icon_type;
-
-			typedef d2d::hwnd_render_target render_type;
-			typedef window::view view_type;
+			typedef ::HFONT font_type;
 
 			typedef structures::enumerations::hit_target_type hit_target_type;
 
 			virtual ~general_event_handler();
-
-			virtual view_type &view() = 0;
-
-			virtual render_type &renderer() = 0;
 
 		protected:
 			friend class message_event;
@@ -100,6 +96,13 @@ namespace grafeex{
 
 			friend class timer_event;
 			friend class mouse_state;
+
+			friend class set_font_event;
+			friend class get_font_event;
+
+			friend class set_text_event;
+			friend class get_text_event;
+			friend class get_text_length_event;
 
 			virtual void on_event(message_event &e);
 
@@ -230,6 +233,22 @@ namespace grafeex{
 			virtual void on_accelerator(command_event &e);
 
 			virtual void on_notify(notify_event &e);
+
+			virtual void on_set_font(set_font_event &e);
+
+			virtual font_type on_get_font(get_font_event &e);
+
+			virtual void on_set_text(set_text_event &e);
+
+			virtual lresult_type on_get_text(get_text_event &e);
+
+			virtual lresult_type on_get_text_length(get_text_length_event &e);
+
+			virtual void on_drawing_error(hresult_type err, bool is_device);
+
+			virtual void on_recreate_drawing_resources(bool is_device);
+
+			virtual void erase_background_(render_type &renderer, const structures::rect &clip_rect, brush_type &brush);
 		};
 	}
 }

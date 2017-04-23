@@ -32,9 +32,15 @@
 #include "../messaging/command_message_event.h"
 #include "../messaging/notify_message_event.h"
 #include "../messaging/input_message_event.h"
+#include "../messaging/value_message_event.h"
 
 #include "../gdi/gdi_manager.h"
+#include "../gdi/gdi_object_ptr.h"
+
+#include "../graphics/graphics_text.h"
+
 #include "../d2d/d2d_factory.h"
+#include "../d2d/d2d_write_factory.h"
 
 namespace grafeex{
 	namespace window{
@@ -68,6 +74,7 @@ namespace grafeex{
 
 			typedef structures::point point_type;
 			typedef structures::size size_type;
+			typedef structures::rect rect_type;
 			typedef structures::dialog_template dialog_template_type;
 
 			typedef window::object window_type;
@@ -83,9 +90,14 @@ namespace grafeex{
 
 			typedef common::com com_type;
 			typedef d2d::factory factory_type;
+			typedef d2d::write_factory write_factory_type;
 
 			typedef ::D2D1_SIZE_F d2d_size_type;
 			typedef ::D2D1_POINT_2F d2d_point_type;
+			typedef ::D2D1_RECT_F d2d_rect_type;
+
+			typedef ::NONCLIENTMETRICSW nc_metrics_type;
+			typedef gdi::object_ptr<::HFONT> font_type;
 
 			enum class gdi_manager_state : unsigned int{
 				nil				= (0 << 0x0000),
@@ -102,29 +114,7 @@ namespace grafeex{
 			template <typename... types>
 			object(types... class_args)
 				: instance_(nullptr), active_dialog_(nullptr), recent_owner_(nullptr){
-				typedef std::wstring::size_type size_type;
-
-				instance = this;
 				class_.set(entry, class_args...);
-				if ((instance_ = class_.instance()) == nullptr)
-					class_.instance(instance_ = ::GetModuleHandleW(nullptr));
-
-				common::random_string random_string;
-				if (class_.name().empty())//Use a random string
-					class_.name(random_string.generate_alnum(std::make_pair<size_type, size_type>(9, 18)));
-
-				if (class_.create()){//Create dialog class
-					::GetClassInfoExW(nullptr, L"#32770", dialog_class_);
-					dialog_class_.procedure(entry);
-					dialog_class_.name(random_string.generate_alnum(std::make_pair<size_type, size_type>(9, 18)));
-					dialog_class_.instance(instance_);
-					dialog_class_.create();
-				}
-
-				d2d_factory->GetDesktopDpi(&d2d_dpi_scale.x, &d2d_dpi_scale.y);
-				d2d_dpi_scale.x /= 96.0f;
-				d2d_dpi_scale.y /= 96.0f;
-
 				init_();
 			}
 
@@ -189,11 +179,29 @@ namespace grafeex{
 				return static_cast<value_type>(value * d2d_dpi_scale.y);
 			}
 
+			static d2d_point_type pixel_to_dip(const point_type &value);
+
+			static d2d_size_type pixel_to_dip(const size_type &value);
+
+			static d2d_rect_type pixel_to_dip(const rect_type &value);
+
+			static point_type dip_to_pixel(const d2d_point_type &value);
+
+			static size_type dip_to_pixel(const d2d_size_type &value);
+
+			static rect_type dip_to_pixel(const d2d_rect_type &value);
+
+			static void create_default_font();
+
 			stored_message_info_type stored_message_info = {};
 
 			static object *instance;
+
 			static factory_type d2d_factory;
+			static write_factory_type d2d_write_factory;
+
 			static d2d_point_type d2d_dpi_scale;
+			static font_type default_font;
 
 		protected:
 			friend class threading::modal_loop;

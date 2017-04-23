@@ -60,8 +60,13 @@ grafeex::gui::object::rect_type grafeex::gui::generic_object::dimensions(bool in
 	return rect_type{};
 }
 
+grafeex::gui::object::rect_type grafeex::gui::generic_object::relative_dimensions() const{
+	auto value = dimensions(false);
+	return (parent_ == nullptr) ? value : parent_->convert_from_screen(value);
+}
+
 grafeex::gui::object &grafeex::gui::generic_object::size(const size_type &value, bool inner){
-	return dimensions(rect_type{ offset(), value }, inner);
+	return dimensions(rect_type{ relative_dimensions().top_left(), value }, inner);
 }
 
 grafeex::gui::generic_object::size_type grafeex::gui::generic_object::size(bool inner) const{

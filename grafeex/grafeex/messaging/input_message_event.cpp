@@ -57,8 +57,10 @@ grafeex::messaging::input_event::byte_type grafeex::messaging::input_event::keyb
 grafeex::messaging::key_event::key_event(object &value)
 	: input_event(value), states_(state::nil){
 	code_ = value.info().wparam<unsigned short>();
-	repeat_count_ = *value.info().lparam<short *>();
-	scan_code_ = static_cast<short>((value.info().lparam<byte_type *>())[2]);
+
+	auto lp_value = value.info().lparam();
+	repeat_count_ = *reinterpret_cast<short *>(&lp_value);
+	scan_code_ = static_cast<short>((reinterpret_cast<byte_type *>(&lp_value))[2]);
 
 	std::bitset<sizeof(object::result_type) * 8> lparam_bits(value.info().lparam());
 	if (lparam_bits.test(24))//Extended

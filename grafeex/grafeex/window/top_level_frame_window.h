@@ -39,7 +39,8 @@ namespace grafeex{
 
 		protected:
 			virtual void reset_persistent_styles_() override{
-				window_type::persistent_styles_.basic = WS_OVERLAPPEDWINDOW;
+				window_type::reset_persistent_styles_();
+				GRAFEEX_SET(window_type::persistent_styles_.basic, WS_OVERLAPPEDWINDOW);
 			}
 		};
 	}

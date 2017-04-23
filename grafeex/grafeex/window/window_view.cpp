@@ -62,17 +62,40 @@ grafeex::window::view &grafeex::window::view::caption(const std::wstring &value)
 	return *this;
 }
 
+grafeex::window::view &grafeex::window::view::clear_background_color(){
+	if (background_color_ != nullptr){
+		background_color_ = nullptr;
+		if (object_->renderer_ != nullptr)
+			object_->renderer_->get().set_background_color(color_type());
+
+		if (object_->hdc_renderer_ != nullptr)
+			object_->hdc_renderer_->get().set_background_color(color_type());
+	}
+
+	return *this;
+}
+
 const std::wstring &grafeex::window::view::caption() const{
 	return object_->text_;
 }
 
-grafeex::window::view &grafeex::window::view::background_color(const color_type &value){
-	return background_color(::D2D1::ColorF(value.relative_red(), value.relative_green(), value.relative_blue(), value.relative_alpha()));
+grafeex::window::view &grafeex::window::view::background_color(const color_type &value, bool repaint){
+	return background_color(::D2D1::ColorF(value.relative_red(), value.relative_green(), value.relative_blue(), value.relative_alpha()), repaint);
 }
 
-grafeex::window::view &grafeex::window::view::background_color(const d2d_color_type &value){
+grafeex::window::view &grafeex::window::view::background_color(const d2d_color_type &value, bool repaint){
 	background_color_ = std::make_shared<d2d_color_type>(value);
-	object_->value_.invalidate();
+	if (object_->value_ != nullptr){
+		if (object_->renderer_ != nullptr)
+			object_->renderer_->get().set_background_color(value);
+
+		if (object_->hdc_renderer_ != nullptr)
+			object_->hdc_renderer_->get().set_background_color(value);
+
+		if (repaint)//Repaint client area
+			object_->value_.invalidate();
+	}
+
 	return *this;
 }
 

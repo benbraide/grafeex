@@ -38,6 +38,8 @@ namespace grafeex{
 
 			virtual rect_type dimensions(bool inner = false) const override;
 
+			virtual rect_type relative_dimensions() const override;
+
 			virtual object &size(const size_type &value, bool inner = false) override;
 
 			virtual size_type size(bool inner = false) const override;

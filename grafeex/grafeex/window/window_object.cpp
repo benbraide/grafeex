@@ -35,6 +35,13 @@ grafeex::window::object::object(procedure_type previous_procedure)
 	mouse_state_.object_info_.object_owner = this;
 }
 
+void grafeex::window::object::on_recreate_drawing_resources(bool is_device){
+	if (is_device)//Reset objects
+		hdc_renderer_ = nullptr;
+	else//Window
+		renderer_ = nullptr;
+}
+
 grafeex::window::object::~object(){
 	destroy();
 }
@@ -202,14 +209,32 @@ grafeex::window::object::view_type &grafeex::window::object::view(){
 	return *get_view_();
 }
 
-grafeex::window::object::style_type & grafeex::window::object::style(){
+grafeex::window::object::style_type &grafeex::window::object::style(){
 	return *get_style_();
 }
 
-grafeex::window::object::render_type &grafeex::window::object::renderer(){
-	if (renderer_ == nullptr)
-		renderer_ = std::make_shared<render_manager_type>(app_instance->d2d_factory, value_, relative_info_.active);
-	return renderer_->get();
+grafeex::window::object::hwnd_render_type &grafeex::window::object::renderer(){
+	return render_manager().get();
+}
+
+grafeex::window::object::render_manager_type &grafeex::window::object::render_manager(){
+	if (renderer_ == nullptr){
+		renderer_ = std::make_shared<render_manager_type>(app_instance->d2d_factory, true, value_, relative_info_.active);
+		if (view_ != nullptr && view_->has_background_color())
+			renderer_->get().set_background_color(view_->background_color());
+	}
+
+	return *renderer_;
+}
+
+grafeex::window::object::hdc_render_manager_type &grafeex::window::object::hdc_render_manager(){
+	if (hdc_renderer_ == nullptr){
+		hdc_renderer_ = std::make_shared<hdc_render_manager_type>(app_instance->d2d_factory, true);
+		if (view_ != nullptr && view_->has_background_color())
+			hdc_renderer_->get().set_background_color(view_->background_color());
+	}
+
+	return *hdc_renderer_;
 }
 
 grafeex::window::object::d2d_point_type grafeex::window::object::point_to_dip(const point_type &value){
@@ -230,6 +255,14 @@ grafeex::window::object::size_type grafeex::window::object::size_to_pixel(const 
 
 grafeex::gui::generic_object::events_type grafeex::window::object::get_events_(){
 	return create_events_<event_tunnel>();
+}
+
+void grafeex::window::object::sized_(){
+	tree_type::sized_();
+	if (renderer_ != nullptr){
+		auto size = this->size(true);
+		renderer_->get()->Resize(::D2D1::SizeU(size.width(), size.height()));
+	}
 }
 
 void grafeex::window::object::add_(child_type &child){
@@ -308,9 +341,13 @@ bool grafeex::window::object::create_(const create_info_type &info){
 		return false;
 	}
 	else//Success
-		mouse_state_.object_info_.parent = dynamic_cast<input_event_handler *>(parent_);
+		created_();
 
 	return true;
+}
+
+void grafeex::window::object::created_(){
+	mouse_state_.object_info_.parent = dynamic_cast<input_event_handler *>(parent_);
 }
 
 grafeex::window::object::hwnd_type grafeex::window::object::get_parent_handle_(){
@@ -333,7 +370,7 @@ void grafeex::window::object::initialize_(){}
 void grafeex::window::object::uninitialize_(){}
 
 void grafeex::window::object::reset_persistent_styles_(){
-	persistent_styles_ = {};
+	persistent_styles_ = { WS_CLIPCHILDREN | WS_CLIPSIBLINGS };
 }
 
 void grafeex::window::object::sync_(object &target, bool add){

@@ -35,6 +35,10 @@ grafeex::gui::object::rect_type grafeex::gui::object_sibling::dimensions(bool in
 	return value_->dimensions(inner);
 }
 
+grafeex::gui::object::rect_type grafeex::gui::object_sibling::relative_dimensions() const{
+	return value_->relative_dimensions();
+}
+
 grafeex::gui::object &grafeex::gui::object_sibling::size(const size_type &value, bool inner){
 	return value_->size(value, inner);
 }

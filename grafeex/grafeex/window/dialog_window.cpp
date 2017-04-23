@@ -2,9 +2,7 @@
 #include "../structures/system_color_structure.h"
 
 grafeex::window::dialog::dialog()
-	: base_type(::DefDlgProcW), owner_(nullptr){
-	view().background_color(structures::system_color::get(structures::system_color::index_type::button_face));
-}
+	: base_type(::DefDlgProcW), owner_(nullptr){}
 
 grafeex::window::dialog::~dialog(){
 	destroy();

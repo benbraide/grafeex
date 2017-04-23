@@ -59,6 +59,8 @@ namespace grafeex{
 
 			virtual rect_type dimensions(bool inner = false) const = 0;
 
+			virtual rect_type relative_dimensions() const = 0;
+
 			virtual object &size(const size_type &value, bool inner = false) = 0;
 
 			virtual size_type size(bool inner = false) const = 0;

@@ -1,14 +1,23 @@
 #include "control_object.h"
 
 grafeex::window::controls::object::object(control_type type)
-	: class_name_(get_class_name(type)){
-	previous_procedure_ = get_procedure(class_name_.c_str());
-	persistent_styles_.basic = (WS_VISIBLE | WS_TABSTOP);
-	init_common_(type);
+	: class_name_(get_class_name(type)), font_value_(app_instance->default_font){
+	if (type != control_type::nil){
+		previous_procedure_ = get_procedure(class_name_.c_str());
+		init_common_(type);
+	}
 }
 
 grafeex::window::controls::object::~object(){
 	destroy();
+}
+
+grafeex::window::controls::object::view_type &grafeex::window::controls::object::view(){
+	return *dynamic_cast<view_type *>(get_view_().get());
+}
+
+grafeex::window::object::dword_type grafeex::window::controls::object::white_listed_styles(bool is_extended) const{
+	return (base_type::white_listed_styles(is_extended) | (is_extended ? 0ul : (WS_VISIBLE | WS_TABSTOP)));
 }
 
 grafeex::window::object::dword_type grafeex::window::controls::object::black_listed_styles(bool is_extended) const {
@@ -129,6 +138,32 @@ grafeex::window::object::procedure_type grafeex::window::controls::object::get_p
 	return class_object.procedure();
 }
 
+void grafeex::window::controls::object::on_set_font(messaging::set_font_event &e){
+	base_type::on_set_font(e);
+	e.handle();
+	if (!e.is_skipped())
+		font_value_ = e.get_object().info().wparam<font_type>();
+}
+
+void grafeex::window::controls::object::created_(){
+	base_type::created_();
+	view().font(font_value_);
+}
+
+void grafeex::window::controls::object::reset_persistent_styles_(){
+	base_type::reset_persistent_styles_();
+	GRAFEEX_SET(persistent_styles_.basic, WS_VISIBLE | WS_TABSTOP);
+}
+
+grafeex::window::object::view_ptr_type grafeex::window::controls::object::get_view_(){
+	return create_view_<view_type>();
+}
+
+bool grafeex::window::controls::object::create_(const std::wstring &caption, const point_type &offset, const size_type &size,
+	dword_type styles, dword_type extended_styles, const wchar_t *class_name){
+	return base_type::create_(caption, offset, size, styles, extended_styles, (class_name == nullptr) ? class_name_.c_str() : class_name);
+}
+
 bool grafeex::window::controls::object::init_common_(control_type type){
 	auto initializer = get_initializer(type);
 	if (!GRAFEEX_IS(initialized_controls_, initializer)){
@@ -146,9 +181,26 @@ bool grafeex::window::controls::object::init_common_(control_type type){
 	return true;
 }
 
-bool grafeex::window::controls::object::create_(const std::wstring &caption, const point_type &offset, const size_type &size,
-	dword_type styles, dword_type extended_styles){
-	return base_type::create_(caption, offset, size, styles, extended_styles, class_name_.c_str());
+void grafeex::window::controls::object::update_size_(){
+	size(compute_size_(view().caption()), false);//Update size
+}
+
+grafeex::window::object::size_type grafeex::window::controls::object::compute_size_(const std::wstring &label){
+	auto font = view().font();
+	auto wdc = ::GetDC(value_);
+	auto old = ::SelectObject(wdc, font);
+
+	size_type computed_value;
+	::GetTextExtentPoint32W(wdc, label.c_str(), static_cast<int>(label.size()), computed_value);
+
+	::SelectObject(wdc, old);
+	::ReleaseDC(value_, wdc);
+
+	return (computed_value + compute_additional_size_(label));
+}
+
+grafeex::window::object::size_type grafeex::window::controls::object::compute_additional_size_(const std::wstring &label){
+	return size_type{};
 }
 
 grafeex::window::object::dword_type grafeex::window::controls::object::initialized_controls_ = 0;

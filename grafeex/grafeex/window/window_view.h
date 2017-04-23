@@ -52,9 +52,11 @@ namespace grafeex{
 
 			const std::wstring &caption() const;
 
-			virtual view &background_color(const color_type &value);
+			virtual view &clear_background_color();
 
-			virtual view &background_color(const d2d_color_type &value);
+			virtual view &background_color(const color_type &value, bool repaint = true);
+
+			virtual view &background_color(const d2d_color_type &value, bool repaint = true);
 
 			virtual d2d_color_type background_color() const;
 

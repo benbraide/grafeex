@@ -7,6 +7,7 @@
 #include "window_style.h"
 
 #include "../gui/gui_object_tree.h"
+#include "../d2d/d2d_hwnd_render_target.h"
 #include "../d2d/d2d_render_target_manager.h"
 
 #include "../wrappers/hwnd_wrapper.h"
@@ -80,10 +81,18 @@ namespace grafeex{
 			typedef std::unordered_map<uint_type, forwarder_type> forwarder_list_type;
 
 			typedef general_event_handler::d2d_color_type d2d_color_type;
-			typedef general_event_handler::render_type render_type;
 
-			typedef d2d::render_target_manager<render_type> render_manager_type;
+			typedef d2d::hwnd_render_target hwnd_render_type;
+			typedef d2d::hdc_render_target d2d_hdc_render_type;
+
+			typedef hwnd_render_type::interface_type render_type;
+			typedef d2d_hdc_render_type::interface_type hdc_render_type;
+
+			typedef d2d::render_target_manager<hwnd_render_type> render_manager_type;
+			typedef d2d::render_target_manager<d2d_hdc_render_type> hdc_render_manager_type;
+
 			typedef std::shared_ptr<render_manager_type> render_manager_ptr_type;
+			typedef std::shared_ptr<hdc_render_manager_type> hdc_render_manager_ptr_type;
 
 			typedef style_type::info_type persistent_styles;
 
@@ -196,11 +205,15 @@ namespace grafeex{
 
 			virtual menu_type &system_menu();
 
-			virtual view_type &view() override;
+			virtual view_type &view();
 
 			virtual style_type &style();
 
-			virtual render_type &renderer() override;
+			virtual hwnd_render_type &renderer();
+
+			virtual render_manager_type &render_manager();
+
+			virtual hdc_render_manager_type &hdc_render_manager();
 
 			static d2d_point_type point_to_dip(const point_type &value);
 
@@ -220,20 +233,29 @@ namespace grafeex{
 			friend class messaging::nc_destroy_event;
 
 			friend class messaging::activate_event;
+			friend class messaging::changed_position_event;
 			friend class messaging::changed_size_event;
 
 			friend class messaging::erase_background_event;
 			friend class messaging::paint_event;
+			friend class messaging::print_client_event;
+			friend class messaging::print_event;
 
 			friend class messaging::command_event;
 			friend class messaging::notify_event;
+
+			friend class messaging::set_text_event;
 
 			friend class window::view;
 			friend class window::style;
 
 			object(procedure_type previous_procedure = ::DefWindowProcW);
 
+			virtual void on_recreate_drawing_resources(bool is_device) override;
+
 			virtual events_type get_events_() override;
+
+			virtual void sized_() override;
 
 			virtual void add_(child_type &child) override;
 
@@ -250,6 +272,8 @@ namespace grafeex{
 				dword_type extended_styles = 0, const wchar_t *class_name = nullptr);
 
 			virtual bool create_(const create_info_type &info);
+
+			virtual void created_();
 
 			virtual hwnd_type get_parent_handle_();
 
@@ -293,6 +317,7 @@ namespace grafeex{
 			view_ptr_type view_;
 			style_ptr_type style_;
 			render_manager_ptr_type renderer_;
+			hdc_render_manager_ptr_type hdc_renderer_;
 			forwarder_list_type *command_forwarder_list_ref_;
 			forwarder_list_type *notify_forwarder_list_ref_;
 			object *synced_;

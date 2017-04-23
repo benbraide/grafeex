@@ -16,10 +16,10 @@ namespace grafeex{
 			typedef ::Microsoft::WRL::ComPtr<::ID2D1DrawingStateBlock> state_type;
 
 			template <typename... value_types>
-			explicit render_target_manager(factory_type &factory, value_types... values)
+			explicit render_target_manager(factory_type &factory, bool use_state, value_types... values)
 				: render_(factory, values...){
 				render_->SetTransform(::D2D1::Matrix3x2F::Identity());
-				if (SUCCEEDED(factory.CreateDrawingStateBlock(state_.GetAddressOf())))
+				if (use_state && SUCCEEDED(factory.CreateDrawingStateBlock(state_.GetAddressOf())))
 					render_->SaveDrawingState(state_.Get());
 				else//Reset
 					state_ = nullptr;

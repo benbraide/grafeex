@@ -6,10 +6,19 @@
 #include "menu/menu_bar.h"
 #include "menu/menu_check_item.h"
 #include "collections/menu_collection.h"
+#include "controls/default_button_control.h"
+#include "controls/default_split_button_control.h"
+#include "controls/default_command_link_control.h"
+#include "controls/check_control.h"
+#include "controls/radio_control.h"
+#include "controls/radio_control_group.h"
 
 int WINAPI wWinMain(::HINSTANCE app_instance, ::HINSTANCE, ::LPWSTR cmd_line, int show_type){
 	typedef grafeex::window::object::d2d_point_type d2d_point_type;
 	typedef grafeex::window::object::d2d_size_type d2d_size_type;
+
+	typedef grafeex::structures::point point_type;
+	typedef grafeex::structures::size size_type;
 
 	typedef grafeex::structures::float_size float_size_type;
 	typedef grafeex::structures::rect_origin_type alignment_type;
@@ -19,11 +28,22 @@ int WINAPI wWinMain(::HINSTANCE app_instance, ::HINSTANCE, ::LPWSTR cmd_line, in
 	grafeex::window::top_level fw(L"Test Window", d2d_point_type{ 10.0f, 10.0f }, d2d_size_type{ 500.0f, 400.0f });
 	fw.view().show();
 
-	grafeex::window::dialog_frame dfm(fw, L"Modal Dialog", grafeex::structures::point{ 10 }, { 300, 200 });
+	grafeex::window::dialog_frame dfm(fw, L"Modal Dialog", point_type{ 10 }, size_type{ 300, 200 });
 	dfm.attributes().fill_parent(float_size_type{ 0.5f, 1.0f });
 	dfm.attributes().align(true, alignment_type::top | alignment_type::right);
 	dfm.view().show();
 	//dfm.do_modal(fw);
+
+	grafeex::window::controls::button btn(dfm, L"Button Test", point_type{ 10 });
+	grafeex::window::controls::default_button dbtn(dfm, L"DefButton Test", point_type{ 10, 40 });
+	grafeex::window::controls::split_button sbtn(dfm, L"SplitButton Test", point_type{ 10, 70 });
+	grafeex::window::controls::default_split_button dsbtn(dfm, L"DefSplitButton Test", point_type{ 10, 100 });
+	grafeex::window::controls::check chk(dfm, L"Check Test", point_type{ 10, 130 });
+
+	grafeex::window::controls::radio_group rgrp(dfm);
+	grafeex::window::controls::radio rad_0(rgrp, L"Radio Test 0", point_type{ 10, 150 });
+	grafeex::window::controls::radio rad_1(rgrp, L"Radio Test 1", point_type{ 10, 170 });
+	grafeex::window::controls::radio rad_2(rgrp, L"Radio Test 2", point_type{ 10, 190 });
 
 	auto count = 0;
 	grafeex::common::random_bool rand;
@@ -33,8 +53,17 @@ int WINAPI wWinMain(::HINSTANCE app_instance, ::HINSTANCE, ::LPWSTR cmd_line, in
 	});
 
 	grafeex::common::random_int rand_int;
-	std::thread([&fw, &rand_int]{
+	std::thread([&fw, &rand_int, &btn, &chk]{
 		typedef ::BYTE byte_type;
+		typedef ::HFONT font_type;
+
+		::Sleep(5000);
+		btn.label(L"Label Changed");
+
+		::Sleep(5000);
+		btn.view().font(L"Georgia");
+		chk.view().font(L"Georgia");
+
 		while (true){
 			::Sleep(5000);
 

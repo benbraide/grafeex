@@ -1,7 +1,9 @@
 #include "wnd_class_wrapper.h"
 
 grafeex::wrappers::wnd_class::wnd_class()
-	: base_type(value_type{ sizeof(value_type) }), id_(0){}
+	: base_type(value_type{ sizeof(value_type) }), id_(0){
+	value_.style = (CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS);
+}
 
 grafeex::wrappers::wnd_class::~wnd_class(){
 	destroy();

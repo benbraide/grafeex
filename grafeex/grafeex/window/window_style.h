@@ -212,7 +212,7 @@ namespace grafeex{
 
 			void write_(dword_type value, bool extended, bool add);
 
-			void final_write_(dword_type value, bool extended);
+			virtual void final_write_(dword_type value, bool extended);
 
 			style &update_(dword_type value, bool enabled, bool extended);
 

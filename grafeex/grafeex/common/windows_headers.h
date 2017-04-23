@@ -8,11 +8,17 @@
 #include <windows.h>
 #include <windowsx.h>
 
+#include <Uxtheme.h>
+#include <Vsstyle.h>
+#include <Vssym32.h>
+
 #include <wingdi.h>
 #include <commctrl.h>
 
 #include <mmreg.h>
 #include <wmsdk.h>
+
+#pragma comment(lib, "UxTheme.lib")
 
 #pragma comment(lib, "Msimg32.lib")
 #pragma comment(lib, "comctl32.lib")

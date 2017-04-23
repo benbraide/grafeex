@@ -1,5 +1,6 @@
 #include "general_message_event_handler.h"
-#include "../window/window_object.h"
+#include "../window/dialog_window.h"
+#include "../controls/control_object.h"
 
 grafeex::messaging::general_event_handler::~general_event_handler() = default;
 
@@ -142,25 +143,33 @@ void grafeex::messaging::general_event_handler::on_show(visibility_event &e){}
 void grafeex::messaging::general_event_handler::on_hide(visibility_event &e){}
 
 bool grafeex::messaging::general_event_handler::on_erase_background(erase_background_event &e){
-	e.skip();
-	auto &view = this->view();
-	if (view.has_background_color()){
-		auto &renderer = this->renderer();
-		renderer->BeginDraw();
-		renderer->Clear(view.background_color());
-		renderer->EndDraw();
+	if (dynamic_cast<window::controls::object *>(this) == nullptr){
+		e.skip();//Prevent default
+		auto &renderer = e.renderer(true);
+		erase_background_(renderer, wrappers::hdc(e.device()).clip_rect(), e.background_brush());
+		return true;
 	}
 
-	return true;
+	return false;
 }
 
 void grafeex::messaging::general_event_handler::on_paint(paint_event &e){}
 
 void grafeex::messaging::general_event_handler::on_nc_paint(nc_paint_event &e){}
 
-void grafeex::messaging::general_event_handler::on_paint_client(client_paint_event &e){}
+void grafeex::messaging::general_event_handler::on_paint_client(client_paint_event &e){
+	if (dynamic_cast<window::controls::object *>(this) == nullptr && (e.has_begun() || e.begin()) && e.erase_background()){
+		auto &renderer = e.renderer(true);
+		erase_background_(renderer, wrappers::hdc(e.device()).clip_rect(), e.background_brush());
+	}
+}
 
-void grafeex::messaging::general_event_handler::on_print_client(print_client_event &e){}
+void grafeex::messaging::general_event_handler::on_print_client(print_client_event &e){
+	if (dynamic_cast<window::controls::object *>(this) == nullptr && e.erase_background()){
+		auto &renderer = e.renderer(true);
+		erase_background_(renderer, wrappers::hdc(e.device()).clip_rect(), e.background_brush());
+	}
+}
 
 void grafeex::messaging::general_event_handler::on_print(print_event &e){}
 
@@ -187,3 +196,39 @@ void grafeex::messaging::general_event_handler::on_command(command_event &e){}
 void grafeex::messaging::general_event_handler::on_accelerator(command_event &e){}
 
 void grafeex::messaging::general_event_handler::on_notify(notify_event &e){}
+
+void grafeex::messaging::general_event_handler::on_set_font(set_font_event &e){}
+
+grafeex::messaging::general_event_handler::font_type grafeex::messaging::general_event_handler::on_get_font(get_font_event &e){
+	return reinterpret_cast<font_type>(e.handle().get_object().value());
+}
+
+void grafeex::messaging::general_event_handler::on_set_text(set_text_event &e){}
+
+grafeex::messaging::general_event_handler::lresult_type grafeex::messaging::general_event_handler::on_get_text(get_text_event &e){
+	return e.handle().get_object().value();
+}
+
+grafeex::messaging::general_event_handler::lresult_type grafeex::messaging::general_event_handler::on_get_text_length(get_text_length_event &e){
+	return e.handle().get_object().value();
+}
+
+void grafeex::messaging::general_event_handler::on_drawing_error(hresult_type err, bool is_device){}
+
+void grafeex::messaging::general_event_handler::on_recreate_drawing_resources(bool is_device){}
+
+void grafeex::messaging::general_event_handler::erase_background_(render_type &renderer, const structures::rect &clip_rect, brush_type &brush){
+	auto window_self = dynamic_cast<window::object *>(this);
+	if (window_self == nullptr)
+		return;//Non-window
+
+	auto &view = window_self->view();
+	if (!view.has_background_color()){//Use default color
+		if (dynamic_cast<window::dialog *>(this) == nullptr)
+			view.background_color(structures::system_color::get(structures::system_color::index_type::window));
+		else//Dialog window
+			view.background_color(structures::system_color::get(structures::system_color::index_type::button_face));
+	}
+
+	renderer.Clear(view.background_color());
+}

@@ -102,6 +102,10 @@ void grafeex::menu::group::insert_into_parent_(gui_object_type &parent){
 	dynamic_cast<tree_type *>(parent_ = &parent)->add(*this);
 }
 
+void grafeex::menu::group::insert_into_parent_(const sibling_type &sibling){
+	dynamic_cast<tree_type *>(parent_ = sibling.parent())->add(*this, sibling);
+}
+
 bool grafeex::menu::group::destroy_(bool force){
 	if (!is_created())
 		return true;
@@ -116,12 +120,10 @@ bool grafeex::menu::group::destroy_(bool force){
 			return false;
 	}
 
-	dynamic_cast<tree_type *>(parent_)->remove(*this);
-	parent_ = nullptr;
+	if (parent_ != nullptr){
+		dynamic_cast<tree_type *>(parent_)->remove(*this);
+		parent_ = nullptr;
+	}
 
 	return true;
-}
-
-void grafeex::menu::group::insert_into_parent_(const sibling_type &sibling){
-	dynamic_cast<tree_type *>(parent_ = sibling.parent())->add(*this, sibling);
 }

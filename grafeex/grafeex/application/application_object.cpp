@@ -1,6 +1,7 @@
 #include "application_object.h"
 
 #include "../window/modal_dialog_window.h"
+#include "../controls/control_object.h"
 #include "../messaging/command_message_event_handler.h"
 
 grafeex::application::object::~object() = default;
@@ -117,11 +118,49 @@ grafeex::application::object::result_type CALLBACK grafeex::application::object:
 	return instance->dispatch_(cache, is_sent, *target);
 }
 
+grafeex::application::object::d2d_point_type grafeex::application::object::pixel_to_dip(const point_type &value){
+	return d2d_point_type{ pixel_to_dip_x(value.x()), pixel_to_dip_y(value.y()) };
+}
+
+grafeex::application::object::d2d_size_type grafeex::application::object::pixel_to_dip(const size_type &value){
+	return d2d_size_type{ pixel_to_dip_x(value.width()), pixel_to_dip_y(value.height()) };
+}
+
+grafeex::application::object::d2d_rect_type grafeex::application::object::pixel_to_dip(const rect_type &value){
+	return d2d_rect_type{ pixel_to_dip_x(value.left()), pixel_to_dip_y(value.top()), pixel_to_dip_x(value.right()),
+		pixel_to_dip_y(value.bottom()) };
+}
+
+grafeex::application::object::point_type grafeex::application::object::dip_to_pixel(const d2d_point_type &value){
+	return point_type{ dip_to_pixel_x<int>(value.x), dip_to_pixel_y<int>(value.y) };
+}
+
+grafeex::application::object::size_type grafeex::application::object::dip_to_pixel(const d2d_size_type &value){
+	return size_type{ dip_to_pixel_x<int>(value.width), dip_to_pixel_y<int>(value.height) };
+}
+
+grafeex::application::object::rect_type grafeex::application::object::dip_to_pixel(const d2d_rect_type &value){
+	return rect_type{ dip_to_pixel_x<int>(value.left), dip_to_pixel_y<int>(value.top), dip_to_pixel_x<int>(value.right),
+		dip_to_pixel_y<int>(value.bottom) };
+}
+
+void grafeex::application::object::create_default_font(){
+	nc_metrics_type metrics{ sizeof(nc_metrics_type) };
+	::SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, metrics.cbSize, &metrics, 0);
+	::GetSystemMetrics;
+
+	default_font = ::CreateFontIndirectW(&metrics.lfMessageFont);
+}
+
 grafeex::application::object *grafeex::application::object::instance;
 
 grafeex::application::object::factory_type grafeex::application::object::d2d_factory;
 
+grafeex::application::object::write_factory_type grafeex::application::object::d2d_write_factory;
+
 grafeex::application::object::d2d_point_type grafeex::application::object::d2d_dpi_scale = { 1.0f, 1.0f };
+
+grafeex::application::object::font_type grafeex::application::object::default_font;
 
 bool grafeex::application::object::is_filtered_message_() const{
 	return false;
@@ -152,17 +191,47 @@ grafeex::application::object::result_type grafeex::application::object::dispatch
 }
 
 void grafeex::application::object::init_(){
+	typedef std::wstring::size_type size_type;
+
+	instance = this;
+	if ((instance_ = class_.instance()) == nullptr)
+		class_.instance(instance_ = ::GetModuleHandleW(nullptr));
+
+	common::random_string random_string;
+	::GetClassInfoExW(nullptr, L"#32770", dialog_class_);
+
+	dialog_class_.styles(dialog_class_.styles() | CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS);
+	dialog_class_.procedure(entry);
+	dialog_class_.name(random_string.generate_alnum(std::make_pair<size_type, size_type>(9, 18)));
+	dialog_class_.instance(instance_);
+	dialog_class_.create();
+
+	if (class_.name().empty())//Use a random string
+		class_.name(random_string.generate_alnum(std::make_pair<size_type, size_type>(9, 18)));
+
+	if (class_.cursor() == nullptr)
+		class_.cursor(dialog_class_.cursor());
+
+	class_.create();
+	d2d_factory->GetDesktopDpi(&d2d_dpi_scale.x, &d2d_dpi_scale.y);
+	d2d_dpi_scale.x /= 96.0f;
+	d2d_dpi_scale.y /= 96.0f;
+
+	create_default_font();
 	create_dispatchers_();
+
 	messaging::static_command_event_handler::create_forwarder_list();
 }
 
 grafeex::application::object::hwnd_type grafeex::application::object::create_(window_type &owner, const create_info_type &info){
 	auto hook = ::SetWindowsHookExW(WH_CBT, hook_, nullptr, id_);//Install hook to intercept window creation
-	auto &target_class = (dynamic_cast<window::dialog *>(&owner) != nullptr) ? dialog_class_ : class_;
+
+	auto &target_default_class = (dynamic_cast<window::dialog *>(&owner) != nullptr) ? dialog_class_ : class_;
+	auto target_class = (info.lpszClass == nullptr) ? target_default_class.operator const wchar_t *() : info.lpszClass;
 
 	auto value = ::CreateWindowExW(
 		info.dwExStyle,
-		(info.lpszClass == nullptr) ? target_class : info.lpszClass,
+		target_class,
 		info.lpszName,
 		info.style,
 		info.x,
@@ -223,6 +292,8 @@ void grafeex::application::object::create_dispatchers_(){
 	GAPP_DISPATCH(WM_ERASEBKGND, erase_background_event);
 	GAPP_DISPATCH(WM_NCPAINT, nc_paint_event);
 	GAPP_DISPATCH(WM_PAINT, client_paint_event);
+	GAPP_DISPATCH(WM_PRINT, print_event);
+	GAPP_DISPATCH(WM_PRINTCLIENT, print_client_event);
 
 	GAPP_DISPATCH(WM_CONTEXTMENU, context_menu_event);
 	GAPP_DISPATCH(WM_INITMENU, menu_init_event);
@@ -284,6 +355,13 @@ void grafeex::application::object::create_dispatchers_(){
 
 	GAPP_DISPATCH(WM_MOUSEWHEEL, mouse_vertical_wheel_event);
 	GAPP_DISPATCH(WM_MOUSEHWHEEL, mouse_horizontal_wheel_event);
+
+	GAPP_DISPATCH(WM_SETFONT, set_font_event);
+	GAPP_DISPATCH(WM_GETFONT, get_font_event);
+
+	GAPP_DISPATCH(WM_SETTEXT, set_text_event);
+	GAPP_DISPATCH(WM_GETTEXT, get_text_event);
+	GAPP_DISPATCH(WM_GETTEXTLENGTH, get_text_length_event);
 }
 
 void grafeex::application::object::app_activate_(messaging::activate_app_event &e){}
@@ -296,8 +374,8 @@ grafeex::application::object::result_type CALLBACK grafeex::application::object:
 			hwnd_type target_hwnd(reinterpret_cast<hwnd_type::value_type>(wparam));
 
 			target_hwnd.set_data(owner_window);//Store window object in handle
-			if (owner_window->previous_procedure_ == nullptr)//Replace window procedure
-				owner_window->previous_procedure_ = target_hwnd.set_data<procedure_type>(&object::entry, hwnd_type::data_index::procedure);
+			if (dynamic_cast<window::controls::object *>(owner_window) != nullptr)//Replace window procedure
+				target_hwnd.set_data<procedure_type>(&object::entry, hwnd_type::data_index::procedure);
 
 			instance->recent_owner_ = nullptr;//Reset
 		}

@@ -2,7 +2,9 @@
 
 #include "../window/modal_dialog_window.h"
 #include "../controls/control_object.h"
+
 #include "../messaging/command_message_event_handler.h"
+#include "../messaging/notify_message_event_handler.h"
 
 grafeex::application::object::~object() = default;
 
@@ -147,8 +149,6 @@ grafeex::application::object::rect_type grafeex::application::object::dip_to_pix
 void grafeex::application::object::create_default_font(){
 	nc_metrics_type metrics{ sizeof(nc_metrics_type) };
 	::SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, metrics.cbSize, &metrics, 0);
-	::GetSystemMetrics;
-
 	default_font = ::CreateFontIndirectW(&metrics.lfMessageFont);
 }
 
@@ -198,7 +198,7 @@ void grafeex::application::object::init_(){
 		class_.instance(instance_ = ::GetModuleHandleW(nullptr));
 
 	common::random_string random_string;
-	::GetClassInfoExW(nullptr, L"#32770", dialog_class_);
+	::GetClassInfoExW(nullptr, WC_DIALOG, dialog_class_);
 
 	dialog_class_.styles(dialog_class_.styles() | CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS);
 	dialog_class_.procedure(entry);
@@ -219,8 +219,6 @@ void grafeex::application::object::init_(){
 
 	create_default_font();
 	create_dispatchers_();
-
-	messaging::static_command_event_handler::create_forwarder_list();
 }
 
 grafeex::application::object::hwnd_type grafeex::application::object::create_(window_type &owner, const create_info_type &info){
@@ -262,8 +260,11 @@ void grafeex::application::object::create_dispatchers_(){
 	GAPP_DISPATCH(WM_ACTIVATEAPP, activate_app_event);
 	GAPP_DISPATCH(WM_NCACTIVATE, nc_activate_event);
 	GAPP_DISPATCH(WM_ACTIVATE, activate_event);
+	GAPP_DISPATCH(WM_MOUSEACTIVATE, mouse_activate_event);
 	GAPP_DISPATCH(WM_CANCELMODE, cancel_mode_event);
 	GAPP_DISPATCH(WM_ENABLE, enable_event);
+	GAPP_DISPATCH(WM_SETFOCUS, set_focus_event);
+	GAPP_DISPATCH(WM_KILLFOCUS, kill_focus_event);
 
 	GAPP_DISPATCH(WM_STYLECHANGING, changing_style_event);
 	GAPP_DISPATCH(WM_STYLECHANGED, changed_style_event);
@@ -362,6 +363,18 @@ void grafeex::application::object::create_dispatchers_(){
 	GAPP_DISPATCH(WM_SETTEXT, set_text_event);
 	GAPP_DISPATCH(WM_GETTEXT, get_text_event);
 	GAPP_DISPATCH(WM_GETTEXTLENGTH, get_text_length_event);
+
+	create_command_dispatchers_();
+	create_notify_dispatchers_();
+}
+
+void grafeex::application::object::create_command_dispatchers_(){
+	messaging::static_command_event_handler::create_forwarder_list();
+	messaging::button_command_event_handler::create_forwarder_list();
+}
+
+void grafeex::application::object::create_notify_dispatchers_(){
+	messaging::button_notify_event_handler::create_forwarder_list();
 }
 
 void grafeex::application::object::app_activate_(messaging::activate_app_event &e){}

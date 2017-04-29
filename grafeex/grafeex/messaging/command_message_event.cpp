@@ -9,12 +9,6 @@ grafeex::messaging::command_event::command_event(object &value)
 grafeex::messaging::command_event::~command_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::command_event::dispatch(){
-	if (message_event::dispatch().is_propagating())
-		object_->target()->on_command(*this);
-
-	if (!is_propagating())
-		return *this;
-
 	if (!is_menu() && !is_accelerator()){//Forward to control
 		auto target = control();
 		if (target == nullptr)//Unknown target
@@ -32,7 +26,7 @@ grafeex::messaging::message_event &grafeex::messaging::command_event::dispatch()
 		if (cmd_list != nullptr){
 			auto message_dispatcher = cmd_list->find(code());
 			if (message_dispatcher != cmd_list->end())
-				message_dispatcher->second->dispatch(*this);
+				message_dispatcher->second->dispatch(*object_);
 		}
 	}
 	else if (is_menu())

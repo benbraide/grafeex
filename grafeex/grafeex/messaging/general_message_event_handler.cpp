@@ -46,6 +46,10 @@ void grafeex::messaging::general_event_handler::on_activate(activate_event &e){}
 
 void grafeex::messaging::general_event_handler::on_deactivate(activate_event &e){}
 
+grafeex::messaging::general_event_handler::ma_return_type grafeex::messaging::general_event_handler::on_mouse_activate(mouse_activate_event &e){
+	return ma_return_type::activate;
+}
+
 void grafeex::messaging::general_event_handler::on_child_activate(child_activate_event &e){}
 
 void grafeex::messaging::general_event_handler::on_cancel_mode(cancel_mode_event &e){}
@@ -55,6 +59,12 @@ void grafeex::messaging::general_event_handler::on_enable_change(enable_event &e
 void grafeex::messaging::general_event_handler::on_enable(enable_event &e){}
 
 void grafeex::messaging::general_event_handler::on_disable(enable_event &e){}
+
+void grafeex::messaging::general_event_handler::on_focus_change(focus_change_event &e){}
+
+void grafeex::messaging::general_event_handler::on_set_focus(set_focus_event &e){}
+
+void grafeex::messaging::general_event_handler::on_kill_focus(kill_focus_event &e){}
 
 bool grafeex::messaging::general_event_handler::on_position_change(position_event &e){
 	return false;

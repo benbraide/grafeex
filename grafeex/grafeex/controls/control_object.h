@@ -5,6 +5,7 @@
 
 #include "../window/window_object.h"
 #include "../gdi/gdi_object_ptr.h"
+#include "../messaging/notify_message_event_handler.h"
 
 #include "control_views.h"
 #include "control_styles.h"
@@ -12,13 +13,16 @@
 namespace grafeex{
 	namespace window{
 		namespace controls{
-			class object : public window::object{
+			class object : public window::object, public messaging::notify_event_handler{
 			public:
 				typedef ::HFONT font_type;
 				typedef ::INITCOMMONCONTROLSEX init_info_type;
+				typedef ::DWORD dword_type;
 
 				typedef window::object base_type;
 				typedef controls::view view_type;
+
+				typedef window::object::dispatcher_list_type dispatcher_list_type;
 
 				typedef graphics::text::d2d_font_type d2d_font_type;
 				typedef graphics::text::font_info_type font_info_type;
@@ -54,7 +58,7 @@ namespace grafeex{
 					header,
 				};
 
-				explicit object(control_type type);
+				explicit object(control_type type, dispatcher_list_type *l1 = nullptr, dispatcher_list_type *l2 = nullptr);
 
 				virtual ~object();
 

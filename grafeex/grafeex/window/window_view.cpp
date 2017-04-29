@@ -20,6 +20,49 @@ bool grafeex::window::view::enabled() const{
 	return object_->value_.is_enabled();
 }
 
+grafeex::window::view &grafeex::window::view::focus(){
+	focus_();
+	if (!object_->is_dialog()){
+		auto dialog_parent = object_->get_dialog_parent_();
+		if (dialog_parent != nullptr)
+			application::object::instance->active_dialog_ = dialog_parent;
+	}
+	else//Object is dialog
+		application::object::instance->active_dialog_ = object_;
+
+	return *this;
+}
+
+grafeex::window::view &grafeex::window::view::blur(){
+	auto tree_parent = dynamic_cast<gui::object_tree *>(object_->parent());
+	if (tree_parent != nullptr && tree_parent->focused_child_ == object_)
+		tree_parent->focused_child_ = nullptr;
+
+	if (application::object::instance->active_dialog_ != nullptr && application::object::instance->active_dialog_ != object_){
+		if (application::object::instance->active_dialog_ == object_->get_dialog_parent_())
+			application::object::instance->active_dialog_ = nullptr;
+	}
+	else if (application::object::instance->active_dialog_ != nullptr)//Object is dialog
+		application::object::instance->active_dialog_ = nullptr;
+
+	return *this;
+}
+
+bool grafeex::window::view::focused() const{
+	auto tree_parent = dynamic_cast<gui::object_tree *>(object_->parent());
+	if (tree_parent == nullptr)//No parent
+		return (object_->value_ == ::GetForegroundWindow());
+
+	if (tree_parent->focused_child_ != object_)
+		return false;
+
+	auto window_parent = dynamic_cast<object *>(tree_parent);
+	if (window_parent == nullptr)
+		return window_parent->view().focused();
+
+	return false;
+}
+
 grafeex::window::view &grafeex::window::view::show(show_mode mode){
 	object_->value_.show(mode);
 	return *this;
@@ -105,4 +148,30 @@ grafeex::window::view::d2d_color_type grafeex::window::view::background_color() 
 
 bool grafeex::window::view::has_background_color() const{
 	return (background_color_ != nullptr);
+}
+
+void grafeex::window::view::focus_(){
+	focus_only_();
+	if (object_->focused_child_ == nullptr)
+		return;
+
+	auto window_object = dynamic_cast<object *>(object_->focused_child_);
+	if (window_object == nullptr){//Non-window object
+		//TODO: Set focus
+	}
+	else//Window object
+		window_object->view().focus_();
+}
+
+void grafeex::window::view::focus_only_(){
+	auto tree_parent = dynamic_cast<gui::object_tree *>(object_->parent());
+	if (tree_parent != nullptr)
+		tree_parent->focused_child_ = object_;
+
+	auto window_parent = dynamic_cast<object *>(tree_parent);
+	if (window_parent == nullptr){//Non-window parent
+		//TODO: Set focus
+	}
+	else//Window parent
+		window_parent->view().focus_only_();
 }

@@ -5,6 +5,8 @@
 
 #define GAPP_MAKE_DISPATCHER(d) std::make_shared<messaging::event_dispatcher<messaging::d> >()
 #define GAPP_DISPATCH(e, d) dispatcher_list_[e] = GAPP_MAKE_DISPATCHER(d)
+#define GAPP_CMD_DISPATCH(e, d) command_forwarder_list_[e] = GAPP_MAKE_DISPATCHER(d)
+#define GAPP_NOT_DISPATCH(e, d) notify_forwarder_list_[e] = GAPP_MAKE_DISPATCHER(d)
 
 #include <atomic>
 #include <memory>
@@ -45,6 +47,7 @@
 namespace grafeex{
 	namespace window{
 		class object;
+		class view;
 	}
 
 	namespace application{
@@ -208,12 +211,13 @@ namespace grafeex{
 
 			friend class messaging::create_event;
 			friend class messaging::nc_destroy_event;
-			friend class messaging::activate_event;
 			friend class messaging::activate_app_event;
+			friend class messaging::focus_change_event;
 			friend class messaging::timer_event;
 			friend class messaging::command_event;
 			friend class messaging::notify_event;
 
+			friend class window::view;
 			friend class window::timer;
 
 			virtual bool is_filtered_message_() const override;
@@ -267,6 +271,10 @@ namespace grafeex{
 
 			virtual void create_dispatchers_();
 
+			virtual void create_command_dispatchers_();
+
+			virtual void create_notify_dispatchers_();
+
 			virtual void app_activate_(messaging::activate_app_event &e);
 
 			static result_type CALLBACK hook_(int code, wparam_type wparam, lparam_type lparam);
@@ -283,6 +291,7 @@ namespace grafeex{
 
 			dispatcher_type unhandled_dispatcher_;
 			dispatcher_list_type dispatcher_list_;
+
 			timer_cache_type timer_cache_;
 			void *recent_owner_;
 

@@ -59,6 +59,31 @@ namespace grafeex{
 			virtual bool is_minimized() const;
 		};
 
+		class mouse_activate_event : public message_event{
+		public:
+			using message_event::operator=;
+
+			typedef structures::enumerations::hit_target_type hit_target_type;
+			typedef ::WORD word_type;
+
+			enum class return_type{
+				activate				= MA_ACTIVATE,
+				activate_and_eat		= MA_ACTIVATEANDEAT,
+				no_activate				= MA_NOACTIVATE,
+				no_activate_and_eat		= MA_NOACTIVATEANDEAT,
+			};
+
+			explicit mouse_activate_event(object &value);
+
+			virtual ~mouse_activate_event();
+
+			virtual message_event &dispatch() override;
+
+			virtual hit_target_type hit() const;
+
+			virtual word_type mouse_message() const;
+		};
+
 		class child_activate_event : public message_event{
 		public:
 			using message_event::operator=;
@@ -91,11 +116,50 @@ namespace grafeex{
 
 			explicit enable_event(object &value);
 
-			virtual message_event &dispatch() override;
-
 			virtual ~enable_event();
 
+			virtual message_event &dispatch() override;
+
 			virtual bool is_enabled() const;
+		};
+
+		class focus_change_event : public message_event{
+		public:
+			using message_event::operator=;
+
+			explicit focus_change_event(object &value);
+
+			virtual ~focus_change_event();
+
+			virtual message_event &dispatch() override;
+
+			virtual bool is_focused() const = 0;
+		};
+
+		class set_focus_event : public focus_change_event{
+		public:
+			using message_event::operator=;
+
+			explicit set_focus_event(object &value);
+
+			virtual ~set_focus_event();
+
+			virtual message_event &dispatch() override;
+
+			virtual bool is_focused() const override;
+		};
+
+		class kill_focus_event : public focus_change_event{
+		public:
+			using message_event::operator=;
+
+			explicit kill_focus_event(object &value);
+
+			virtual ~kill_focus_event();
+
+			virtual message_event &dispatch() override;
+
+			virtual bool is_focused() const override;
 		};
 	}
 }

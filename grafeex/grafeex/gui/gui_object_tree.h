@@ -11,6 +11,11 @@
 namespace grafeex{
 	namespace messaging{
 		class changed_position_event;
+		class focus_change_event;
+	}
+
+	namespace window{
+		class view;
 	}
 
 	namespace gui{
@@ -41,7 +46,11 @@ namespace grafeex{
 
 		protected:
 			friend class object_attributes;
+
 			friend class messaging::changed_position_event;
+			friend class messaging::focus_change_event;
+
+			friend class window::view;
 
 			virtual void attribute_set_(attributes_state_value_type state);
 
@@ -66,6 +75,7 @@ namespace grafeex{
 
 			attributes_ptr_type attributes_;
 			attributes_cache_type attributes_cache_;
+			gui_object_type *focused_child_ = nullptr;
 		};
 	}
 }

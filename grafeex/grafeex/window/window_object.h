@@ -77,9 +77,7 @@ namespace grafeex{
 			typedef std::shared_ptr<menu_type> menu_ptr_type;
 			typedef std::shared_ptr<menu_collection_type> menu_collection_ptr_type;
 
-			typedef std::shared_ptr<messaging::event_forwarder_base> forwarder_type;
-			typedef std::unordered_map<uint_type, forwarder_type> forwarder_list_type;
-
+			typedef app_type::dispatcher_list_type dispatcher_list_type;
 			typedef general_event_handler::d2d_color_type d2d_color_type;
 
 			typedef d2d::hwnd_render_target hwnd_render_type;
@@ -233,6 +231,8 @@ namespace grafeex{
 			friend class messaging::nc_destroy_event;
 
 			friend class messaging::activate_event;
+			friend class messaging::focus_change_event;
+
 			friend class messaging::changed_position_event;
 			friend class messaging::changed_size_event;
 
@@ -240,6 +240,8 @@ namespace grafeex{
 			friend class messaging::paint_event;
 			friend class messaging::print_client_event;
 			friend class messaging::print_event;
+
+			friend class messaging::custom_draw_event;
 
 			friend class messaging::command_event;
 			friend class messaging::notify_event;
@@ -249,7 +251,7 @@ namespace grafeex{
 			friend class window::view;
 			friend class window::style;
 
-			object(procedure_type previous_procedure = ::DefWindowProcW);
+			object(dispatcher_list_type *l1 = nullptr, dispatcher_list_type *l2 = nullptr, procedure_type previous_procedure = ::DefWindowProcW);
 
 			virtual void on_recreate_drawing_resources(bool is_device) override;
 
@@ -278,6 +280,8 @@ namespace grafeex{
 			virtual hwnd_type get_parent_handle_();
 
 			virtual object *get_window_parent_();
+
+			virtual object *get_dialog_parent_();
 
 			virtual void initialize_();
 
@@ -318,8 +322,8 @@ namespace grafeex{
 			style_ptr_type style_;
 			render_manager_ptr_type renderer_;
 			hdc_render_manager_ptr_type hdc_renderer_;
-			forwarder_list_type *command_forwarder_list_ref_;
-			forwarder_list_type *notify_forwarder_list_ref_;
+			dispatcher_list_type *command_forwarder_list_ref_;
+			dispatcher_list_type *notify_forwarder_list_ref_;
 			object *synced_;
 		};
 	}

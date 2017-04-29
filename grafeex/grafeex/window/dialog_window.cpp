@@ -2,7 +2,7 @@
 #include "../structures/system_color_structure.h"
 
 grafeex::window::dialog::dialog()
-	: base_type(::DefDlgProcW), owner_(nullptr){}
+	: base_type(nullptr, nullptr, ::DefDlgProcW), owner_(nullptr){}
 
 grafeex::window::dialog::~dialog(){
 	destroy();

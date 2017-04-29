@@ -23,6 +23,7 @@ namespace grafeex{
 			typedef ::HFONT font_type;
 
 			typedef structures::enumerations::hit_target_type hit_target_type;
+			typedef mouse_activate_event::return_type ma_return_type;
 
 			virtual ~general_event_handler();
 
@@ -42,14 +43,20 @@ namespace grafeex{
 
 			friend class nc_activate_event;
 			friend class activate_event;
+			friend class mouse_activate_event;
 			friend class child_activate_event;
 			friend class cancel_mode_event;
 			friend class enable_event;
+			friend class focus_change_event;
+			friend class set_focus_event;
+			friend class kill_focus_event;
 
 			friend class erase_background_event;
 			friend class paint_event;
 			friend class nc_paint_event;
 			friend class client_paint_event;
+
+			friend class custom_draw_event;
 
 			friend class print_client_event;
 			friend class print_event;
@@ -134,6 +141,8 @@ namespace grafeex{
 
 			virtual void on_deactivate(activate_event &e);
 
+			virtual ma_return_type on_mouse_activate(mouse_activate_event &e);
+
 			virtual void on_child_activate(child_activate_event &e);
 
 			virtual void on_cancel_mode(cancel_mode_event &e);
@@ -143,6 +152,12 @@ namespace grafeex{
 			virtual void on_enable(enable_event &e);
 
 			virtual void on_disable(enable_event &e);
+
+			virtual void on_focus_change(focus_change_event &e);
+
+			virtual void on_set_focus(set_focus_event &e);
+
+			virtual void on_kill_focus(kill_focus_event &e);
 
 			virtual bool on_position_change(position_event &e);
 

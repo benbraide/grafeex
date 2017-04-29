@@ -12,6 +12,7 @@
 #include "controls/check_control.h"
 #include "controls/radio_control.h"
 #include "controls/radio_control_group.h"
+#include "controls/label_control.h"
 
 int WINAPI wWinMain(::HINSTANCE app_instance, ::HINSTANCE, ::LPWSTR cmd_line, int show_type){
 	typedef grafeex::window::object::d2d_point_type d2d_point_type;
@@ -44,6 +45,8 @@ int WINAPI wWinMain(::HINSTANCE app_instance, ::HINSTANCE, ::LPWSTR cmd_line, in
 	grafeex::window::controls::radio rad_0(rgrp, L"Radio Test 0", point_type{ 10, 150 });
 	grafeex::window::controls::radio rad_1(rgrp, L"Radio Test 1", point_type{ 10, 170 });
 	grafeex::window::controls::radio rad_2(rgrp, L"Radio Test 2", point_type{ 10, 190 });
+
+	grafeex::window::controls::label lbl(dfm, L"Label Text", point_type{ 10, 210 });
 
 	auto count = 0;
 	grafeex::common::random_bool rand;

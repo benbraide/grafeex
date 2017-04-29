@@ -1,18 +1,18 @@
 #include "button_control.h"
 
 grafeex::window::controls::button::button()
-	: object(control_type::button){
+	: object(control_type::button, &command_forwarder_list_, &notify_forwarder_list_){
 	reset_persistent_styles_();
 }
 
 grafeex::window::controls::button::button(object_type &parent, const std::wstring &label, const point_type &offset, const size_type &padding)
-	: object(control_type::button){
+	: object(control_type::button, &command_forwarder_list_, &notify_forwarder_list_){
 	reset_persistent_styles_();
 	create(parent, label, offset, padding);
 }
 
 grafeex::window::controls::button::button(const sibling_type &sibling, const std::wstring &label, const point_type &offset, const size_type &padding)
-	: object(control_type::button){
+	: object(control_type::button, &command_forwarder_list_, &notify_forwarder_list_){
 	reset_persistent_styles_();
 	create(sibling, label, offset, padding);
 }

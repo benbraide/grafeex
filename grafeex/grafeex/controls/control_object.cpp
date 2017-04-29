@@ -1,7 +1,9 @@
 #include "control_object.h"
+#include "../messaging/command_message_event_handler.h"
+#include "../messaging/notify_message_event_handler.h"
 
-grafeex::window::controls::object::object(control_type type)
-	: class_name_(get_class_name(type)), font_value_(app_instance->default_font){
+grafeex::window::controls::object::object(control_type type, dispatcher_list_type *l1, dispatcher_list_type *l2)
+	: base_type(l1, l2), class_name_(get_class_name(type)), font_value_(app_instance->default_font){
 	if (type != control_type::nil){
 		previous_procedure_ = get_procedure(class_name_.c_str());
 		init_common_(type);

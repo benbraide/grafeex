@@ -7,13 +7,17 @@
 
 #include "../graphics/graphics_text.h"
 #include "../messaging/command_message_event_handler.h"
+#include "../messaging/notify_message_event_handler.h"
 
 namespace grafeex{
 	namespace window{
 		namespace controls{
-			class button : public object, public messaging::button_command_event_handler{
+			class button : public object, public messaging::button_command_event_handler,
+				public messaging::button_notify_event_handler{
 			public:
 				typedef ::LOGFONTW font_info_type;
+				typedef ::DWORD dword_type;
+
 				typedef controls::button_style style_type;
 
 				button();

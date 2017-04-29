@@ -32,6 +32,12 @@ namespace grafeex{
 
 			virtual bool enabled() const;
 
+			virtual view &focus();
+
+			virtual view &blur();
+
+			virtual bool focused() const;
+
 			virtual view &show(show_mode mode = show_mode::show);
 
 			virtual view &hide();
@@ -63,6 +69,10 @@ namespace grafeex{
 			virtual bool has_background_color() const;
 
 		protected:
+			virtual void focus_();
+
+			virtual void focus_only_();
+
 			object *object_;
 			background_color_type background_color_;
 		};

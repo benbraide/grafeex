@@ -28,18 +28,11 @@ grafeex::window::object::event_tunnel::event_tunnel(){
 
 grafeex::window::object::event_tunnel::~event_tunnel() = default;
 
-grafeex::window::object::object(procedure_type previous_procedure)
-	: previous_procedure_(previous_procedure), command_forwarder_list_ref_(nullptr), notify_forwarder_list_ref_(nullptr), synced_(nullptr){
+grafeex::window::object::object(dispatcher_list_type *l1, dispatcher_list_type *l2, procedure_type previous_procedure)
+	: previous_procedure_(previous_procedure), command_forwarder_list_ref_(l1), notify_forwarder_list_ref_(l2), synced_(nullptr){
 	relative_info_ = relative_info{ false };
 	mouse_state_.object_info_.general_event_owner = this;
 	mouse_state_.object_info_.object_owner = this;
-}
-
-void grafeex::window::object::on_recreate_drawing_resources(bool is_device){
-	if (is_device)//Reset objects
-		hdc_renderer_ = nullptr;
-	else//Window
-		renderer_ = nullptr;
 }
 
 grafeex::window::object::~object(){
@@ -253,6 +246,13 @@ grafeex::window::object::size_type grafeex::window::object::size_to_pixel(const 
 	return size_type{ app_type::dip_to_pixel_x(value.width), app_type::dip_to_pixel_y(value.height) };
 }
 
+void grafeex::window::object::on_recreate_drawing_resources(bool is_device){
+	if (is_device)//Reset objects
+		hdc_renderer_ = nullptr;
+	else//Window
+		renderer_ = nullptr;
+}
+
 grafeex::gui::generic_object::events_type grafeex::window::object::get_events_(){
 	return create_events_<event_tunnel>();
 }
@@ -287,6 +287,12 @@ bool grafeex::window::object::create_(const std::wstring &caption, const point_t
 	if (parent_ != nullptr){
 		if (dynamic_cast<modal_dialog *>(this) == nullptr)
 			GRAFEEX_SET(styles, WS_CHILD);//Set child flag
+
+		if (dynamic_cast<dialog *>(this) != nullptr){
+			auto window_parent = dynamic_cast<object *>(parent_);
+			if (window_parent != nullptr && window_parent->is_dialog())
+				GRAFEEX_SET(extended_styles, WS_EX_CONTROLPARENT);
+		}
 
 		if (offset.is_absolute())//Convert absolute to relative
 			computed_offset = parent_->convert_from_screen(offset);
@@ -362,7 +368,17 @@ grafeex::window::object *grafeex::window::object::get_window_parent_(){
 	while (parent != nullptr && (window_parent = dynamic_cast<object *>(parent)) == nullptr)
 		parent = parent->parent();
 
-	return window_parent;
+	return (parent == nullptr) ? nullptr : window_parent;
+}
+
+grafeex::window::object *grafeex::window::object::get_dialog_parent_(){
+	auto parent = parent_;
+	object *dialog_parent = nullptr;
+
+	while (parent != nullptr && ((dialog_parent = dynamic_cast<object *>(parent)) == nullptr || !dialog_parent->is_dialog()))
+		parent = parent->parent();
+
+	return (parent == nullptr) ? nullptr : dialog_parent;
 }
 
 void grafeex::window::object::initialize_(){}

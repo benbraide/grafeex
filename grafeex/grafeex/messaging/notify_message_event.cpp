@@ -9,7 +9,11 @@ grafeex::messaging::notify_event::notify_event(object &value)
 grafeex::messaging::notify_event::~notify_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::notify_event::dispatch(){
-	auto cmd_list = control()->notify_forwarder_list_ref_;
+	auto target = control();
+	if (target == nullptr)//Unknown target
+		return *this;
+
+	auto cmd_list = target->notify_forwarder_list_ref_;
 	if (cmd_list != nullptr){
 		auto message_dispatcher = cmd_list->find(code());
 		if (message_dispatcher != cmd_list->end()){
@@ -97,4 +101,28 @@ void grafeex::messaging::custom_draw_event::on_error_(hresult_type err){
 	object_->target()->on_drawing_error(err, true);
 	if (err == D2DERR_RECREATE_TARGET)
 		object_->target()->on_recreate_drawing_resources(true);
+}
+
+grafeex::messaging::tool_tip_get_text_event::tool_tip_get_text_event(object &value)
+	: notify_event(value){}
+
+grafeex::messaging::tool_tip_get_text_event::~tool_tip_get_text_event() = default;
+
+grafeex::messaging::message_event &grafeex::messaging::tool_tip_get_text_event::dispatch(){
+	auto tool_tip_target = dynamic_cast<tool_tip_notify_event_handler *>(control());
+	if (tool_tip_target == nullptr)
+		return dispatch_();
+
+	if (dispatch_().is_propagating())//Use returned value
+		get_text_info().lpszText = const_cast<wchar_t *>(tool_tip_target->on_tool_tip_get_text(*this).c_str());
+
+	return *this;
+}
+
+grafeex::gui::object *grafeex::messaging::tool_tip_get_text_event::item() const{
+	return reinterpret_cast<gui::object *>(get_text_info().lParam);
+}
+
+grafeex::messaging::tool_tip_get_text_event::get_text_info_type &grafeex::messaging::tool_tip_get_text_event::get_text_info() const{
+	return *object_->info().lparam<get_text_info_type *>();
 }

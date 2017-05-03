@@ -26,11 +26,17 @@ grafeex::window::object::dword_type grafeex::window::controls::static_control::w
 }
 
 bool grafeex::window::controls::static_control::create(object_type &parent, const std::wstring &label, const point_type &offset, const size_type &size){
+	if (is_created())
+		return false;
+
 	insert_into_parent_(parent);
 	return create_(label, offset, size);
 }
 
 bool grafeex::window::controls::static_control::create(const sibling_type &sibling, const std::wstring &label, const point_type &offset, const size_type &size){
+	if (is_created())
+		return false;
+
 	insert_into_parent_(sibling);
 	return create_(label, offset, size);
 }

@@ -1,5 +1,6 @@
 #include "scope_message_event.h"
 #include "../window/dialog_window.h"
+#include "../controls/control_object.h"
 
 grafeex::messaging::scope_event::scope_event(object &value)
 	: message_event(value){}
@@ -48,17 +49,19 @@ grafeex::messaging::create_event::create_event(object &value)
 grafeex::messaging::create_event::~create_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::create_event::dispatch(){
-	object_->target()->system_menu_ = std::make_shared<menu::shared>(object_->info().owner(), menu::shared::option::system);
-	object_->target()->system_menu_->init_();
+	auto target = object_->target();
 
-	if (object_->target()->parent() == nullptr){//Add to top level list
+	target->system_menu_ = std::make_shared<menu::shared>(object_->info().owner(), menu::shared::option::system);
+	target->system_menu_->init_();
+
+	if (target->parent() == nullptr && dynamic_cast<window::controls::object *>(target) == nullptr){//Add to top level list
 		application::object::instance->lock_.lock();
 		application::object::instance->top_level_windows_.push_back(object_->info().owner());
 		application::object::instance->lock_.unlock();
 	}
 
 	if (scope_event::dispatch().is_propagating())
-		*this << object_->target()->on_create(*this);
+		*this << target->on_create(*this);
 
 	return *this;
 }

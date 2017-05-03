@@ -22,11 +22,17 @@ grafeex::window::controls::label::~label(){
 }
 
 bool grafeex::window::controls::label::create(object_type &parent, const std::wstring &label, const point_type &offset){
+	if (is_created())
+		return false;
+
 	insert_into_parent_(parent);
 	return create_(label, offset, size_type{});
 }
 
 bool grafeex::window::controls::label::create(const sibling_type &sibling, const std::wstring &label, const point_type &offset){
+	if (is_created())
+		return false;
+
 	insert_into_parent_(sibling);
 	return create_(label, offset, size_type{});
 }

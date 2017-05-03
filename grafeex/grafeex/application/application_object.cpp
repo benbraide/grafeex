@@ -375,6 +375,8 @@ void grafeex::application::object::create_command_dispatchers_(){
 
 void grafeex::application::object::create_notify_dispatchers_(){
 	messaging::button_notify_event_handler::create_forwarder_list();
+	messaging::tool_tip_notify_event_handler::create_forwarder_list();
+	messaging::tab_notify_event_handler::create_forwarder_list();
 }
 
 void grafeex::application::object::app_activate_(messaging::activate_app_event &e){}

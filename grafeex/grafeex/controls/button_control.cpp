@@ -31,12 +31,18 @@ grafeex::window::controls::button::style_type &grafeex::window::controls::button
 
 bool grafeex::window::controls::button::create(object_type &parent, const std::wstring &label, const point_type &offset,
 	const size_type &padding){
+	if (is_created())
+		return false;
+
 	insert_into_parent_(parent);
 	return create_(label, offset, padding);
 }
 
 bool grafeex::window::controls::button::create(const sibling_type &sibling, const std::wstring &label, const point_type &offset,
 	const size_type &padding){
+	if (is_created())
+		return false;
+
 	insert_into_parent_(sibling);
 	return create_(label, offset, padding);
 }

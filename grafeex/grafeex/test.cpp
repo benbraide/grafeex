@@ -5,7 +5,6 @@
 #include "window/modal_dialog_window.h"
 #include "menu/menu_bar.h"
 #include "menu/menu_check_item.h"
-#include "collections/menu_collection.h"
 #include "controls/default_button_control.h"
 #include "controls/default_split_button_control.h"
 #include "controls/default_command_link_control.h"
@@ -13,6 +12,11 @@
 #include "controls/radio_control.h"
 #include "controls/radio_control_group.h"
 #include "controls/label_control.h"
+#include "controls/tool_tip_control.h"
+#include "controls/tab_control.h"
+
+#include "collections/menu_collection.h"
+#include "collections/tool_tip_collection.h"
 
 int WINAPI wWinMain(::HINSTANCE app_instance, ::HINSTANCE, ::LPWSTR cmd_line, int show_type){
 	typedef grafeex::window::object::d2d_point_type d2d_point_type;
@@ -29,7 +33,12 @@ int WINAPI wWinMain(::HINSTANCE app_instance, ::HINSTANCE, ::LPWSTR cmd_line, in
 	grafeex::window::top_level fw(L"Test Window", d2d_point_type{ 10.0f, 10.0f }, d2d_size_type{ 500.0f, 400.0f });
 	fw.view().show();
 
-	grafeex::window::dialog_frame dfm(fw, L"Modal Dialog", point_type{ 10 }, size_type{ 300, 200 });
+	grafeex::window::controls::tab tac(fw);
+	grafeex::window::controls::tab_item<grafeex::window::object> tai(tac, L"First Tab");
+	grafeex::window::controls::tab_item<grafeex::window::dialog> tai2(tac, L"Second Tab");
+	grafeex::window::controls::tab_item<grafeex::window::object> tai3(tac, L"Last Tab");
+
+	grafeex::window::dialog_frame dfm(tai, L"Modal Dialog", point_type{ 10 }, size_type{ 300, 200 });
 	dfm.attributes().fill_parent(float_size_type{ 0.5f, 1.0f });
 	dfm.attributes().align(true, alignment_type::top | alignment_type::right);
 	dfm.view().show();
@@ -47,6 +56,14 @@ int WINAPI wWinMain(::HINSTANCE app_instance, ::HINSTANCE, ::LPWSTR cmd_line, in
 	grafeex::window::controls::radio rad_2(rgrp, L"Radio Test 2", point_type{ 10, 190 });
 
 	grafeex::window::controls::label lbl(dfm, L"Label Text", point_type{ 10, 210 });
+
+	grafeex::collections::tool_tip ttc(true);
+	ttc.item(btn, L"Control target");
+	ttc.item(fw, L"Area target", { 10, 10, 80, 60 });
+	ttc.item(dbtn, L"Decorated target");
+
+	ttc.get_last_item()->font(L"Georgia");
+	ttc.get_last_item()->title(L"Tip title");
 
 	auto count = 0;
 	grafeex::common::random_bool rand;

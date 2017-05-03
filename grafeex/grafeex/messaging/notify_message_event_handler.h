@@ -9,6 +9,8 @@
 
 #define GNEH_UNIFORM_CTRLNOT_DISPATCH(e, m) GNEH_UNIFORM_DISPATCH(e, notify_event_handler, on_control_ ## m)
 #define GNEH_UNIFORM_BNOT_DISPATCH(e, m) GNEH_UNIFORM_DISPATCH(e, button_notify_event_handler, on_button_ ## m)
+#define GNEH_UNIFORM_TTNOT_DISPATCH(e, m) GNEH_UNIFORM_DISPATCH(e, tool_tip_notify_event_handler, on_tool_tip_ ## m)
+#define GNEH_UNIFORM_TABNOT_DISPATCH(e, m) GNEH_UNIFORM_DISPATCH(e, tab_notify_event_handler, on_tab_ ## m)
 
 namespace grafeex{
 	namespace window{
@@ -58,6 +60,57 @@ namespace grafeex{
 			virtual void on_button_enter(object &e);
 
 			virtual void on_button_leave(object &e);
+
+			static dispatcher_list_type notify_forwarder_list_;
+		};
+
+		class tool_tip_notify_event_handler : public notify_event_handler{
+		public:
+			virtual ~tool_tip_notify_event_handler();
+
+			static void create_forwarder_list();
+
+		protected:
+			template <class> friend class uniform_event_forwarder;
+			friend class tool_tip_get_text_event;
+
+			virtual const std::wstring &on_tool_tip_get_text(tool_tip_get_text_event &e) = 0;
+
+			virtual void on_tool_tip_show(object &e);
+
+			virtual void on_tool_tip_hide(object &e);
+
+			virtual void on_tool_tip_link_click(object &e);
+
+			static dispatcher_list_type notify_forwarder_list_;
+		};
+
+		class tab_notify_event_handler : public notify_event_handler{
+		public:
+			virtual ~tab_notify_event_handler();
+
+			static void create_forwarder_list();
+
+		protected:
+			template <class> friend class uniform_event_forwarder;
+
+			virtual void on_tab_click(object &e);
+
+			virtual void on_tab_dbl_click(object &e);
+
+			virtual void on_tab_right_click(object &e);
+
+			virtual void on_tab_right_dbl_click(object &e);
+
+			virtual void on_tab_released_capture(object &e);
+
+			virtual void on_tab_focus_change(object &e);
+
+			virtual void on_tab_key_down(object &e);
+
+			virtual void on_tab_selection_change(object &e);
+
+			virtual void on_tab_selection_changing(object &e);
 
 			static dispatcher_list_type notify_forwarder_list_;
 		};

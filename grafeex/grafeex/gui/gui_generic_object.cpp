@@ -96,7 +96,7 @@ grafeex::gui::object &grafeex::gui::generic_object::align(alignment_type value, 
 grafeex::gui::object::point_type grafeex::gui::generic_object::compute_alignment(alignment_type value, const size_type &delta) const{
 	if (parent_ == nullptr)
 		return point_type{};
-	return (point_type{} + (compute_alignment_delta(parent_->size(true), size(), value) + delta));
+	return (parent_->dimensions(true).top_left() + (compute_alignment_delta(parent_->size(true), size(), value) + delta));
 }
 
 grafeex::gui::object::hit_target_type grafeex::gui::generic_object::test(const point_type &value) const{

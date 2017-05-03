@@ -68,6 +68,21 @@ namespace grafeex{
 
 			virtual void on_error_(hresult_type err) override;
 		};
+
+		class tool_tip_get_text_event : public notify_event{
+		public:
+			typedef ::NMTTDISPINFOW get_text_info_type;
+
+			explicit tool_tip_get_text_event(object &value);
+
+			virtual ~tool_tip_get_text_event();
+
+			virtual message_event &dispatch() override;
+
+			virtual gui::object *item() const;
+
+			virtual get_text_info_type &get_text_info() const;
+		};
 	}
 }
 

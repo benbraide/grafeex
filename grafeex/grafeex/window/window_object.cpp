@@ -2,6 +2,7 @@
 #include "modal_dialog_window.h"
 
 #include "../messaging/message_event_forwarder.h"
+#include "../collections/tab_collection.h"
 
 grafeex::window::object::event_tunnel::event_tunnel(){
 	event_list_[menu_select_event_.group()] = &menu_select_event_;
@@ -28,8 +29,8 @@ grafeex::window::object::event_tunnel::event_tunnel(){
 
 grafeex::window::object::event_tunnel::~event_tunnel() = default;
 
-grafeex::window::object::object(dispatcher_list_type *l1, dispatcher_list_type *l2, procedure_type previous_procedure)
-	: previous_procedure_(previous_procedure), command_forwarder_list_ref_(l1), notify_forwarder_list_ref_(l2), synced_(nullptr){
+grafeex::window::object::object(procedure_type previous_procedure)
+	: previous_procedure_(previous_procedure), synced_(nullptr){
 	relative_info_ = relative_info{ false };
 	mouse_state_.object_info_.general_event_owner = this;
 	mouse_state_.object_info_.object_owner = this;
@@ -194,8 +195,14 @@ grafeex::window::object::menu_collection_type &grafeex::window::object::menu(){
 	return *menu_;
 }
 
-grafeex::window::object::menu_type &grafeex::window::object::system_menu(){
+grafeex::window::object::shared_menu_collection_type &grafeex::window::object::system_menu(){
 	return *system_menu_;
+}
+
+grafeex::window::object::tab_collection_type &grafeex::window::object::tab(){
+	if (tab_ == nullptr)
+		tab_ = std::make_shared<collections::tab>(*this);
+	return *tab_;
 }
 
 grafeex::window::object::view_type &grafeex::window::object::view(){

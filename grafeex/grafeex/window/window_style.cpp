@@ -374,6 +374,10 @@ const grafeex::window::style::info_type &grafeex::window::style::disabled_change
 	return update_info_.disabled;
 }
 
+grafeex::window::style::hwnd_type grafeex::window::style::object_value_() const{
+	return object_->value_;
+}
+
 grafeex::window::style::dword_type grafeex::window::style::merge_changes_(bool extended) const{
 	if (extended)
 		return GRAFEEX_REMOVE_V(GRAFEEX_SET_V(retrieve_(true), update_info_.enabled.extended), update_info_.disabled.extended);

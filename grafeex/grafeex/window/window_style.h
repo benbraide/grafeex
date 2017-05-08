@@ -206,6 +206,8 @@ namespace grafeex{
 			const info_type &disabled_changes() const;
 
 		protected:
+			hwnd_type object_value_() const;
+
 			dword_type merge_changes_(bool extended) const;
 
 			void write_changes_();
@@ -220,7 +222,7 @@ namespace grafeex{
 
 			style &disable_(dword_type value, bool extended);
 
-			dword_type retrieve_(bool extended) const;
+			virtual dword_type retrieve_(bool extended) const;
 
 			bool has_(dword_type value, bool extended) const;
 

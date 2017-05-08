@@ -19,6 +19,7 @@ namespace grafeex{
 			typedef menu_type menu_type;
 			typedef menu_interface::index_type index_type;
 
+			typedef gui::object gui_object_type;
 			typedef gui::object_sibling sibling_type;
 
 			typedef grafeex::menu::item item_type;
@@ -38,9 +39,9 @@ namespace grafeex{
 
 			menu(){}
 
-			template <typename value_type>
-			explicit menu(value_type &value)
-				: menu_type(value){}
+			template <typename value_type, typename... optional_types>
+			explicit menu(value_type &value, optional_types... optional_values)
+				: menu_type(value, optional_values...){}
 
 			virtual ~menu(){
 				menu_type::destroy();
@@ -181,6 +182,18 @@ namespace grafeex{
 				return *this;
 			}
 
+			virtual gui_object_type *get_item(index_type index) const override{
+				return (index < list_.size()) ? std::next(list_.begin(), index)->get() : nullptr;
+			}
+
+			virtual gui_object_type *get_first_item() const override{
+				return (list_.empty() ? nullptr : list_.begin()->get());
+			}
+
+			virtual gui_object_type *get_last_item() const override{
+				return (list_.empty() ? nullptr : list_.rbegin()->get());
+			}
+
 			virtual index_type count() const override{
 				return list_.size();
 			}
@@ -254,6 +267,7 @@ namespace grafeex{
 
 		typedef menu<grafeex::menu::bar> menu_bar;
 		typedef menu<grafeex::menu::popup> menu_popup;
+		typedef menu<grafeex::menu::shared> shared_menu;
 	}
 }
 

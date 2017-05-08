@@ -19,6 +19,7 @@
 
 #include "../menu/shared_menu.h"
 #include "../collections/menu_collection.h"
+#include "../collections/tab_collection_interface.h"
 
 namespace grafeex{
 	namespace messaging{
@@ -72,14 +73,17 @@ namespace grafeex{
 
 			typedef menu::object menu_type;
 			typedef menu::shared shared_menu_type;
+
 			typedef collections::menu_bar menu_collection_type;
+			typedef collections::shared_menu shared_menu_collection_type;
+			typedef collections::tab_interface tab_collection_type;
 
 			typedef std::shared_ptr<menu_type> menu_ptr_type;
 			typedef std::shared_ptr<menu_collection_type> menu_collection_ptr_type;
+			typedef std::shared_ptr<shared_menu_collection_type> shared_menu_collection_ptr_type;
+			typedef std::shared_ptr<tab_collection_type> tab_collection_ptr_type;
 
-			typedef app_type::dispatcher_list_type dispatcher_list_type;
 			typedef general_event_handler::d2d_color_type d2d_color_type;
-
 			typedef d2d::hwnd_render_target hwnd_render_type;
 			typedef d2d::hdc_render_target d2d_hdc_render_type;
 
@@ -201,7 +205,16 @@ namespace grafeex{
 
 			virtual menu_collection_type &menu();
 
-			virtual menu_type &system_menu();
+			virtual shared_menu_collection_type &system_menu();
+
+			virtual tab_collection_type &tab();
+
+			template <typename tab_type>
+			tab_collection_type &typed_tab(){
+				if (tab_ == nullptr)
+					tab_ = std::make_shared<tab_type>(*this);
+				return *tab_;
+			}
 
 			virtual view_type &view();
 
@@ -251,7 +264,7 @@ namespace grafeex{
 			friend class window::view;
 			friend class window::style;
 
-			object(dispatcher_list_type *l1 = nullptr, dispatcher_list_type *l2 = nullptr, procedure_type previous_procedure = ::DefWindowProcW);
+			explicit object(procedure_type previous_procedure = ::DefWindowProcW);
 
 			virtual void on_recreate_drawing_resources(bool is_device) override;
 
@@ -316,14 +329,13 @@ namespace grafeex{
 			relative_info relative_info_;
 			procedure_type previous_procedure_;
 			persistent_styles persistent_styles_{};
-			menu_ptr_type system_menu_;
+			shared_menu_collection_ptr_type system_menu_;
 			menu_collection_ptr_type menu_;
+			tab_collection_ptr_type tab_;
 			view_ptr_type view_;
 			style_ptr_type style_;
 			render_manager_ptr_type renderer_;
 			hdc_render_manager_ptr_type hdc_renderer_;
-			dispatcher_list_type *command_forwarder_list_ref_;
-			dispatcher_list_type *notify_forwarder_list_ref_;
 			object *synced_;
 		};
 	}

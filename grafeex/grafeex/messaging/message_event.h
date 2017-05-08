@@ -59,6 +59,8 @@ namespace grafeex{
 
 			virtual message_event &operator <<(bool value);
 
+			virtual message_event &operator <<(const std::wstring &value);
+
 			template <typename value_type>
 			message_event &operator <<(value_type value){
 				return operator<<((result_type)value);

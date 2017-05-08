@@ -19,6 +19,7 @@ namespace grafeex{
 	namespace collections{
 		class menu_interface{
 		public:
+			typedef gui::object gui_object_type;
 			typedef grafeex::menu::object::index_type index_type;
 			typedef grafeex::menu::object::event_tunnel::void_callback_type void_callback_type;
 			typedef grafeex::menu::object::event_tunnel::void_no_args_callback_type void_no_args_callback_type;
@@ -56,6 +57,12 @@ namespace grafeex{
 			virtual menu_interface &sub(sub_callback_type callback, GCMI_OWNER_DRAW, GCMI_APPEND_INDEX) = 0;
 
 			virtual menu_interface &group(sub_callback_type callback, GCMI_APPEND_INDEX) = 0;
+
+			virtual gui_object_type *get_item(index_type index) const = 0;
+
+			virtual gui_object_type *get_first_item() const = 0;
+
+			virtual gui_object_type *get_last_item() const = 0;
 
 			virtual index_type count() const = 0;
 

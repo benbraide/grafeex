@@ -19,6 +19,16 @@ grafeex::window::controls::radio::~radio(){
 	destroy();
 }
 
+bool grafeex::window::controls::radio::create(object_type &parent, const std::wstring &label,
+	const point_type &offset, const size_type &padding){
+	return button::create(parent, label, offset, padding);
+}
+
+bool grafeex::window::controls::radio::create(const sibling_type &sibling,
+	const std::wstring &label, const point_type &offset, const size_type &padding){
+	return button::create(sibling, label, offset, padding);
+}
+
 grafeex::window::object::hwnd_type grafeex::window::controls::radio::get_parent_handle_(){
 	auto parent = parent_;
 	if (parent == nullptr)

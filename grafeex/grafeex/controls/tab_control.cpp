@@ -8,18 +8,18 @@ grafeex::window::controls::tab::event_tunnel::event_tunnel(){
 grafeex::window::controls::tab::event_tunnel::~event_tunnel() = default;
 
 grafeex::window::controls::tab::tab()
-	: object(control_type::tab, nullptr, &notify_forwarder_list_){
+	: object(control_type::tab){
 	reset_persistent_styles_();
 }
 
 grafeex::window::controls::tab::tab(gui_object_type &parent)
-	: object(control_type::tab, nullptr, &notify_forwarder_list_){
+	: object(control_type::tab){
 	reset_persistent_styles_();
 	create(parent);
 }
 
 grafeex::window::controls::tab::tab(const sibling_type &sibling)
-	: object(control_type::tab, nullptr, &notify_forwarder_list_){
+	: object(control_type::tab){
 	reset_persistent_styles_();
 	create(sibling);
 }
@@ -78,7 +78,7 @@ grafeex::gui::object::gui_object_type *grafeex::window::controls::tab::current_i
 	return reinterpret_cast<gui_object_type *>(info.lParam);
 }
 
-void grafeex::window::controls::tab::on_tab_selection_change(messaging::object &e){
+void grafeex::window::controls::tab::on_selection_change_notify(messaging::notify_event &e){
 	auto current = current_item();
 	if (current != nullptr)
 		dynamic_cast<tab_item_event_handler *>(current)->on_activate();
@@ -89,19 +89,17 @@ void grafeex::window::controls::tab::on_tab_selection_change(messaging::object &
 	dynamic_cast<window::object *>(current)->view().show();
 }
 
-void grafeex::window::controls::tab::on_tab_selection_changing(messaging::object &e){
+bool grafeex::window::controls::tab::on_selection_changing_notify(messaging::notify_event &e){
 	auto current = current_item();
-	if (current == nullptr || dynamic_cast<tab_item_event_handler *>(current)->on_deactivate()){
+	if (current == nullptr || !dynamic_cast<tab_item_event_handler *>(current)->on_deactivate()){
 		grafeex::events::object ev(*this);
-		if (events().deactivate_event_.fire(ev, true)){
+		if (!events().deactivate_event_.fire(ev, false)){
 			dynamic_cast<window::object *>(current)->view().hide();
-			e << false;
+			return false;
 		}
-		else//Disallow change
-			e << true;
 	}
-	else//Disallow change
-		e << true;
+
+	return true;//Disallow change
 }
 
 void grafeex::window::controls::tab::reset_persistent_styles_(){

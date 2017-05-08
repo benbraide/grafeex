@@ -39,7 +39,9 @@ namespace grafeex{
 				create(sibling, caption, offset, size);
 			}
 
-			virtual ~basic_frame() = default;
+			virtual ~basic_frame(){
+				window_type::destroy();
+			}
 
 			virtual dword_type black_listed_styles(bool is_extended) const override{
 				return (window_type::black_listed_styles(is_extended) | (is_extended ? 0L : (WS_CAPTION | WS_BORDER | WS_SYSMENU)));

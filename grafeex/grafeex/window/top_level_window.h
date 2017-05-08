@@ -32,7 +32,9 @@ namespace grafeex{
 				create(caption, offset, size);
 			}
 
-			virtual ~basic_top_level() = default;
+			virtual ~basic_top_level(){
+				window_type::destroy();
+			}
 
 			virtual bool is_top_level() const override{
 				return true;

@@ -18,6 +18,10 @@ namespace grafeex{
 
 				virtual ~default_split_button();
 
+				virtual bool create(object_type &parent, const std::wstring &label, const point_type &offset, const size_type &padding = { -5, 2 });
+
+				virtual bool create(const sibling_type &sibling, const std::wstring &label, const point_type &offset, const size_type &padding = { -5, 2 });
+
 			protected:
 				virtual void reset_persistent_styles_() override;
 			};

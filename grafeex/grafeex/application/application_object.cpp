@@ -42,6 +42,30 @@ grafeex::application::object::instance_type grafeex::application::object::get_in
 	return instance_;
 }
 
+grafeex::messaging::event_forwarder_base *grafeex::application::object::get_event_forwarder(window_type *target, uint_type code) const{
+	if (target == nullptr)
+		return nullptr;
+
+	auto control_target = dynamic_cast<window::controls::object *>(target);
+	if (control_target == nullptr)
+		return nullptr;
+
+	auto list = control_forwarder_list_.find(control_target->type_);
+	if (list == control_forwarder_list_.end())
+		return nullptr;
+
+	auto forwarder = list->second.find(code);
+	return (forwarder == list->second.end()) ? nullptr : forwarder->second.get();
+}
+
+void grafeex::application::object::schedule(std::function<void()> method, int priority){
+	scheduler_.add(method, priority);
+}
+
+bool grafeex::application::object::task(pool_task_type task, bool is_persistent){
+	return pool_.add(task, is_persistent);
+}
+
 void grafeex::application::object::enable_gdi_manager(bool monitor){
 	GRAFEEX_SET(gdi_manager_states_, gdi_manager_state::active);
 	if (monitor && GRAFEEX_IS(gdi_manager_states_, gdi_manager_state::monitoring)){
@@ -364,19 +388,57 @@ void grafeex::application::object::create_dispatchers_(){
 	GAPP_DISPATCH(WM_GETTEXT, get_text_event);
 	GAPP_DISPATCH(WM_GETTEXTLENGTH, get_text_length_event);
 
-	create_command_dispatchers_();
-	create_notify_dispatchers_();
+	create_command_forwarders_();
+	create_notify_forwarders_();
 }
 
-void grafeex::application::object::create_command_dispatchers_(){
-	messaging::static_command_event_handler::create_forwarder_list();
-	messaging::button_command_event_handler::create_forwarder_list();
+void grafeex::application::object::create_command_forwarders_(){
+	auto &slist = control_forwarder_list_[control_object_type::static_];
+	{//Static commands
+		GAPP_CMD_UFORWARD(slist, STN_DISABLE, messaging::static_command_event_handler, disable);
+		GAPP_CMD_UFORWARD(slist, STN_ENABLE, messaging::static_command_event_handler, enable);
+		GAPP_CMD_UFORWARD(slist, STN_CLICKED, messaging::static_command_event_handler, click);
+		GAPP_CMD_UFORWARD(slist, STN_DBLCLK, messaging::static_command_event_handler, dbl_click);
+	}
+
+	auto &blist = control_forwarder_list_[control_object_type::button];
+	{//Button commands
+		GAPP_CMD_UFORWARD(blist, BN_KILLFOCUS, messaging::button_command_event_handler, kill_focus);
+		GAPP_CMD_UFORWARD(blist, BN_SETFOCUS, messaging::button_command_event_handler, set_focus);
+		GAPP_CMD_UFORWARD(blist, BN_CLICKED, messaging::button_command_event_handler, click);
+		GAPP_CMD_UFORWARD(blist, BN_DBLCLK, messaging::button_command_event_handler, dbl_click);
+	}
 }
 
-void grafeex::application::object::create_notify_dispatchers_(){
-	messaging::button_notify_event_handler::create_forwarder_list();
-	messaging::tool_tip_notify_event_handler::create_forwarder_list();
-	messaging::tab_notify_event_handler::create_forwarder_list();
+void grafeex::application::object::create_notify_forwarders_(){
+	auto &blist = control_forwarder_list_[control_object_type::button];
+	{//Button notifications
+		GAPP_NOT_UFORWARD2(blist, NM_CUSTOMDRAW, messaging::button_notify_event_handler, dword_type, messaging::custom_draw_event, draw);
+		GAPP_NOT_VOID_UFORWARD(blist, BCN_DROPDOWN, messaging::button_notify_event_handler, dropdown);
+		GAPP_NOT_VOID_UFORWARD(blist, BCN_HOTITEMCHANGE, messaging::button_notify_event_handler, highlight_change);
+	}
+
+	auto &ttlist = control_forwarder_list_[control_object_type::tool_tip];
+	{//Tooltip notifications
+		GAPP_NOT_UFORWARD2(ttlist, NM_CUSTOMDRAW, messaging::tool_tip_notify_event_handler, dword_type, messaging::custom_draw_event, draw);
+		GAPP_NOT_UFORWARD2(ttlist, TTN_GETDISPINFOW, messaging::tool_tip_notify_event_handler, const std::wstring &, messaging::tool_tip_get_text_event, get_text);
+		GAPP_NOT_UFORWARD(ttlist, TTN_SHOW, messaging::tool_tip_notify_event_handler, bool, show);
+		GAPP_NOT_VOID_UFORWARD(ttlist, TTN_POP, messaging::tool_tip_notify_event_handler, hide);
+		GAPP_NOT_VOID_UFORWARD(ttlist, TTN_LINKCLICK, messaging::tool_tip_notify_event_handler, link_click);
+	}
+
+	auto &tlist = control_forwarder_list_[control_object_type::tab];
+	{//Tab notifications
+		GAPP_NOT_VOID_UFORWARD(tlist, NM_CLICK, messaging::tab_notify_event_handler, click);
+		GAPP_NOT_VOID_UFORWARD(tlist, NM_DBLCLK, messaging::tab_notify_event_handler, dbl_click);
+		GAPP_NOT_VOID_UFORWARD(tlist, NM_RCLICK, messaging::tab_notify_event_handler, right_click);
+		GAPP_NOT_VOID_UFORWARD(tlist, NM_RDBLCLK, messaging::tab_notify_event_handler, right_dbl_click);
+		GAPP_NOT_VOID_UFORWARD(tlist, NM_RELEASEDCAPTURE, messaging::tab_notify_event_handler, capture_release);
+		GAPP_NOT_VOID_UFORWARD(tlist, TCN_FOCUSCHANGE, messaging::tab_notify_event_handler, focus_change);
+		GAPP_NOT_VOID_UFORWARD(tlist, TCN_KEYDOWN, messaging::tab_notify_event_handler, key_down);
+		GAPP_NOT_VOID_UFORWARD(tlist, TCN_SELCHANGE, messaging::tab_notify_event_handler, selection_change);
+		GAPP_NOT_UFORWARD(tlist, TCN_SELCHANGING, messaging::tab_notify_event_handler, bool, selection_changing);
+	}
 }
 
 void grafeex::application::object::app_activate_(messaging::activate_app_event &e){}

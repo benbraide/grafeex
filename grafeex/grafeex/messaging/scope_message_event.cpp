@@ -1,4 +1,5 @@
 #include "scope_message_event.h"
+#include "../window/message_window.h"
 #include "../window/dialog_window.h"
 #include "../controls/control_object.h"
 
@@ -51,10 +52,13 @@ grafeex::messaging::create_event::~create_event() = default;
 grafeex::messaging::message_event &grafeex::messaging::create_event::dispatch(){
 	auto target = object_->target();
 
-	target->system_menu_ = std::make_shared<menu::shared>(object_->info().owner(), menu::shared::option::system);
+	target->system_menu_ = std::make_shared<collections::shared_menu>(object_->info().owner(), menu::shared::option::system);
 	target->system_menu_->init_();
 
-	if (target->parent() == nullptr && dynamic_cast<window::controls::object *>(target) == nullptr){//Add to top level list
+	auto is_control = (dynamic_cast<window::controls::object *>(target) != nullptr);
+	auto is_message = (!is_control && dynamic_cast<window::message *>(target) != nullptr);
+
+	if (target->parent() == nullptr && (!is_control && !is_message)){//Add to top level list
 		application::object::instance->lock_.lock();
 		application::object::instance->top_level_windows_.push_back(object_->info().owner());
 		application::object::instance->lock_.unlock();
@@ -103,10 +107,6 @@ grafeex::messaging::message_event &grafeex::messaging::nc_destroy_event::dispatc
 	target->renderer_ = nullptr;//Release renderer
 	target->mouse_state_.object_info_.parent = nullptr;
 
-	auto tree_parent = dynamic_cast<gui::object_tree *>(target->parent());
-	if (tree_parent != nullptr)//Remove from parent
-		tree_parent->remove(*target);
-
 	if (target->parent() == nullptr){
 		application::object::instance->lock_.lock();
 
@@ -120,6 +120,10 @@ grafeex::messaging::message_event &grafeex::messaging::nc_destroy_event::dispatc
 
 	if (application::object::instance->active_dialog_ == target)
 		application::object::instance->active_dialog_ = nullptr;
+
+	auto tree_parent = dynamic_cast<gui::object_tree *>(target->parent());
+	if (tree_parent != nullptr)//Remove from parent
+		tree_parent->remove(*target);
 
 	return *this;
 }

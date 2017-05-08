@@ -77,6 +77,8 @@ namespace grafeex{
 
 			virtual ~tool_tip_get_text_event();
 
+			virtual message_event &operator <<(const std::wstring &value);
+
 			virtual message_event &dispatch() override;
 
 			virtual gui::object *item() const;

@@ -50,6 +50,10 @@ grafeex::messaging::message_event &grafeex::messaging::message_event::operator <
 	return write_bool_(value);
 }
 
+grafeex::messaging::message_event &grafeex::messaging::message_event::operator<<(const std::wstring &value){
+	return operator <<(value.c_str());
+}
+
 bool grafeex::messaging::message_event::is_sent() const{
 	return object_->is_sent();
 }

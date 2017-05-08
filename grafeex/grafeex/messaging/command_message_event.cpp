@@ -1,6 +1,4 @@
 #include "command_message_event.h"
-#include "message_event_forwarder.h"
-
 #include "../window/window_object.h"
 
 grafeex::messaging::command_event::command_event(object &value)
@@ -22,12 +20,9 @@ grafeex::messaging::message_event &grafeex::messaging::command_event::dispatch()
 		if (!is_propagating())
 			return *this;
 
-		auto cmd_list = target->command_forwarder_list_ref_;
-		if (cmd_list != nullptr){
-			auto message_dispatcher = cmd_list->find(code());
-			if (message_dispatcher != cmd_list->end())
-				message_dispatcher->second->dispatch(*object_);
-		}
+		auto forwarder = application::object::instance->get_event_forwarder(control(), code());
+		if (forwarder != nullptr)
+			forwarder->forward(*this);
 	}
 	else if (is_menu())
 		object_->target()->on_menu_command(*this);

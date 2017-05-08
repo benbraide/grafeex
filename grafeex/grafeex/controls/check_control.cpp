@@ -18,6 +18,16 @@ grafeex::window::controls::check::~check(){
 	destroy();
 }
 
+bool grafeex::window::controls::check::create(object_type &parent, const std::wstring &label,
+	const point_type &offset, const size_type &padding){
+	return button::create(parent, label, offset, padding);
+}
+
+bool grafeex::window::controls::check::create(const sibling_type &sibling,
+	const std::wstring &label, const point_type &offset, const size_type &padding){
+	return button::create(sibling, label, offset, padding);
+}
+
 void grafeex::window::controls::check::reset_persistent_styles_(){
 	button::reset_persistent_styles_();
 	GRAFEEX_SET(persistent_styles_.basic, BS_AUTOCHECKBOX);

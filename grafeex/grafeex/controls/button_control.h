@@ -32,9 +32,9 @@ namespace grafeex{
 
 				virtual style_type &style() override;
 
-				virtual bool create(object_type &parent, const std::wstring &label, const point_type &offset, const size_type &padding = { 10, 5 });
+				virtual bool create(object_type &parent, const std::wstring &label, const point_type &offset, const size_type &padding = { 5, 2 });
 
-				virtual bool create(const sibling_type &sibling, const std::wstring &label, const point_type &offset, const size_type &padding = { 10, 5 });
+				virtual bool create(const sibling_type &sibling, const std::wstring &label, const point_type &offset, const size_type &padding = { 5, 2 });
 
 				virtual button &label(const std::wstring &value);
 

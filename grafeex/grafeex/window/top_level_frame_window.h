@@ -27,7 +27,9 @@ namespace grafeex{
 				create(caption, offset, size);
 			}
 
-			virtual ~top_level_frame() = default;
+			virtual ~top_level_frame(){
+				window_type::destroy();
+			}
 
 			virtual dword_type black_listed_styles(bool is_extended) const override{
 				return (window_type::black_listed_styles(is_extended) | (is_extended ? 0L : (WS_CAPTION | WS_BORDER | WS_SYSMENU)));

@@ -3,81 +3,127 @@
 
 grafeex::messaging::notify_event_handler::~notify_event_handler() = default;
 
-grafeex::messaging::notify_event_handler::dword_type grafeex::messaging::notify_event_handler::on_control_draw(custom_draw_event &e){
+grafeex::messaging::button_notify_event_handler::~button_notify_event_handler() = default;
+
+grafeex::messaging::notify_event_handler::dword_type grafeex::messaging::button_notify_event_handler::on_draw_notify(custom_draw_event &e){
 	return static_cast<dword_type>(e.handle().get_object().value());
 }
 
-grafeex::messaging::button_notify_event_handler::~button_notify_event_handler() = default;
+void grafeex::messaging::button_notify_event_handler::on_dropdown_notify(notify_event &e){}
 
-void grafeex::messaging::button_notify_event_handler::create_forwarder_list(){
-	GAPP_NOT_DISPATCH(NM_CUSTOMDRAW, custom_draw_event);
-	GNEH_UNIFORM_BNOT_DISPATCH(BCN_DROPDOWN, dropdown);
-	GNEH_UNIFORM_BNOT_DISPATCH(BCN_HOTITEMCHANGE, highlight_change);
+void grafeex::messaging::button_notify_event_handler::on_highlight_change_notify(notify_event &e){
+	switch (e.get_object().info().lparam<info_type *>()->dwFlags){
+	case HICF_ENTERING:
+		on_enter_notify(e);
+		break;
+	default:
+		on_leave_notify(e);
+		break;
+	}
 }
 
-void grafeex::messaging::button_notify_event_handler::on_button_dropdown(object &e){}
+void grafeex::messaging::button_notify_event_handler::on_enter_notify(notify_event &e){}
 
-void grafeex::messaging::button_notify_event_handler::on_button_highlight_change(object &e){
-	if (e.info().lparam<info_type *>()->dwFlags == HICF_ENTERING)
-		on_button_enter(e);
-	else//Leave
-		on_button_leave(e);
-}
-
-void grafeex::messaging::button_notify_event_handler::on_button_enter(object &e){}
-
-void grafeex::messaging::button_notify_event_handler::on_button_leave(object &e){}
-
-grafeex::messaging::notify_event_handler::dispatcher_list_type grafeex::messaging::button_notify_event_handler::notify_forwarder_list_;
+void grafeex::messaging::button_notify_event_handler::on_leave_notify(notify_event &e){}
 
 grafeex::messaging::tool_tip_notify_event_handler::~tool_tip_notify_event_handler() = default;
 
-void grafeex::messaging::tool_tip_notify_event_handler::create_forwarder_list(){
-	GAPP_NOT_DISPATCH(NM_CUSTOMDRAW, custom_draw_event);
-	GAPP_NOT_DISPATCH(TTN_GETDISPINFOW, tool_tip_get_text_event);
-	GNEH_UNIFORM_TTNOT_DISPATCH(TTN_SHOW, show);
-	GNEH_UNIFORM_TTNOT_DISPATCH(TTN_POP, hide);
-	GNEH_UNIFORM_TTNOT_DISPATCH(TTN_LINKCLICK, link_click);
+grafeex::messaging::notify_event_handler::dword_type grafeex::messaging::tool_tip_notify_event_handler::on_draw_notify(custom_draw_event &e){
+	return static_cast<dword_type>(e.handle().get_object().value());
 }
 
-void grafeex::messaging::tool_tip_notify_event_handler::on_tool_tip_show(object &e){}
+bool grafeex::messaging::tool_tip_notify_event_handler::on_show_notify(notify_event &e){
+	return false;
+}
 
-void grafeex::messaging::tool_tip_notify_event_handler::on_tool_tip_hide(object &e){}
+void grafeex::messaging::tool_tip_notify_event_handler::on_hide_notify(notify_event &e){}
 
-void grafeex::messaging::tool_tip_notify_event_handler::on_tool_tip_link_click(object &e){}
-
-grafeex::messaging::notify_event_handler::dispatcher_list_type grafeex::messaging::tool_tip_notify_event_handler::notify_forwarder_list_;
+void grafeex::messaging::tool_tip_notify_event_handler::on_link_click_notify(notify_event &e){}
 
 grafeex::messaging::tab_notify_event_handler::~tab_notify_event_handler() = default;
 
-void grafeex::messaging::tab_notify_event_handler::create_forwarder_list(){
-	GNEH_UNIFORM_TABNOT_DISPATCH(NM_CLICK, click);
-	GNEH_UNIFORM_TABNOT_DISPATCH(NM_DBLCLK, dbl_click);
-	GNEH_UNIFORM_TABNOT_DISPATCH(NM_RCLICK, right_click);
-	GNEH_UNIFORM_TABNOT_DISPATCH(NM_RDBLCLK, right_dbl_click);
-	GNEH_UNIFORM_TABNOT_DISPATCH(NM_RELEASEDCAPTURE, released_capture);
-	GNEH_UNIFORM_TABNOT_DISPATCH(TCN_FOCUSCHANGE, focus_change);
-	GNEH_UNIFORM_TABNOT_DISPATCH(TCN_KEYDOWN, key_down);
-	GNEH_UNIFORM_TABNOT_DISPATCH(TCN_SELCHANGE, selection_change);
-	GNEH_UNIFORM_TABNOT_DISPATCH(TCN_SELCHANGING, selection_changing);
+void grafeex::messaging::tab_notify_event_handler::on_click_notify(notify_event &e){}
+
+void grafeex::messaging::tab_notify_event_handler::on_dbl_click_notify(notify_event &e){}
+
+void grafeex::messaging::tab_notify_event_handler::on_right_click_notify(notify_event &e){}
+
+void grafeex::messaging::tab_notify_event_handler::on_right_dbl_click_notify(notify_event &e){}
+
+void grafeex::messaging::tab_notify_event_handler::on_capture_release_notify(notify_event &e){}
+
+void grafeex::messaging::tab_notify_event_handler::on_focus_change_notify(notify_event &e){}
+
+void grafeex::messaging::tab_notify_event_handler::on_key_down_notify(notify_event &e){}
+
+void grafeex::messaging::tab_notify_event_handler::on_selection_change_notify(notify_event &e){}
+
+bool grafeex::messaging::tab_notify_event_handler::on_selection_changing_notify(notify_event &e){
+	return false;
 }
 
-void grafeex::messaging::tab_notify_event_handler::on_tab_click(object &e){}
+grafeex::messaging::tool_bar_notify_event_handler::~tool_bar_notify_event_handler() = default;
 
-void grafeex::messaging::tab_notify_event_handler::on_tab_dbl_click(object &e){}
+grafeex::messaging::notify_event_handler::dword_type grafeex::messaging::tool_bar_notify_event_handler::on_draw_notify(custom_draw_event &e){
+	return static_cast<dword_type>(e.handle().get_object().value());
+}
 
-void grafeex::messaging::tab_notify_event_handler::on_tab_right_click(object &e){}
+void grafeex::messaging::tool_bar_notify_event_handler::on_click_notify(notify_event &e){}
 
-void grafeex::messaging::tab_notify_event_handler::on_tab_right_dbl_click(object &e){}
+void grafeex::messaging::tool_bar_notify_event_handler::on_dbl_click_notify(notify_event &e){}
 
-void grafeex::messaging::tab_notify_event_handler::on_tab_released_capture(object &e){}
+void grafeex::messaging::tool_bar_notify_event_handler::on_right_click_notify(notify_event &e){}
 
-void grafeex::messaging::tab_notify_event_handler::on_tab_focus_change(object &e){}
+void grafeex::messaging::tool_bar_notify_event_handler::on_right_dbl_click_notify(notify_event &e){}
 
-void grafeex::messaging::tab_notify_event_handler::on_tab_key_down(object &e){}
+void grafeex::messaging::tool_bar_notify_event_handler::on_capture_release_notify(notify_event &e){}
 
-void grafeex::messaging::tab_notify_event_handler::on_tab_selection_change(object &e){}
+void grafeex::messaging::tool_bar_notify_event_handler::on_key_down_notify(notify_event &e){}
 
-void grafeex::messaging::tab_notify_event_handler::on_tab_selection_changing(object &e){}
+bool grafeex::messaging::tool_bar_notify_event_handler::on_initialize_customize_notify(notify_event &e){
+	return true;
+}
 
-grafeex::messaging::notify_event_handler::dispatcher_list_type grafeex::messaging::tab_notify_event_handler::notify_forwarder_list_;
+grafeex::messaging::notify_event_handler::dword_type grafeex::messaging::tool_bar_notify_event_handler::on_reset_notify(notify_event &e){
+	return 0;
+}
+
+void grafeex::messaging::tool_bar_notify_event_handler::on_begin_adjust_notify(notify_event &e){}
+
+void grafeex::messaging::tool_bar_notify_event_handler::on_end_adjust_notify(notify_event &e){}
+
+void grafeex::messaging::tool_bar_notify_event_handler::on_begin_drag_notify(notify_event &e){}
+
+void grafeex::messaging::tool_bar_notify_event_handler::on_end_drag_notify(notify_event &e){}
+
+void grafeex::messaging::tool_bar_notify_event_handler::on_drag_out_notify(notify_event &e){}
+
+bool grafeex::messaging::tool_bar_notify_event_handler::on_drag_over_notify(notify_event &e){
+	return true;
+}
+
+void grafeex::messaging::tool_bar_notify_event_handler::on_deleting_button_notify(notify_event &e){}
+
+bool grafeex::messaging::tool_bar_notify_event_handler::on_query_delete_notify(notify_event &e){
+	return true;
+}
+
+bool grafeex::messaging::tool_bar_notify_event_handler::on_query_insert_notify(notify_event &e){
+	return true;
+}
+
+grafeex::messaging::tool_bar_notify_event_handler::drop_down_type grafeex::messaging::tool_bar_notify_event_handler::on_drop_down_notify(notify_event &e){
+	return drop_down_type::no_default;
+}
+
+bool grafeex::messaging::tool_bar_notify_event_handler::on_hot_item_change_notify(notify_event &e){
+	return false;
+}
+
+bool grafeex::messaging::tool_bar_notify_event_handler::on_get_button_info_notify(notify_event &e){
+	return false;
+}
+
+void grafeex::messaging::tool_bar_notify_event_handler::on_change_notify(notify_event &e){}
+
+void grafeex::messaging::tool_bar_notify_event_handler::on_customize_help_notify(notify_event &e){}

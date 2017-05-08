@@ -9,6 +9,7 @@ namespace grafeex{
 	namespace window{
 		namespace controls{
 			class tool_tip_item;
+			class tool_bar_item;
 
 			class button_style : public window::style{
 			public:
@@ -172,8 +173,121 @@ namespace grafeex{
 				bool scroll_opposite() const;
 			};
 
+			class tool_bar_item_style{
+			public:
+				typedef tool_bar_item object_type;
+
+				enum class type : unsigned int{
+					nil				= (0 << 0x0000),
+					auto_size		= (1 << 0x0000),
+					dropdown		= (1 << 0x0001),
+					no_prefix		= (1 << 0x0002),
+					show_text		= (1 << 0x0003),
+					whole_dropdown	= (1 << 0x0004),
+				};
+
+				explicit tool_bar_item_style(object_type &object);
+
+				virtual ~tool_bar_item_style();
+
+				tool_bar_item_style &add(type value);
+
+				tool_bar_item_style &remove(type value);
+
+				bool has(type value) const;
+
+				tool_bar_item_style &auto_size(bool enabled);
+
+				bool auto_size() const;
+
+				tool_bar_item_style &dropdown(bool enabled);
+
+				bool dropdown() const;
+
+				tool_bar_item_style &no_prefix(bool enabled);
+
+				bool no_prefix() const;
+
+				tool_bar_item_style &show_text(bool enabled);
+
+				bool show_text() const;
+
+				tool_bar_item_style &whole_dropdown(bool enabled);
+
+				bool whole_dropdown() const;
+
+			protected:
+				object_type *object_;
+			};
+
+			class tool_bar_style : public window::style{
+			public:
+				typedef window::style base_type;
+				typedef window::object object_type;
+
+				explicit tool_bar_style(object_type &object);
+
+				virtual ~tool_bar_style();
+
+				tool_bar_style &alt_drag(bool enabled);
+
+				bool alt_drag() const;
+
+				tool_bar_style &custom_erase(bool enabled);
+
+				bool custom_erase() const;
+
+				tool_bar_style &flat(bool enabled);
+
+				bool flat() const;
+
+				tool_bar_style &list(bool enabled);
+
+				bool list() const;
+
+				tool_bar_style &register_drop(bool enabled);
+
+				bool register_drop() const;
+
+				tool_bar_style &transparent(bool enabled);
+
+				bool transparent() const;
+
+				tool_bar_style &wrapable(bool enabled);
+
+				bool wrapable() const;
+
+				tool_bar_style &draw_dropdown_arrows(bool enabled);
+
+				bool draw_dropdown_arrows() const;
+
+				tool_bar_style &hide_clipped_buttons(bool enabled);
+
+				bool hide_clipped_buttons() const;
+
+				tool_bar_style &double_buffer(bool enabled);
+
+				bool double_buffer() const;
+
+				tool_bar_style &mixed_buttons(bool enabled);
+
+				bool mixed_buttons() const;
+
+				static const dword_type specifics = (TBSTYLE_ALTDRAG | TBSTYLE_CUSTOMERASE | TBSTYLE_FLAT | TBSTYLE_LIST |
+					TBSTYLE_REGISTERDROP | TBSTYLE_TOOLTIPS | TBSTYLE_TRANSPARENT | TBSTYLE_WRAPABLE);
+
+				static const dword_type extended_specifics = (TBSTYLE_EX_DRAWDDARROWS | TBSTYLE_EX_HIDECLIPPEDBUTTONS |
+					TBSTYLE_EX_DOUBLEBUFFER | TBSTYLE_EX_MIXEDBUTTONS | TBSTYLE_EX_MULTICOLUMN | TBSTYLE_EX_VERTICAL);
+
+			protected:
+				virtual void final_write_(dword_type value, bool extended) override;
+
+				virtual dword_type retrieve_(bool extended) const override;
+			};
+
 			GRAFEEX_MAKE_OPERATORS(button_style::alignment_type)
 			GRAFEEX_MAKE_OPERATORS(tool_tip_item_style::type)
+			GRAFEEX_MAKE_OPERATORS(tool_bar_item_style::type)
 		}
 	}
 }

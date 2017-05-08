@@ -11,20 +11,20 @@ grafeex::window::controls::tool_tip::event_tunnel::event_tunnel(){
 grafeex::window::controls::tool_tip::event_tunnel::~event_tunnel() = default;
 
 grafeex::window::controls::tool_tip::tool_tip(bool create)
-	: object(control_type::tool_tip, nullptr, &notify_forwarder_list_), style_value_(item_style_type::nil){
+	: object(control_type::tool_tip), style_value_(item_style_type::nil){
 	reset_persistent_styles_();
 	if (create)
 		this->create();
 }
 
 grafeex::window::controls::tool_tip::tool_tip(gui_object_type &parent)
-	: object(control_type::tool_tip, nullptr, &notify_forwarder_list_), style_value_(item_style_type::nil){
+	: object(control_type::tool_tip), style_value_(item_style_type::nil){
 	reset_persistent_styles_();
 	create(parent);
 }
 
 grafeex::window::controls::tool_tip::tool_tip(const sibling_type &sibling)
-	: object(control_type::tool_tip, nullptr, &notify_forwarder_list_), style_value_(item_style_type::nil){
+	: object(control_type::tool_tip), style_value_(item_style_type::nil){
 	reset_persistent_styles_();
 	create(sibling);
 }
@@ -132,7 +132,7 @@ grafeex::window::controls::tool_tip::gdi_obj_type grafeex::window::controls::too
 	return secondary_info_.image;
 }
 
-grafeex::window::controls::tool_tip::dword_type grafeex::window::controls::tool_tip::on_control_draw(messaging::custom_draw_event &e){
+grafeex::window::controls::tool_tip::dword_type grafeex::window::controls::tool_tip::on_draw_notify(messaging::custom_draw_event &e){
 	auto target = current_item();
 	if (target != nullptr)
 		return target->on_draw(e.draw_info());
@@ -141,7 +141,7 @@ grafeex::window::controls::tool_tip::dword_type grafeex::window::controls::tool_
 	return events().draw_event_.fire(ev, CDRF_DODEFAULT);
 }
 
-const std::wstring &grafeex::window::controls::tool_tip::on_tool_tip_get_text(messaging::tool_tip_get_text_event &e){
+const std::wstring &grafeex::window::controls::tool_tip::on_get_text_notify(messaging::tool_tip_get_text_event &e){
 	auto target = e.item();
 	if (target != nullptr){
 		auto &value = dynamic_cast<tool_tip_item *>(target)->on_get_text();
@@ -160,18 +160,16 @@ const std::wstring &grafeex::window::controls::tool_tip::on_tool_tip_get_text(me
 	return (text_cache_ = events.get_text_event_.fire(ev));
 }
 
-void grafeex::window::controls::tool_tip::on_tool_tip_show(messaging::object &e){
+bool grafeex::window::controls::tool_tip::on_show_notify(messaging::notify_event &e){
 	auto target = current_item();
-	if (target != nullptr && dynamic_cast<tool_tip_item *>(target)->on_show()){
-		e << true;
-		return;//Show handled
-	}
+	if (target != nullptr && dynamic_cast<tool_tip_item *>(target)->on_show())
+		return true;
 
 	grafeex::events::object ev(*this);
-	e << events().show_event_.fire(ev, false);
+	return events().show_event_.fire(ev, false);
 }
 
-void grafeex::window::controls::tool_tip::on_tool_tip_hide(messaging::object &e){
+void grafeex::window::controls::tool_tip::on_hide_notify(messaging::notify_event &e){
 	auto target = current_item();
 	if (target != nullptr)
 		dynamic_cast<tool_tip_item *>(target)->on_hide();
@@ -180,7 +178,7 @@ void grafeex::window::controls::tool_tip::on_tool_tip_hide(messaging::object &e)
 	events().hide_event_.fire(ev);
 }
 
-void grafeex::window::controls::tool_tip::on_tool_tip_link_click(messaging::object &e){
+void grafeex::window::controls::tool_tip::on_link_click_notify(messaging::notify_event &e){
 	auto target = current_item();
 	if (target != nullptr)
 		dynamic_cast<tool_tip_item *>(target)->on_link_click();

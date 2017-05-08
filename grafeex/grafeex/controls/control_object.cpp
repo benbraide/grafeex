@@ -1,9 +1,7 @@
 #include "control_object.h"
-#include "../messaging/command_message_event_handler.h"
-#include "../messaging/notify_message_event_handler.h"
 
-grafeex::window::controls::object::object(control_type type, dispatcher_list_type *l1, dispatcher_list_type *l2)
-	: base_type(l1, l2), class_name_(get_class_name(type)), font_value_(app_instance->default_font){
+grafeex::window::controls::object::object(control_type type)
+	: type_(type), class_name_(get_class_name(type)), font_value_(app_instance->default_font){
 	if (type != control_type::nil){
 		previous_procedure_ = get_procedure(class_name_.c_str());
 		init_common_(type);
@@ -22,8 +20,12 @@ grafeex::window::object::dword_type grafeex::window::controls::object::white_lis
 	return (base_type::white_listed_styles(is_extended) | (is_extended ? 0ul : (WS_VISIBLE | WS_TABSTOP)));
 }
 
-grafeex::window::object::dword_type grafeex::window::controls::object::black_listed_styles(bool is_extended) const {
+grafeex::window::object::dword_type grafeex::window::controls::object::black_listed_styles(bool is_extended) const{
 	return (base_type::black_listed_styles(is_extended) | (is_extended ? (WS_EX_APPWINDOW | WS_EX_CONTEXTHELP | WS_EX_DLGMODALFRAME) : ~0ul));
+}
+
+grafeex::window::controls::object::control_type grafeex::window::controls::object::control_object_type() const{
+	return type_;
 }
 
 grafeex::window::object::dword_type grafeex::window::controls::object::get_initializer(control_type type){

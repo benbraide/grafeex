@@ -6,12 +6,6 @@
 #include "../controls/tool_tip_control.h"
 
 namespace grafeex{
-	namespace window{
-		namespace controls{
-			class tool_tip_item;
-		}
-	}
-
 	namespace collections{
 		class tool_tip_interface{
 		public:

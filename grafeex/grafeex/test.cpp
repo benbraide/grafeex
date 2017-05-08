@@ -1,5 +1,6 @@
 #include "common/random_bool.h"
 #include "common/hook.h"
+#include "window/message_window.h"
 #include "window/frame_window.h"
 #include "window/top_level_window.h"
 #include "window/modal_dialog_window.h"
@@ -17,6 +18,7 @@
 
 #include "collections/menu_collection.h"
 #include "collections/tool_tip_collection.h"
+#include "collections/tab_collection.h"
 
 int WINAPI wWinMain(::HINSTANCE app_instance, ::HINSTANCE, ::LPWSTR cmd_line, int show_type){
 	typedef grafeex::window::object::d2d_point_type d2d_point_type;
@@ -27,39 +29,53 @@ int WINAPI wWinMain(::HINSTANCE app_instance, ::HINSTANCE, ::LPWSTR cmd_line, in
 
 	typedef grafeex::structures::float_size float_size_type;
 	typedef grafeex::structures::rect_origin_type alignment_type;
+	typedef grafeex::structures::enumerations::show_mode show_mode;
 
 	grafeex::application::object app;
+	
+	grafeex::window::message msgw(true);
 
 	grafeex::window::top_level fw(L"Test Window", d2d_point_type{ 10.0f, 10.0f }, d2d_size_type{ 500.0f, 400.0f });
-	fw.view().show();
-
-	grafeex::window::controls::tab tac(fw);
-	grafeex::window::controls::tab_item<grafeex::window::object> tai(tac, L"First Tab");
-	grafeex::window::controls::tab_item<grafeex::window::dialog> tai2(tac, L"Second Tab");
-	grafeex::window::controls::tab_item<grafeex::window::object> tai3(tac, L"Last Tab");
-
-	grafeex::window::dialog_frame dfm(tai, L"Modal Dialog", point_type{ 10 }, size_type{ 300, 200 });
-	dfm.attributes().fill_parent(float_size_type{ 0.5f, 1.0f });
-	dfm.attributes().align(true, alignment_type::top | alignment_type::right);
-	dfm.view().show();
-	//dfm.do_modal(fw);
-
-	grafeex::window::controls::button btn(dfm, L"Button Test", point_type{ 10 });
-	grafeex::window::controls::default_button dbtn(dfm, L"DefButton Test", point_type{ 10, 40 });
-	grafeex::window::controls::split_button sbtn(dfm, L"SplitButton Test", point_type{ 10, 70 });
-	grafeex::window::controls::default_split_button dsbtn(dfm, L"DefSplitButton Test", point_type{ 10, 100 });
-	grafeex::window::controls::check chk(dfm, L"Check Test", point_type{ 10, 130 });
-
-	grafeex::window::controls::radio_group rgrp(dfm);
-	grafeex::window::controls::radio rad_0(rgrp, L"Radio Test 0", point_type{ 10, 150 });
-	grafeex::window::controls::radio rad_1(rgrp, L"Radio Test 1", point_type{ 10, 170 });
-	grafeex::window::controls::radio rad_2(rgrp, L"Radio Test 2", point_type{ 10, 190 });
-
-	grafeex::window::controls::label lbl(dfm, L"Label Text", point_type{ 10, 210 });
+	fw.view().show(static_cast<show_mode>(show_type));
 
 	grafeex::collections::tool_tip ttc(true);
+	auto &tac = fw.tab();
+
+	grafeex::window::controls::button btn;
+	grafeex::window::controls::default_button dbtn;
+	grafeex::window::controls::split_button sbtn;
+	grafeex::window::controls::default_split_button dsbtn;
+	grafeex::window::controls::check chk;
+	grafeex::window::controls::radio_group rgrp;
+	grafeex::window::controls::radio rad_0;
+	grafeex::window::controls::radio rad_1;
+	grafeex::window::controls::radio rad_2;
+	grafeex::window::controls::label lbl;
+
+	tac.item(L"First Tab", [&ttc](grafeex::window::object &item){
+		ttc.item(item, L"Area target", { 10, 10, 80, 60 });
+	});
+
+	tac.dialog(L"Second Tab", [&](grafeex::window::object &item){
+		btn.create(item, L"Button Test", point_type{ 10 });
+		dbtn.create(item, L"DefButton Test", point_type{ 10, 40 });
+		sbtn.create(item, L"SplitButton Test", point_type{ 10, 70 });
+		dsbtn.create(item, L"DefSplitButton Test", point_type{ 10, 100 });
+		chk.create(item, L"Check Test", point_type{ 10, 130 });
+
+		rgrp.create(item);
+		rad_0.create(rgrp, L"Radio Test 0", point_type{ 10, 150 });
+		rad_1.create(rgrp, L"Radio Test 1", point_type{ 10, 170 });
+		rad_2.create(rgrp, L"Radio Test 2", point_type{ 10, 190 });
+
+		lbl.create(item, L"Label Text", point_type{ 10, 210 });
+	});
+
+	tac.item(L"Last Tab", [](grafeex::window::object &item){
+
+	});
+
 	ttc.item(btn, L"Control target");
-	ttc.item(fw, L"Area target", { 10, 10, 80, 60 });
 	ttc.item(dbtn, L"Decorated target");
 
 	ttc.get_last_item()->font(L"Georgia");
@@ -97,6 +113,8 @@ int WINAPI wWinMain(::HINSTANCE app_instance, ::HINSTANCE, ::LPWSTR cmd_line, in
 
 	auto &mb = fw.menu();//Create menu bar and assign to window
 	auto &sys = fw.system_menu();
+
+	sys.item(L"Into system", []{});
 
 	//Create menu items
 	grafeex::menu::item i1(mb, L"First");

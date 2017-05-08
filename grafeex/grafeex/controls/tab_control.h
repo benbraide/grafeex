@@ -57,9 +57,9 @@ namespace grafeex{
 			protected:
 				friend class tab_style;
 
-				virtual void on_tab_selection_change(messaging::object &e) override;
+				virtual void on_selection_change_notify(messaging::notify_event &e) override;
 
-				virtual void on_tab_selection_changing(messaging::object &e) override;
+				virtual bool on_selection_changing_notify(messaging::notify_event &e) override;
 
 				virtual void reset_persistent_styles_() override;
 

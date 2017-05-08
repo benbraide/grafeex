@@ -5,6 +5,8 @@
 
 #include "../window/window_object.h"
 #include "../gdi/gdi_object_ptr.h"
+
+#include "../messaging/command_message_event_handler.h"
 #include "../messaging/notify_message_event_handler.h"
 
 #include "control_views.h"
@@ -13,7 +15,7 @@
 namespace grafeex{
 	namespace window{
 		namespace controls{
-			class object : public window::object, public messaging::notify_event_handler{
+			class object : public window::object{
 			public:
 				typedef ::HFONT font_type;
 				typedef ::INITCOMMONCONTROLSEX init_info_type;
@@ -22,43 +24,13 @@ namespace grafeex{
 				typedef window::object base_type;
 				typedef controls::view view_type;
 
-				typedef window::object::dispatcher_list_type dispatcher_list_type;
-
 				typedef graphics::text::d2d_font_type d2d_font_type;
 				typedef graphics::text::font_info_type font_info_type;
 
 				typedef gdi::object_ptr<font_type> gdi_font_type;
+				typedef app_type::control_object_type control_type;
 
-				enum class control_type{
-					nil,
-					button,
-					edit,
-					static_,
-					list_box,
-					combo_box,
-					combo_box_ex,
-					scroll_bar,
-					tab,
-					tool_tip,
-					animate,
-					tool_bar,
-					status_bar,
-					track_bar,
-					rebar,
-					date_time_picker,
-					hot_key,
-					ip,
-					hyperlink,
-					list_view,
-					tree_view,
-					native_font,
-					pager,
-					progress,
-					up_down,
-					header,
-				};
-
-				explicit object(control_type type, dispatcher_list_type *l1 = nullptr, dispatcher_list_type *l2 = nullptr);
+				explicit object(control_type type);
 
 				virtual ~object();
 
@@ -68,6 +40,8 @@ namespace grafeex{
 
 				virtual dword_type black_listed_styles(bool is_extended) const override;
 
+				virtual control_type control_object_type() const;
+
 				static dword_type get_initializer(control_type type);
 
 				static const wchar_t *get_class_name(control_type type);
@@ -75,6 +49,7 @@ namespace grafeex{
 				static procedure_type get_procedure(const wchar_t *class_name);
 
 			protected:
+				friend class application::object;
 				friend class controls::view;
 
 				virtual void on_set_font(messaging::set_font_event &e) override;
@@ -96,6 +71,7 @@ namespace grafeex{
 
 				virtual size_type compute_additional_size_(const std::wstring &label);
 
+				control_type type_;
 				std::wstring class_name_;
 				gdi_font_type font_;
 				font_type font_value_;

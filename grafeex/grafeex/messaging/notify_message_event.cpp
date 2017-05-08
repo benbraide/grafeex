@@ -1,7 +1,5 @@
 #include "notify_message_event.h"
-#include "message_event_forwarder.h"
-
-#include "../controls/control_object.h"
+#include "../window/window_object.h"
 
 grafeex::messaging::notify_event::notify_event(object &value)
 	: message_event(value){}
@@ -9,20 +7,14 @@ grafeex::messaging::notify_event::notify_event(object &value)
 grafeex::messaging::notify_event::~notify_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::notify_event::dispatch(){
-	auto target = control();
-	if (target == nullptr)//Unknown target
+	if (!dispatch_().is_propagating())
 		return *this;
 
-	auto cmd_list = target->notify_forwarder_list_ref_;
-	if (cmd_list != nullptr){
-		auto message_dispatcher = cmd_list->find(code());
-		if (message_dispatcher != cmd_list->end()){
-			message_dispatcher->second->dispatch(*object_);
-			return *this;
-		}
-	}
+	auto forwarder = application::object::instance->get_event_forwarder(control(), GAPP_NOT_UFORWARDER_APPLY_OFFSET(code()));
+	if (forwarder != nullptr)
+		forwarder->forward(*this);
 
-	return dispatch_();
+	return *this;
 }
 
 grafeex::messaging::message_event::window_type *grafeex::messaging::notify_event::control() const{
@@ -61,8 +53,6 @@ grafeex::messaging::custom_draw_event::~custom_draw_event(){
 }
 
 grafeex::messaging::message_event &grafeex::messaging::custom_draw_event::dispatch(){
-	if (dispatch_().is_propagating())
-		*this << dynamic_cast<window::controls::object *>(control())->on_control_draw(*this);
 	return *this;
 }
 
@@ -108,14 +98,12 @@ grafeex::messaging::tool_tip_get_text_event::tool_tip_get_text_event(object &val
 
 grafeex::messaging::tool_tip_get_text_event::~tool_tip_get_text_event() = default;
 
+grafeex::messaging::message_event &grafeex::messaging::tool_tip_get_text_event::operator<<(const std::wstring &value){
+	get_text_info().lpszText = const_cast<wchar_t *>(value.c_str());
+	return *this;
+}
+
 grafeex::messaging::message_event &grafeex::messaging::tool_tip_get_text_event::dispatch(){
-	auto tool_tip_target = dynamic_cast<tool_tip_notify_event_handler *>(control());
-	if (tool_tip_target == nullptr)
-		return dispatch_();
-
-	if (dispatch_().is_propagating())//Use returned value
-		get_text_info().lpszText = const_cast<wchar_t *>(tool_tip_target->on_tool_tip_get_text(*this).c_str());
-
 	return *this;
 }
 

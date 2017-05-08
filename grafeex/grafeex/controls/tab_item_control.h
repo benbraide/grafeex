@@ -108,7 +108,7 @@ namespace grafeex{
 
 				virtual bool on_deactivate() override{
 					grafeex::events::object e(*this);
-					return events().deactivate_event_.fire(e, true);
+					return events().deactivate_event_.fire(e, false);
 				}
 
 				virtual void reset_persistent_styles_() override{

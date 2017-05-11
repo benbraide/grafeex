@@ -111,7 +111,7 @@ grafeex::gui::object::point_type grafeex::gui::generic_object::convert_to_screen
 }
 
 grafeex::gui::object::rect_type grafeex::gui::generic_object::convert_to_screen(const rect_type &value) const{
-	return rect_type{};
+	return rect_type{ convert_to_screen(value.top_left()), convert_to_screen(value.bottom_right()) };
 }
 
 grafeex::gui::object::point_type grafeex::gui::generic_object::convert_from_screen(const point_type &value) const{
@@ -119,7 +119,7 @@ grafeex::gui::object::point_type grafeex::gui::generic_object::convert_from_scre
 }
 
 grafeex::gui::object::rect_type grafeex::gui::generic_object::convert_from_screen(const rect_type &value) const{
-	return rect_type{};
+	return rect_type{ convert_from_screen(value.top_left()), convert_from_screen(value.bottom_right()) };
 }
 
 grafeex::gui::object::object_type grafeex::gui::generic_object::type() const{
@@ -132,6 +132,14 @@ grafeex::gui::generic_object::event_tunnel &grafeex::gui::generic_object::events
 
 void grafeex::gui::generic_object::remove_parent_(){
 	parent_ = nullptr;
+}
+
+void grafeex::gui::generic_object::insert_into_parent_(gui_object_type &parent){
+	dynamic_cast<tree_type *>(parent_ = &parent)->add(*this);
+}
+
+void grafeex::gui::generic_object::insert_into_parent_(const sibling_type &sibling){
+	dynamic_cast<tree_type *>(parent_ = sibling.parent())->add(*this, sibling);
 }
 
 grafeex::gui::generic_object::events_type grafeex::gui::generic_object::get_events_(){

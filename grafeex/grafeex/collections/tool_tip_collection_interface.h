@@ -5,6 +5,10 @@
 
 #include "../controls/tool_tip_control.h"
 
+#define GCTTC_ARGS callback_type callback
+#define GCTTC_ARGS2 const rect_type &bounding_rect
+#define GCTTC_ARGS3 GCTTC_ARGS2, GCTTC_ARGS
+
 namespace grafeex{
 	namespace collections{
 		class tool_tip_interface{
@@ -14,6 +18,8 @@ namespace grafeex{
 			typedef events::tunnel<std::wstring> string_event_type;
 			typedef string_event_type::callback_type string_callback_type;
 
+			typedef std::function<void(item_type &)> callback_type;
+
 			typedef gui::object gui_object_type;
 			typedef structures::rect rect_type;
 
@@ -21,9 +27,13 @@ namespace grafeex{
 			
 			virtual ~tool_tip_interface() = default;
 
-			virtual tool_tip_interface &item(gui_object_type &owner, const std::wstring &value, const rect_type &bounding_rect = rect_type()) = 0;
+			virtual tool_tip_interface &item(gui_object_type &owner, const std::wstring &value, GCTTC_ARGS = nullptr) = 0;
 
-			virtual tool_tip_interface &item(gui_object_type &owner, string_callback_type callback, const rect_type &bounding_rect = rect_type()) = 0;
+			virtual tool_tip_interface &item(gui_object_type &owner, const std::wstring &value, GCTTC_ARGS3 = nullptr) = 0;
+
+			virtual tool_tip_interface &item(gui_object_type &owner, string_callback_type string_callback, GCTTC_ARGS = nullptr) = 0;
+
+			virtual tool_tip_interface &item(gui_object_type &owner, string_callback_type string_callback, GCTTC_ARGS3 = nullptr) = 0;
 
 			virtual item_type *get_item(size_type index) const = 0;
 

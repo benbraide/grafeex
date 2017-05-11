@@ -11,7 +11,7 @@ namespace grafeex{
 
 		class timer{
 		public:
-			typedef ::UINT_PTR unit_ptr_type;
+			typedef ::UINT_PTR uint_ptr_type;
 			typedef ::UINT uint_type;
 
 			timer();
@@ -28,13 +28,13 @@ namespace grafeex{
 
 			object *owner() const;
 
-			unit_ptr_type id() const;
+			uint_ptr_type id() const;
 
 			uint_type duration() const;
 
 		private:
 			object *owner_;
-			unit_ptr_type id_;
+			uint_ptr_type id_;
 			uint_type duration_;
 		};
 	}

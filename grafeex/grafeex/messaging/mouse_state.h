@@ -23,6 +23,10 @@ namespace grafeex{
 		class object;
 	}
 
+	namespace application{
+		class window_manager;
+	}
+
 	namespace messaging{
 		class mouse_event;
 
@@ -154,7 +158,7 @@ namespace grafeex{
 			void wheel(mouse_horizontal_wheel_event &e);
 
 		protected:
-			friend class nc_destroy_event;
+			friend class application::window_manager;
 			friend class window::object;
 
 			void recursive_leave_();

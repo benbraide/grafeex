@@ -124,6 +124,10 @@ namespace grafeex{
 
 			virtual void remove_parent_() override;
 
+			virtual void insert_into_parent_(gui_object_type &parent);
+
+			virtual void insert_into_parent_(const sibling_type &sibling);
+
 			virtual events_type get_events_();
 
 			template <typename generic_events_type>

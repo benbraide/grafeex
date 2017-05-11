@@ -8,33 +8,32 @@
 namespace grafeex{
 	namespace window{
 		class object;
-		class modal_dialog;
+		class dialog;
 	}
 
 	namespace threading{
 		class modal_loop : public object{
 		public:
 			typedef window::object window_type;
-			typedef window::modal_dialog modal_dialog_type;
+			typedef window::dialog modal_dialog_type;
 
 			typedef ::LRESULT result_type;
 			typedef ::WPARAM wparam_type;
 			typedef ::LPARAM lparam_type;
 			typedef ::UINT uint_type;
 
+			modal_loop();
+
 			explicit modal_loop(modal_dialog_type &modal_dialog);
 
 			virtual ~modal_loop();
 
-			virtual int run() override;
-
-			virtual void stop();
-
-			virtual bool consume(window_type &target, uint_type msg, wparam_type wparam, lparam_type lparam);
+			virtual int run(modal_dialog_type &modal_dialog);
 
 		protected:
 			friend class application::object;
-			friend class window::modal_dialog;
+			friend class application::window_manager;
+			friend class window::dialog;
 
 			virtual bool is_filtered_message_() const override;
 
@@ -42,15 +41,12 @@ namespace grafeex{
 
 			virtual void dispatch_() override;
 
-			virtual void dispatch_thread_message_() override;
-
 			virtual bool on_idle_(int index) override;
 
 			virtual bool is_stopped_() const override;
 
 			modal_dialog_type *modal_dialog_;
-			object *previous_modal_;
-			bool running_;
+			object *previous_pump_;
 		};
 	}
 }

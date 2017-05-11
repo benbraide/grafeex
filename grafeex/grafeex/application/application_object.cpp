@@ -6,6 +6,23 @@
 #include "../messaging/command_message_event_handler.h"
 #include "../messaging/notify_message_event_handler.h"
 
+grafeex::application::object::object()
+	: instance_(nullptr), pool_(GAPP_THREAD_POOL_MIN, GAPP_THREAD_POOL_MAX), window_manager_(*this){
+	pump = this;
+	instance = this;
+
+	window_manager_.instance = &window_manager_;
+	if ((instance_ = window_manager_.class_.instance()) == nullptr)
+		window_manager_.class_.instance(instance_ = ::GetModuleHandleW(nullptr));
+
+	d2d_factory->GetDesktopDpi(&d2d_dpi_scale.x, &d2d_dpi_scale.y);
+	d2d_dpi_scale.x /= 96.0f;
+	d2d_dpi_scale.y /= 96.0f;
+
+	create_default_font();
+	create_dispatchers_();
+}
+
 grafeex::application::object::~object() = default;
 
 void grafeex::application::object::quit(int exit_code){
@@ -21,18 +38,18 @@ void grafeex::application::object::quit(int exit_code){
 
 grafeex::application::object::hwnd_type grafeex::application::object::create(window_type &owner, const create_info_type &info){
 	return execute<hwnd_type>([&]() -> hwnd_type{
-		return create_(owner, info);
+		return window_manager_.create_(owner, info);
 	}, 1);
 }
 
-grafeex::application::object::unit_ptr_type grafeex::application::object::set_timer(window_type &owner,
-	unit_ptr_type id, uint_type duration){
-	return execute<unit_ptr_type>([&]() -> unit_ptr_type{
+grafeex::application::object::uint_ptr_type grafeex::application::object::set_timer(window_type &owner,
+	uint_ptr_type id, uint_type duration){
+	return execute<uint_ptr_type>([&]() -> uint_ptr_type{
 		return ::SetTimer(owner, id, duration, nullptr);
 	}, 1);
 }
 
-bool grafeex::application::object::kill_timer(window_type &owner, unit_ptr_type id){
+bool grafeex::application::object::kill_timer(window_type &owner, uint_ptr_type id){
 	return execute<bool>([&]() -> bool{
 		return (::KillTimer(owner, id) != FALSE);
 	}, 1);
@@ -59,11 +76,39 @@ grafeex::messaging::event_forwarder_base *grafeex::application::object::get_even
 }
 
 void grafeex::application::object::schedule(std::function<void()> method, int priority){
-	scheduler_.add(method, priority);
+	pump->scheduler_.add(method, priority);
 }
 
 bool grafeex::application::object::task(pool_task_type task, bool is_persistent){
 	return pool_.add(task, is_persistent);
+}
+
+void grafeex::application::object::cache_timer(uint_ptr_type id, timer_type &timer){
+	window_manager_.lock_.lock();
+	timer_cache_[id] = &timer;
+	window_manager_.lock_.unlock();
+}
+
+void grafeex::application::object::remove_timer(uint_ptr_type id){
+	window_manager_.lock_.lock();
+	timer_cache_.erase(id);
+	window_manager_.lock_.unlock();
+}
+
+grafeex::application::object::timer_type *grafeex::application::object::find_timer(uint_ptr_type id) const{
+	window_manager_.lock_.lock();
+
+	timer_type *value = nullptr;
+	auto entry = timer_cache_.find(id);
+	if (entry != timer_cache_.end())//Found in cache
+		value = entry->second;
+
+	window_manager_.lock_.unlock();
+	return value;
+}
+
+grafeex::application::window_manager &grafeex::application::object::win_manager(){
+	return window_manager_;
 }
 
 void grafeex::application::object::enable_gdi_manager(bool monitor){
@@ -97,51 +142,6 @@ bool grafeex::application::object::gdi_manager_is_enabled() const{
 
 bool grafeex::application::object::gdi_manager_is_monitoring() const{
 	return GRAFEEX_IS(gdi_manager_states_, gdi_manager_state::monitoring);
-}
-
-grafeex::application::object::result_type CALLBACK grafeex::application::object::entry(hwnd_type::value_type window_handle,
-	uint_type msg, wparam_type wparam, lparam_type lparam){
-	auto target = hwnd_type(window_handle).get_owner();
-	if (target == nullptr){//Unidentified window
-		instance->stored_message_info.is_active = false;
-		return ::CallWindowProcW(::DefWindowProcW, window_handle, msg, wparam, lparam);
-	}
-
-	auto is_modal = (instance->modal_ != nullptr);
-	if (is_modal && dynamic_cast<threading::modal_loop *>(instance->modal_)->consume(*target, msg, wparam, lparam))
-		return 0;//Message consumed
-
-	auto is_sent = !is_modal ? instance->is_sent_() : instance->modal_->is_sent_();
-	auto &cache = !is_modal ? instance->cache_ : instance->modal_->cache_;
-
-	if (is_sent || (!is_sent && cache.code() != msg)){//Sent on same thread
-		dword_type time;
-		point_type mouse_position;
-
-		if (instance->stored_message_info.is_active){
-			instance->stored_message_info.is_active = false;
-			time = instance->stored_message_info.time;
-			mouse_position = instance->stored_message_info.mouse_position;
-		}
-		else{//No stored info
-			time = 0;
-			::GetCursorPos(mouse_position);//Get current mouse position
-		}
-
-		msg_type msg_object(msg_type::value_type{//Populate message
-			window_handle,
-			msg,
-			wparam,
-			lparam,
-			time,
-			mouse_position
-		});
-
-		return instance->dispatch_(msg_object, is_sent, *target);
-	}
-
-	instance->status_.is_posted = false;
-	return instance->dispatch_(cache, is_sent, *target);
 }
 
 grafeex::application::object::d2d_point_type grafeex::application::object::pixel_to_dip(const point_type &value){
@@ -178,6 +178,8 @@ void grafeex::application::object::create_default_font(){
 
 grafeex::application::object *grafeex::application::object::instance;
 
+grafeex::threading::object *grafeex::application::object::pump;
+
 grafeex::application::object::factory_type grafeex::application::object::d2d_factory;
 
 grafeex::application::object::write_factory_type grafeex::application::object::d2d_write_factory;
@@ -196,11 +198,11 @@ void grafeex::application::object::dispatch_(){
 }
 
 bool grafeex::application::object::is_stopped_() const{
-	return top_level_windows_.empty();
+	return window_manager_.top_level_windows_.empty();
 }
 
 bool grafeex::application::object::is_dialog_message_(){
-	return (active_dialog_ != nullptr && cache_.is_dialog(*active_dialog_));
+	return (window_manager_.active_dialog_ != nullptr && cache_.is_dialog(*window_manager_.active_dialog_));
 }
 
 grafeex::application::object::result_type grafeex::application::object::dispatch_(msg_type &msg, bool is_sent, window_type &target){
@@ -212,62 +214,6 @@ grafeex::application::object::result_type grafeex::application::object::dispatch
 		message_dispatcher->second->dispatch(meesage_object);
 
 	return meesage_object.handle().value();
-}
-
-void grafeex::application::object::init_(){
-	typedef std::wstring::size_type size_type;
-
-	instance = this;
-	if ((instance_ = class_.instance()) == nullptr)
-		class_.instance(instance_ = ::GetModuleHandleW(nullptr));
-
-	common::random_string random_string;
-	::GetClassInfoExW(nullptr, WC_DIALOG, dialog_class_);
-
-	dialog_class_.styles(dialog_class_.styles() | CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS);
-	dialog_class_.procedure(entry);
-	dialog_class_.name(random_string.generate_alnum(std::make_pair<size_type, size_type>(9, 18)));
-	dialog_class_.instance(instance_);
-	dialog_class_.create();
-
-	if (class_.name().empty())//Use a random string
-		class_.name(random_string.generate_alnum(std::make_pair<size_type, size_type>(9, 18)));
-
-	if (class_.cursor() == nullptr)
-		class_.cursor(dialog_class_.cursor());
-
-	class_.create();
-	d2d_factory->GetDesktopDpi(&d2d_dpi_scale.x, &d2d_dpi_scale.y);
-	d2d_dpi_scale.x /= 96.0f;
-	d2d_dpi_scale.y /= 96.0f;
-
-	create_default_font();
-	create_dispatchers_();
-}
-
-grafeex::application::object::hwnd_type grafeex::application::object::create_(window_type &owner, const create_info_type &info){
-	auto hook = ::SetWindowsHookExW(WH_CBT, hook_, nullptr, id_);//Install hook to intercept window creation
-
-	auto &target_default_class = (dynamic_cast<window::dialog *>(&owner) != nullptr) ? dialog_class_ : class_;
-	auto target_class = (info.lpszClass == nullptr) ? target_default_class.operator const wchar_t *() : info.lpszClass;
-
-	auto value = ::CreateWindowExW(
-		info.dwExStyle,
-		target_class,
-		info.lpszName,
-		info.style,
-		info.x,
-		info.y,
-		info.cx,
-		info.cy,
-		info.hwndParent,
-		info.hMenu,
-		(info.hInstance == nullptr) ? instance_ : info.hInstance,
-		recent_owner_ = reinterpret_cast<void *>(&owner)
-	);
-
-	::UnhookWindowsHookEx(hook);//Uninstall hook
-	return value;
 }
 
 void grafeex::application::object::create_dispatchers_(){
@@ -442,21 +388,3 @@ void grafeex::application::object::create_notify_forwarders_(){
 }
 
 void grafeex::application::object::app_activate_(messaging::activate_app_event &e){}
-
-grafeex::application::object::result_type CALLBACK grafeex::application::object::hook_(int code, wparam_type wparam, lparam_type lparam){
-	if (code == HCBT_CREATEWND){//Respond to window creation
-		auto info = reinterpret_cast<create_hook_info_type *>(lparam)->lpcs;
-		if (instance->recent_owner_ != nullptr && info->lpCreateParams == instance->recent_owner_){//Ensure target is valid
-			auto owner_window = reinterpret_cast<window_type *>(instance->recent_owner_);
-			hwnd_type target_hwnd(reinterpret_cast<hwnd_type::value_type>(wparam));
-
-			target_hwnd.set_data(owner_window);//Store window object in handle
-			if (dynamic_cast<window::controls::object *>(owner_window) != nullptr)//Replace window procedure
-				target_hwnd.set_data<procedure_type>(&object::entry, hwnd_type::data_index::procedure);
-
-			instance->recent_owner_ = nullptr;//Reset
-		}
-	}
-
-	return ::CallNextHookEx(nullptr, code, wparam, lparam);
-}

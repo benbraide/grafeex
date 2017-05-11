@@ -13,18 +13,39 @@ grafeex::collections::tool_tip::~tool_tip(){
 	destroy();
 }
 
-grafeex::collections::tool_tip &grafeex::collections::tool_tip::item(gui_object_type &owner, const std::wstring &value, const rect_type &bounding_rect){
-	guard_type guard(base_type::lock_);
-	auto item = std::make_shared<item_type>(*this, owner, value, bounding_rect);
-	list_.push_back(item);
+grafeex::collections::tool_tip &grafeex::collections::tool_tip::item(gui_object_type &owner, const std::wstring &value, GCTTC_ARGS){
+	auto item = insert_(owner, value, {});
+	if (callback != nullptr)
+		callback(*item);
+
 	return *this;
 }
 
-grafeex::collections::tool_tip &grafeex::collections::tool_tip::item(gui_object_type &owner, string_callback_type callback, const rect_type &bounding_rect){
-	guard_type guard(base_type::lock_);
-	auto item = std::make_shared<item_type>(*this, owner, L"", bounding_rect);
-	item->events().get_text(callback);
-	list_.push_back(item);
+grafeex::collections::tool_tip &grafeex::collections::tool_tip::item(gui_object_type &owner, const std::wstring &value, GCTTC_ARGS3){
+	auto item = insert_(owner, value, bounding_rect);
+	if (callback != nullptr)
+		callback(*item);
+
+	return *this;
+}
+
+grafeex::collections::tool_tip &grafeex::collections::tool_tip::item(gui_object_type &owner, string_callback_type string_callback, GCTTC_ARGS){
+	auto item = insert_(owner, L"", {});
+	item->events().get_text(string_callback);
+
+	if (callback != nullptr)
+		callback(*item);
+
+	return *this;
+}
+
+grafeex::collections::tool_tip &grafeex::collections::tool_tip::item(gui_object_type &owner, string_callback_type string_callback, GCTTC_ARGS3){
+	auto item = insert_(owner, L"", bounding_rect);
+	item->events().get_text(string_callback);
+
+	if (callback != nullptr)
+		callback(*item);
+
 	return *this;
 }
 
@@ -56,4 +77,13 @@ void grafeex::collections::tool_tip::remove_(typename base_type::child_type &chi
 			break;
 		}
 	}
+}
+
+grafeex::collections::tool_tip::object_type grafeex::collections::tool_tip::insert_(gui_object_type &owner, const std::wstring &value, GCTTC_ARGS2){
+	guard_type guard(base_type::lock_);
+
+	auto item = std::make_shared<item_type>(*this, owner, value, bounding_rect);
+	list_.push_back(item);
+
+	return item;
 }

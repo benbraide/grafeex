@@ -9,11 +9,10 @@
 namespace grafeex{
 	namespace application{
 		class object;
+		class window_manager;
 	}
 
 	namespace threading{
-		class modal_loop;
-
 		class object{
 		public:
 			typedef wrappers::msg msg_type;
@@ -44,13 +43,13 @@ namespace grafeex{
 				return (::PostThreadMessageW(id_, msg, (object::wparam_type)wparam, (object::lparam_type)lparam) != FALSE);
 			}
 
+			virtual int result() const;
+
 			virtual const id &get_id() const;
 
 		protected:
 			friend class application::object;
-			friend class modal_loop;
-
-			virtual bool is_sent_() const;
+			friend class application::window_manager;
 
 			virtual bool is_filtered_message_() const;
 
@@ -69,7 +68,6 @@ namespace grafeex{
 			scheduler scheduler_;
 			msg_type cache_;
 			status_info status_;
-			object *modal_;
 		};
 	}
 }

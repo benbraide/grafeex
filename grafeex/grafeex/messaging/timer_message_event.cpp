@@ -13,21 +13,9 @@ grafeex::messaging::message_event &grafeex::messaging::timer_event::dispatch(){
 }
 
 grafeex::messaging::timer_event::timer_type *grafeex::messaging::timer_event::timer() const{
-	application::object::instance->lock_.lock();
-
-	timer_type *value;
-	auto &timer_cache = application::object::instance->timer_cache_;
-
-	auto entry = timer_cache.find(id());
-	if (entry == timer_cache.end())
-		value = nullptr;
-	else//Found in cache
-		value = entry->second;
-
-	application::object::instance->lock_.unlock();
-	return value;
+	return application::object::instance->find_timer(id());
 }
 
-grafeex::messaging::timer_event::unit_ptr_type grafeex::messaging::timer_event::id() const{
-	return object_->info().wparam<unit_ptr_type>();
+grafeex::messaging::timer_event::uint_ptr_type grafeex::messaging::timer_event::id() const{
+	return object_->info().wparam<uint_ptr_type>();
 }

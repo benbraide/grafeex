@@ -17,11 +17,8 @@ grafeex::messaging::message_event &grafeex::messaging::close_event::dispatch(){
 			*this << false;
 	}
 
-	auto dialog = dynamic_cast<window::dialog *>(object_->target());
-	if (dialog != nullptr && !is_skipped()){
-		dialog->cancel_modal();//Cancel modal if applicable
-		dialog->destroy();//Destroy dialog
-	}
+	if (!is_skipped())
+		application::object::instance->win_manager().on_close(*object_->target());
 
 	return *this;
 }

@@ -1,5 +1,4 @@
 #include "msg_wrapper.h"
-#include "../application/application_object.h"
 
 grafeex::wrappers::msg::msg()
 	: base_type(value_type{}){}
@@ -16,12 +15,6 @@ grafeex::wrappers::msg::result_type grafeex::wrappers::msg::dispatch() const{
 }
 
 grafeex::wrappers::msg::result_type grafeex::wrappers::msg::send() const{
-	application::object::instance->stored_message_info = application::object::stored_message_info_type{
-		true,
-		value_.time,
-		value_.pt
-	};//Store time and mouse position
-
 	return hwnd(value_.hwnd).send_message(value_.message, value_.wParam, value_.lParam);
 }
 

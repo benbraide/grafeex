@@ -30,7 +30,7 @@ grafeex::window::object::event_tunnel::event_tunnel(){
 grafeex::window::object::event_tunnel::~event_tunnel() = default;
 
 grafeex::window::object::object(procedure_type previous_procedure)
-	: previous_procedure_(previous_procedure), synced_(nullptr){
+	: previous_procedure_(previous_procedure), objects_(*this){
 	relative_info_ = relative_info{ false };
 	mouse_state_.object_info_.general_event_owner = this;
 	mouse_state_.object_info_.object_owner = this;
@@ -199,12 +199,6 @@ grafeex::window::object::shared_menu_collection_type &grafeex::window::object::s
 	return *system_menu_;
 }
 
-grafeex::window::object::tab_collection_type &grafeex::window::object::tab(){
-	if (tab_ == nullptr)
-		tab_ = std::make_shared<collections::tab>(*this);
-	return *tab_;
-}
-
 grafeex::window::object::view_type &grafeex::window::object::view(){
 	return *get_view_();
 }
@@ -235,6 +229,10 @@ grafeex::window::object::hdc_render_manager_type &grafeex::window::object::hdc_r
 	}
 
 	return *hdc_renderer_;
+}
+
+grafeex::window::object::gui_object_collection_type &grafeex::window::object::objects(){
+	return objects_;
 }
 
 grafeex::window::object::d2d_point_type grafeex::window::object::point_to_dip(const point_type &value){
@@ -278,14 +276,6 @@ void grafeex::window::object::add_(child_type &child){
 
 void grafeex::window::object::remove_(child_type &child){
 	//TODO: Implement
-}
-
-void grafeex::window::object::insert_into_parent_(object_type &parent){
-	dynamic_cast<tree_type *>(parent_ = &parent)->add(*this);
-}
-
-void grafeex::window::object::insert_into_parent_(const sibling_type &sibling){
-	dynamic_cast<tree_type *>(parent_ = sibling.parent())->add(*this, sibling);
 }
 
 bool grafeex::window::object::create_(const std::wstring &caption, const point_type &offset, const size_type &size, dword_type styles,
@@ -394,22 +384,6 @@ void grafeex::window::object::uninitialize_(){}
 
 void grafeex::window::object::reset_persistent_styles_(){
 	persistent_styles_ = { WS_CLIPCHILDREN | WS_CLIPSIBLINGS };
-}
-
-void grafeex::window::object::sync_(object &target, bool add){
-	if (add){
-		synced_ = &target;
-		target.synced_ = this;
-	}
-	else{
-		synced_ = nullptr;
-		target.synced_ = nullptr;
-	}
-}
-
-void grafeex::window::object::unsync_(){
-	if (synced_ != nullptr)
-		sync_(*synced_, false);
 }
 
 grafeex::window::object::view_ptr_type grafeex::window::object::get_view_(){

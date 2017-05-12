@@ -235,7 +235,8 @@ namespace grafeex{
 			}
 
 			basic_rect &move_to(const point_type &value){
-				return offset(value - top_left());
+				auto delta = (value - top_left());
+				return offset(size_type{ delta.x(), delta.y() });
 			}
 
 			const value_type &get() const{

@@ -28,9 +28,13 @@ namespace grafeex{
 
 			virtual ~tool_tip();
 
-			virtual tool_tip &item(gui_object_type &owner, const std::wstring &value, const rect_type &bounding_rect = rect_type()) override;
+			virtual tool_tip &item(gui_object_type &owner, const std::wstring &value, GCTTC_ARGS = nullptr) override;
 
-			virtual tool_tip &item(gui_object_type &owner, string_callback_type callback, const rect_type &bounding_rect = rect_type()) override;
+			virtual tool_tip &item(gui_object_type &owner, const std::wstring &value, GCTTC_ARGS3 = nullptr) override;
+
+			virtual tool_tip &item(gui_object_type &owner, string_callback_type string_callback, GCTTC_ARGS = nullptr) override;
+
+			virtual tool_tip &item(gui_object_type &owner, string_callback_type string_callback, GCTTC_ARGS3 = nullptr) override;
 
 			virtual item_type *get_item(size_type index) const override;
 
@@ -44,6 +48,8 @@ namespace grafeex{
 
 		protected:
 			virtual void remove_(typename base_type::child_type &child) override;
+
+			virtual object_type insert_(gui_object_type &owner, const std::wstring &value, GCTTC_ARGS2);
 
 			list_type list_;
 		};

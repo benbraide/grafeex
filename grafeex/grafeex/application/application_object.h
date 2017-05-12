@@ -1,5 +1,46 @@
 #pragma once
 
+#include <atomic>
+#include <memory>
+#include <list>
+#include <unordered_map>
+
+#include "window_manager.h"
+
+#include "../common/com.h"
+#include "../common/random_string.h"
+
+#include "../structures/dialog_template.h"
+#include "../wrappers/wnd_class_wrapper.h"
+
+#include "../threading/thread_modal_loop.h"
+#include "../threading/thread_pool.h"
+
+#include "../messaging/message_event_dispatcher.h"
+#include "../messaging/scope_message_event.h"
+#include "../messaging/close_message_event.h"
+#include "../messaging/state_message_event.h"
+#include "../messaging/style_message_event.h"
+#include "../messaging/visibility_message_event.h"
+#include "../messaging/painting_message_event.h"
+#include "../messaging/menu_message_event.h"
+#include "../messaging/dimensions_message_event.h"
+#include "../messaging/system_message_event.h"
+#include "../messaging/timer_message_event.h"
+#include "../messaging/command_message_event.h"
+#include "../messaging/notify_message_event.h"
+#include "../messaging/input_message_event.h"
+#include "../messaging/value_message_event.h"
+#include "../messaging/uniform_message_event_forwarder.h"
+
+#include "../gdi/gdi_manager.h"
+#include "../gdi/gdi_object_ptr.h"
+
+#include "../graphics/graphics_text.h"
+
+#include "../d2d/d2d_factory.h"
+#include "../d2d/d2d_write_factory.h"
+
 #ifndef GRAFEEX_APPLICATION_OBJECT_H
 #define GRAFEEX_APPLICATION_OBJECT_H
 
@@ -48,44 +89,9 @@
 	friend class application::object;\
 	template <class, class, class, class> friend class uniform_event_forwarder;
 
-#include <atomic>
-#include <memory>
-#include <list>
-#include <unordered_map>
-
-#include "../common/com.h"
-#include "../common/random_string.h"
-
-#include "../structures/dialog_template.h"
-#include "../wrappers/wnd_class_wrapper.h"
-
-#include "../threading/thread_modal_loop.h"
-#include "../threading/thread_pool.h"
-
-#include "../messaging/message_event_dispatcher.h"
-#include "../messaging/scope_message_event.h"
-#include "../messaging/close_message_event.h"
-#include "../messaging/state_message_event.h"
-#include "../messaging/style_message_event.h"
-#include "../messaging/visibility_message_event.h"
-#include "../messaging/painting_message_event.h"
-#include "../messaging/menu_message_event.h"
-#include "../messaging/dimensions_message_event.h"
-#include "../messaging/system_message_event.h"
-#include "../messaging/timer_message_event.h"
-#include "../messaging/command_message_event.h"
-#include "../messaging/notify_message_event.h"
-#include "../messaging/input_message_event.h"
-#include "../messaging/value_message_event.h"
-#include "../messaging/uniform_message_event_forwarder.h"
-
-#include "../gdi/gdi_manager.h"
-#include "../gdi/gdi_object_ptr.h"
-
-#include "../graphics/graphics_text.h"
-
-#include "../d2d/d2d_factory.h"
-#include "../d2d/d2d_write_factory.h"
+#define GAPP_INTERPROCESS_OFFSET 0xFFFF
+#define GAPP_IS_INTERPROCESS_MSG(v) ((WM_APP + GAPP_INTERPROCESS_OFFSET) < (v))
+#define GAPP_INTERPROCESS_MSG(v) ((v) + GAPP_INTERPROCESS_OFFSET)
 
 namespace grafeex{
 	namespace window{
@@ -107,9 +113,7 @@ namespace grafeex{
 			typedef ::UINT uint_type;
 			typedef ::WORD word_type;
 			typedef ::DWORD dword_type;
-			typedef ::UINT_PTR unit_ptr_type;
-
-			typedef std::list<wrappers::hwnd> hwnd_list_type;
+			typedef ::UINT_PTR uint_ptr_type;
 
 			enum class control_object_type{
 				nil,
@@ -147,10 +151,7 @@ namespace grafeex{
 			typedef std::unordered_map<uint_type, forwarder_type> forwarder_list_type;
 			typedef std::unordered_map<control_object_type, forwarder_list_type> control_forwarder_list_type;
 
-			typedef std::unordered_map<unit_ptr_type, window::timer *> timer_cache_type;
-
-			typedef std::recursive_mutex lock_type;
-			typedef std::lock_guard<lock_type> guard_type;
+			typedef std::unordered_map<uint_ptr_type, window::timer *> timer_cache_type;
 
 			typedef structures::point point_type;
 			typedef structures::size size_type;
@@ -158,6 +159,8 @@ namespace grafeex{
 			typedef structures::dialog_template dialog_template_type;
 
 			typedef window::object window_type;
+			typedef window::timer timer_type;
+
 			typedef wrappers::wnd_class wnd_class_type;
 			typedef wrappers::hwnd hwnd_type;
 			typedef wrappers::hwnd::value_type hwnd_value_type;
@@ -188,18 +191,7 @@ namespace grafeex{
 				monitoring		= (1 << 0x0001),
 			};
 
-			struct stored_message_info_type{
-				bool is_active;
-				dword_type time;
-				point_type mouse_position;
-			};
-
-			template <typename... types>
-			object(types... class_args)
-				: instance_(nullptr), active_dialog_(nullptr), pool_(GAPP_THREAD_POOL_MIN, GAPP_THREAD_POOL_MAX), recent_owner_(nullptr){
-				class_.set(entry, class_args...);
-				init_();
-			}
+			object();
 
 			virtual ~object();
 
@@ -207,9 +199,9 @@ namespace grafeex{
 
 			virtual hwnd_type create(window_type &owner, const create_info_type &info);
 
-			virtual unit_ptr_type set_timer(window_type &owner, unit_ptr_type id, uint_type duration);
+			virtual uint_ptr_type set_timer(window_type &owner, uint_ptr_type id, uint_type duration);
 
-			virtual bool kill_timer(window_type &owner, unit_ptr_type id);
+			virtual bool kill_timer(window_type &owner, uint_ptr_type id);
 
 			virtual instance_type get_instance() const;
 
@@ -224,6 +216,14 @@ namespace grafeex{
 
 			bool task(pool_task_type task, bool is_persistent = false);
 
+			void cache_timer(uint_ptr_type id, timer_type &timer);
+
+			void remove_timer(uint_ptr_type id);
+
+			timer_type *find_timer(uint_ptr_type id) const;
+
+			window_manager &win_manager();
+
 			void enable_gdi_manager(bool monitor = true);
 
 			void disable_gdi_manager(bool monitor_only = false);
@@ -231,8 +231,6 @@ namespace grafeex{
 			bool gdi_manager_is_enabled() const;
 
 			bool gdi_manager_is_monitoring() const;
-
-			static result_type CALLBACK entry(hwnd_type::value_type window_handle, uint_type msg, wparam_type wparam, lparam_type lparam);
 
 			template <typename object_type, typename return_type, typename function_type, typename... value_types>
 			return_type call(function_type method, object_type &object, const value_types &... values){
@@ -278,9 +276,8 @@ namespace grafeex{
 
 			static void create_default_font();
 
-			stored_message_info_type stored_message_info = {};
-
 			static object *instance;
+			static threading::object *pump;
 
 			static factory_type d2d_factory;
 			static write_factory_type d2d_write_factory;
@@ -289,6 +286,7 @@ namespace grafeex{
 			static font_type default_font;
 
 		protected:
+			friend class window_manager;
 			friend class threading::modal_loop;
 
 			friend class messaging::create_event;
@@ -312,21 +310,17 @@ namespace grafeex{
 
 			virtual result_type dispatch_(msg_type &msg, bool is_sent, window_type &target);
 
-			virtual void init_();
-
-			virtual hwnd_type create_(window_type &owner, const create_info_type &info);
-
 			template <typename return_type>
 			return_type execute_(std::false_type, std::function<return_type()> method, int priority){
 				return_type value;
 				if (threading::get_current_id() != id_){
 					threading::event_object ready(L"");
-					scheduler_.add([&]{
+					pump->scheduler_.add([&]{
 						value = method();
 						ready.set();
 					}, priority);
 
-					queue_.wake_wait();//Release message loop
+					pump->queue_.wake_wait();//Release message loop
 					ready.wait();
 				}
 				else//Same thread
@@ -339,12 +333,12 @@ namespace grafeex{
 			return_type execute_(std::true_type, std::function<return_type()> method, int priority){
 				if (threading::get_current_id() != id_){
 					threading::event_object ready(L"");
-					scheduler_.add([&]{
+					pump->scheduler_.add([&]{
 						method();
 						ready.set();
 					}, priority);
 
-					queue_.wake_wait();//Release message loop
+					pump->queue_.wake_wait();//Release message loop
 					ready.wait();
 				}
 				else//Same thread
@@ -359,16 +353,8 @@ namespace grafeex{
 
 			virtual void app_activate_(messaging::activate_app_event &e);
 
-			static result_type CALLBACK hook_(int code, wparam_type wparam, lparam_type lparam);
-
 			com_type com_;
 			gdi_manager_state gdi_manager_states_;
-			
-			wnd_class_type class_;
-			wnd_class_type dialog_class_;
-
-			hwnd_list_type top_level_windows_;
-			window_type *active_dialog_;
 			instance_type instance_;
 
 			dispatcher_type unhandled_dispatcher_;
@@ -377,9 +363,7 @@ namespace grafeex{
 
 			pool_type pool_;
 			timer_cache_type timer_cache_;
-			void *recent_owner_;
-
-			mutable lock_type lock_;
+			window_manager window_manager_;
 		};
 
 		GRAFEEX_MAKE_OPERATORS(object::gdi_manager_state)

@@ -8,6 +8,8 @@
 #include "../common/preprocessor.h"
 #include "windows_headers.h"
 
+#pragma comment(lib, "EasyHook64.lib")
+
 namespace grafeex{
 	namespace common{
 		enum class hook_function_call_type{

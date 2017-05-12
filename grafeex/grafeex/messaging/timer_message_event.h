@@ -13,7 +13,7 @@ namespace grafeex{
 			using message_event::operator=;
 
 			typedef window::timer timer_type;
-			typedef window::timer::unit_ptr_type unit_ptr_type;
+			typedef window::timer::uint_ptr_type uint_ptr_type;
 
 			explicit timer_event(object &value);
 
@@ -23,7 +23,7 @@ namespace grafeex{
 
 			virtual timer_type *timer() const;
 
-			virtual unit_ptr_type id() const;
+			virtual uint_ptr_type id() const;
 		};
 	}
 }

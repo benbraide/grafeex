@@ -12,8 +12,8 @@
 #include "menu_group.h"
 
 namespace grafeex{
-	namespace messaging{
-		class nc_create_event;
+	namespace application{
+		class window_manager;
 	}
 
 	namespace menu{
@@ -116,7 +116,7 @@ namespace grafeex{
 			virtual dword_type context_help_id() const;
 
 		protected:
-			friend class messaging::create_event;
+			friend class application::window_manager;
 
 			virtual events_type get_events_() override;
 

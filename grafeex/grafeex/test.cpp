@@ -20,12 +20,15 @@
 #include "collections/tool_tip_collection.h"
 #include "collections/tab_collection.h"
 
+#include "gui/gui_grid.h"
+
 int WINAPI wWinMain(::HINSTANCE app_instance, ::HINSTANCE, ::LPWSTR cmd_line, int show_type){
 	typedef grafeex::window::object::d2d_point_type d2d_point_type;
 	typedef grafeex::window::object::d2d_size_type d2d_size_type;
 
 	typedef grafeex::structures::point point_type;
 	typedef grafeex::structures::size size_type;
+	typedef grafeex::structures::rect rect_type;
 
 	typedef grafeex::structures::float_size float_size_type;
 	typedef grafeex::structures::rect_origin_type alignment_type;
@@ -38,48 +41,46 @@ int WINAPI wWinMain(::HINSTANCE app_instance, ::HINSTANCE, ::LPWSTR cmd_line, in
 	grafeex::window::top_level fw(L"Test Window", d2d_point_type{ 10.0f, 10.0f }, d2d_size_type{ 500.0f, 400.0f });
 	fw.view().show(static_cast<show_mode>(show_type));
 
+	grafeex::window::modal_dialog mdlg(fw, L"Modal dialog", size_type{ 360, 270 });
+
+	grafeex::gui::grid grid(fw);
+	grafeex::gui::row row1(grid);
+	grafeex::gui::row row2(grid);
+
 	grafeex::collections::tool_tip ttc(true);
-	auto &tac = fw.tab();
+	fw.objects().tab_control([&ttc](grafeex::collections::tab_interface &tac){
+		tac.item(L"First Tab", [&ttc](grafeex::window::object &item){
+			ttc.item(item, L"Area target", rect_type{ 10, 10, 80, 60 });
+		});
 
-	grafeex::window::controls::button btn;
-	grafeex::window::controls::default_button dbtn;
-	grafeex::window::controls::split_button sbtn;
-	grafeex::window::controls::default_split_button dsbtn;
-	grafeex::window::controls::check chk;
-	grafeex::window::controls::radio_group rgrp;
-	grafeex::window::controls::radio rad_0;
-	grafeex::window::controls::radio rad_1;
-	grafeex::window::controls::radio rad_2;
-	grafeex::window::controls::label lbl;
+		tac.dialog(L"Second Tab", [&](grafeex::window::object &item){
+			item.objects().button_control(L"Button Test", point_type{ 10 }, [&ttc](grafeex::gui::object &btn){
+				ttc.item(btn, L"Control target");
+			});
 
-	tac.item(L"First Tab", [&ttc](grafeex::window::object &item){
-		ttc.item(item, L"Area target", { 10, 10, 80, 60 });
+			item.objects().default_button_control(L"DefButton Test", point_type{ 10, 40 }, [&ttc](grafeex::gui::object &btn){
+				ttc.item(btn, L"Decorated target", [](grafeex::window::controls::tool_tip_item &item){
+					item.font(L"Georgia");
+					item.title(L"Tip title");
+				});
+			});
+
+			item.objects().split_button_control(L"SplitButton Test", point_type{ 10, 70 });
+			item.objects().default_split_button_control(L"DefSplitButton Test", point_type{ 10, 100 });
+			item.objects().check_control(L"Check Test", point_type{ 10, 130 });
+			item.objects().radio_control_group([](grafeex::window::controls::radio_group &rg){
+				rg.objects().radio_control(L"Radio Test 0", point_type{ 10, 150 });
+				rg.objects().radio_control(L"Radio Test 1", point_type{ 10, 170 });
+				rg.objects().radio_control(L"Radio Test 2", point_type{ 10, 190 });
+			});
+
+			item.objects().label_control(L"Label Text", point_type{ 10, 210 });
+		});
+
+		tac.item(L"Last Tab", [](grafeex::window::object &item){
+
+		});
 	});
-
-	tac.dialog(L"Second Tab", [&](grafeex::window::object &item){
-		btn.create(item, L"Button Test", point_type{ 10 });
-		dbtn.create(item, L"DefButton Test", point_type{ 10, 40 });
-		sbtn.create(item, L"SplitButton Test", point_type{ 10, 70 });
-		dsbtn.create(item, L"DefSplitButton Test", point_type{ 10, 100 });
-		chk.create(item, L"Check Test", point_type{ 10, 130 });
-
-		rgrp.create(item);
-		rad_0.create(rgrp, L"Radio Test 0", point_type{ 10, 150 });
-		rad_1.create(rgrp, L"Radio Test 1", point_type{ 10, 170 });
-		rad_2.create(rgrp, L"Radio Test 2", point_type{ 10, 190 });
-
-		lbl.create(item, L"Label Text", point_type{ 10, 210 });
-	});
-
-	tac.item(L"Last Tab", [](grafeex::window::object &item){
-
-	});
-
-	ttc.item(btn, L"Control target");
-	ttc.item(dbtn, L"Decorated target");
-
-	ttc.get_last_item()->font(L"Georgia");
-	ttc.get_last_item()->title(L"Tip title");
 
 	auto count = 0;
 	grafeex::common::random_bool rand;
@@ -88,7 +89,7 @@ int WINAPI wWinMain(::HINSTANCE app_instance, ::HINSTANCE, ::LPWSTR cmd_line, in
 		return (rand.generate() || ++count >= 4);
 	});
 
-	grafeex::common::random_int rand_int;
+	/*grafeex::common::random_int rand_int;
 	std::thread([&fw, &rand_int, &btn, &chk]{
 		typedef ::BYTE byte_type;
 		typedef ::HFONT font_type;
@@ -109,7 +110,7 @@ int WINAPI wWinMain(::HINSTANCE app_instance, ::HINSTANCE, ::LPWSTR cmd_line, in
 
 			fw.view().background_color(grafeex::structures::color(red, green, blue));
 		}
-	}).detach();
+	}).detach();*/
 
 	auto &mb = fw.menu();//Create menu bar and assign to window
 	auto &sys = fw.system_menu();

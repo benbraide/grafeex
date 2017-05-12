@@ -20,9 +20,7 @@ grafeex::messaging::nc_create_event::nc_create_event(object &value)
 grafeex::messaging::nc_create_event::~nc_create_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::nc_create_event::dispatch(){
-	object_->target()->value_ = object_->info().owner();
-	object_->target()->initialize_();
-
+	application::object::instance->win_manager().on_nc_create(*object_->target(), object_->info().owner());
 	if (scope_event::dispatch().is_propagating())
 		*this << object_->target()->on_nc_create(*this);
 
@@ -50,22 +48,9 @@ grafeex::messaging::create_event::create_event(object &value)
 grafeex::messaging::create_event::~create_event() = default;
 
 grafeex::messaging::message_event &grafeex::messaging::create_event::dispatch(){
-	auto target = object_->target();
-
-	target->system_menu_ = std::make_shared<collections::shared_menu>(object_->info().owner(), menu::shared::option::system);
-	target->system_menu_->init_();
-
-	auto is_control = (dynamic_cast<window::controls::object *>(target) != nullptr);
-	auto is_message = (!is_control && dynamic_cast<window::message *>(target) != nullptr);
-
-	if (target->parent() == nullptr && (!is_control && !is_message)){//Add to top level list
-		application::object::instance->lock_.lock();
-		application::object::instance->top_level_windows_.push_back(object_->info().owner());
-		application::object::instance->lock_.unlock();
-	}
-
+	application::object::instance->win_manager().on_create(*object_->target());
 	if (scope_event::dispatch().is_propagating())
-		*this << target->on_create(*this);
+		*this << object_->target()->on_create(*this);
 
 	return *this;
 }
@@ -97,34 +82,7 @@ grafeex::messaging::message_event &grafeex::messaging::nc_destroy_event::dispatc
 		dynamic_cast<window::object::event_tunnel *>(get_event_())->destroy_event_.fire(e);
 	}
 
-	target->uninitialize_();
-	target->unsync_();
-	target->reset_persistent_styles_();
-
-	target->system_menu_ = nullptr;
-	target->menu_ = nullptr;//Destroy menu
-	target->value_ = nullptr;//Reset
-	target->renderer_ = nullptr;//Release renderer
-	target->mouse_state_.object_info_.parent = nullptr;
-
-	if (target->parent() == nullptr){
-		application::object::instance->lock_.lock();
-
-		auto &list = application::object::instance->top_level_windows_;
-		auto entry = std::find(list.begin(), list.end(), object_->info().owner());
-		if (entry != list.end())//Remove from top level list
-			list.erase(entry);
-
-		application::object::instance->lock_.unlock();
-	}
-
-	if (application::object::instance->active_dialog_ == target)
-		application::object::instance->active_dialog_ = nullptr;
-
-	auto tree_parent = dynamic_cast<gui::object_tree *>(target->parent());
-	if (tree_parent != nullptr)//Remove from parent
-		tree_parent->remove(*target);
-
+	application::object::instance->win_manager().on_nc_destroy(*object_->target());
 	return *this;
 }
 

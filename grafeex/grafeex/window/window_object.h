@@ -18,8 +18,10 @@
 #include "../messaging/input_message_event_handler.h"
 
 #include "../menu/shared_menu.h"
+
 #include "../collections/menu_collection.h"
 #include "../collections/tab_collection_interface.h"
+#include "../collections/gui_object_collection.h"
 
 namespace grafeex{
 	namespace messaging{
@@ -76,12 +78,11 @@ namespace grafeex{
 
 			typedef collections::menu_bar menu_collection_type;
 			typedef collections::shared_menu shared_menu_collection_type;
-			typedef collections::tab_interface tab_collection_type;
+			typedef collections::gui_object gui_object_collection_type;
 
 			typedef std::shared_ptr<menu_type> menu_ptr_type;
 			typedef std::shared_ptr<menu_collection_type> menu_collection_ptr_type;
 			typedef std::shared_ptr<shared_menu_collection_type> shared_menu_collection_ptr_type;
-			typedef std::shared_ptr<tab_collection_type> tab_collection_ptr_type;
 
 			typedef general_event_handler::d2d_color_type d2d_color_type;
 			typedef d2d::hwnd_render_target hwnd_render_type;
@@ -207,15 +208,6 @@ namespace grafeex{
 
 			virtual shared_menu_collection_type &system_menu();
 
-			virtual tab_collection_type &tab();
-
-			template <typename tab_type>
-			tab_collection_type &typed_tab(){
-				if (tab_ == nullptr)
-					tab_ = std::make_shared<tab_type>(*this);
-				return *tab_;
-			}
-
 			virtual view_type &view();
 
 			virtual style_type &style();
@@ -225,6 +217,8 @@ namespace grafeex{
 			virtual render_manager_type &render_manager();
 
 			virtual hdc_render_manager_type &hdc_render_manager();
+
+			virtual gui_object_collection_type &objects();
 
 			static d2d_point_type point_to_dip(const point_type &value);
 
@@ -238,6 +232,7 @@ namespace grafeex{
 
 		protected:
 			friend class application::object;
+			friend class application::window_manager;
 
 			friend class messaging::create_event;
 			friend class messaging::nc_create_event;
@@ -276,10 +271,6 @@ namespace grafeex{
 
 			virtual void remove_(child_type &child) override;
 
-			virtual void insert_into_parent_(object_type &parent);
-
-			virtual void insert_into_parent_(const sibling_type &sibling);
-
 			virtual bool create_(const std::wstring &caption, const point_type &offset, const size_type &size, dword_type styles = 0,
 				dword_type extended_styles = 0, const wchar_t *class_name = nullptr);
 
@@ -301,10 +292,6 @@ namespace grafeex{
 			virtual void uninitialize_();
 
 			virtual void reset_persistent_styles_();
-
-			virtual void sync_(object &target, bool add);
-
-			virtual void unsync_();
 
 			virtual view_ptr_type get_view_();
 
@@ -331,12 +318,11 @@ namespace grafeex{
 			persistent_styles persistent_styles_{};
 			shared_menu_collection_ptr_type system_menu_;
 			menu_collection_ptr_type menu_;
-			tab_collection_ptr_type tab_;
 			view_ptr_type view_;
 			style_ptr_type style_;
 			render_manager_ptr_type renderer_;
 			hdc_render_manager_ptr_type hdc_renderer_;
-			object *synced_;
+			gui_object_collection_type objects_;
 		};
 	}
 }

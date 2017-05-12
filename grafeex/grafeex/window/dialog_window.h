@@ -4,12 +4,14 @@
 #define GRAFEEX_DIALOG_WINDOW_H
 
 #include "window_object.h"
+#include "../threading/thread_modal_loop.h"
 
 namespace grafeex{
 	namespace window{
 		class dialog : public object{
 		public:
 			typedef object base_type;
+			typedef std::shared_ptr<threading::modal_loop> loop_type;
 
 			dialog();
 
@@ -19,14 +21,21 @@ namespace grafeex{
 
 			virtual bool is_modal() const;
 
-			virtual bool do_modal(object &owner, bool center = true, bool update_styles = true);
+			virtual int run(object_type &owner, const std::wstring &caption, const size_type &size);
 
-			virtual bool cancel_modal();
+			virtual int run(bool update_styles = true);
 
-			virtual object *get_owner() const;
+			virtual bool end(int code = 0);
 
 		protected:
-			object *owner_;
+			using base_type::create_;
+
+			virtual bool create_(object_type &owner, const std::wstring &caption, const size_type &size);
+
+			virtual int run_();
+
+			int result_;
+			loop_type loop_;
 		};
 	}
 }

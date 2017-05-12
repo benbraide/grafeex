@@ -40,13 +40,7 @@ grafeex::messaging::message_event &grafeex::messaging::changed_position_event::d
 	if (position_event::dispatch().is_propagating())
 		object_->target()->on_position_changed(*this);
 
-	auto flags = info().flags;
-	if (!GRAFEEX_IS(flags, SWP_NOSIZE))
-		object_->target()->sized_();
-
-	if (!GRAFEEX_IS(flags, SWP_NOMOVE))
-		object_->target()->moved_();
-
+	application::object::instance->win_manager().on_changed_position(*object_->target(), info().flags);
 	return *this;
 }
 

@@ -22,14 +22,7 @@ bool grafeex::window::view::enabled() const{
 
 grafeex::window::view &grafeex::window::view::focus(){
 	focus_();
-	if (!object_->is_dialog()){
-		auto dialog_parent = object_->get_dialog_parent_();
-		if (dialog_parent != nullptr)
-			application::object::instance->active_dialog_ = dialog_parent;
-	}
-	else//Object is dialog
-		application::object::instance->active_dialog_ = object_;
-
+	application::object::instance->window_manager_.focus(*object_);
 	return *this;
 }
 
@@ -38,13 +31,7 @@ grafeex::window::view &grafeex::window::view::blur(){
 	if (tree_parent != nullptr && tree_parent->focused_child_ == object_)
 		tree_parent->focused_child_ = nullptr;
 
-	if (application::object::instance->active_dialog_ != nullptr && application::object::instance->active_dialog_ != object_){
-		if (application::object::instance->active_dialog_ == object_->get_dialog_parent_())
-			application::object::instance->active_dialog_ = nullptr;
-	}
-	else if (application::object::instance->active_dialog_ != nullptr)//Object is dialog
-		application::object::instance->active_dialog_ = nullptr;
-
+	application::object::instance->window_manager_.blur(*object_);
 	return *this;
 }
 

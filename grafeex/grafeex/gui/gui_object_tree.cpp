@@ -35,6 +35,7 @@ grafeex::gui::object_tree::attributes_type &grafeex::gui::object_tree::attribute
 
 void grafeex::gui::object_tree::attribute_set_(attributes_state_value_type state){
 	if (state == attributes_state_type::fill_content){
+		guard_type guard(lock_);
 		object_tree *tree_child = nullptr;
 		for (auto child : children_){
 			if ((tree_child = dynamic_cast<object_tree *>(child)) != nullptr)//Add to child cache
@@ -50,6 +51,7 @@ void grafeex::gui::object_tree::attribute_set_(attributes_state_value_type state
 
 void grafeex::gui::object_tree::attribute_removed_(attributes_state_value_type state){
 	if (state == attributes_state_type::fill_content){
+		guard_type guard(lock_);
 		object_tree *tree_child = nullptr;
 		for (auto child : children_){
 			if ((tree_child = dynamic_cast<object_tree *>(child)) != nullptr)//Remove from child cache

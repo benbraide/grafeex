@@ -5,6 +5,14 @@
 
 #include "thread_object.h"
 
+#ifndef GTML_POLL_SLEEP
+#define GTML_POLL_SLEEP 5
+#endif // !GTML_POLL_SLEEP
+
+#ifndef GTML_POLL_TIMEOUT
+#define GTML_POLL_TIMEOUT 2000
+#endif // !GTML_POLL_TIMEOUT
+
 namespace grafeex{
 	namespace window{
 		class object;

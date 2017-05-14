@@ -4,9 +4,9 @@ grafeex::window::modal_dialog::modal_dialog(){
 	reset_persistent_styles_();
 }
 
-grafeex::window::modal_dialog::modal_dialog(object_type &owner, const std::wstring &caption, const size_type &size){
+grafeex::window::modal_dialog::modal_dialog(object_type &owner, const std::wstring &caption, const size_type &size, callback_type callback){
 	reset_persistent_styles_();
-	run(owner, caption, size);
+	run(owner, caption, size, callback);
 }
 
 grafeex::window::modal_dialog::~modal_dialog(){
@@ -17,9 +17,12 @@ bool grafeex::window::modal_dialog::is_modal() const{
 	return true;
 }
 
-int grafeex::window::modal_dialog::run(object_type &owner, const std::wstring &caption, const size_type &size){
+int grafeex::window::modal_dialog::run(object_type &owner, const std::wstring &caption, const size_type &size, callback_type callback){
 	if (!create_(owner, caption, size))
 		return -1;
+
+	if (callback != nullptr)
+		callback(*this);
 
 	return run_();
 }

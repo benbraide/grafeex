@@ -16,9 +16,12 @@ bool grafeex::window::dialog::is_modal() const{
 	return (loop_ != nullptr);
 }
 
-int grafeex::window::dialog::run(object_type &owner, const std::wstring &caption, const size_type &size){
+int grafeex::window::dialog::run(object_type &owner, const std::wstring &caption, const size_type &size, callback_type callback){
 	if (!create_(owner, caption, size))
 		return -1;
+
+	if (callback != nullptr)
+		callback(*this);
 
 	return run_();
 }

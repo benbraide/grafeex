@@ -11,13 +11,14 @@ grafeex::threading::modal_loop::modal_loop(modal_dialog_type &modal_dialog)
 
 grafeex::threading::modal_loop::~modal_loop(){
 	application::object::pump = previous_pump_;
-	previous_pump_ = nullptr;
 	queue_.wake_wait();//Release message loop
+	for (auto i = 0; previous_pump_ != nullptr && i < (GTML_POLL_TIMEOUT / GTML_POLL_SLEEP); ++i)
+		::Sleep(GTML_POLL_SLEEP);//Poll for loop termination
 }
 
 int grafeex::threading::modal_loop::run(modal_dialog_type &modal_dialog){
-	modal_dialog_ = &modal_dialog;
 	previous_pump_ = application::object::pump;
+	modal_dialog_ = &modal_dialog;
 
 	if (id_ != application::object::instance->id_){
 		application::object::instance->execute<void>([this]{
@@ -30,6 +31,10 @@ int grafeex::threading::modal_loop::run(modal_dialog_type &modal_dialog){
 		application::object::pump = this;
 		object::run();
 	}
+
+	scheduler_.execute_all();//Execute pending tasks
+	modal_dialog_ = nullptr;
+	previous_pump_ = nullptr;
 
 	return status_.return_value;
 }
@@ -54,5 +59,5 @@ bool grafeex::threading::modal_loop::on_idle_(int index){
 }
 
 bool grafeex::threading::modal_loop::is_stopped_() const{
-	return (previous_pump_ == nullptr);
+	return (application::object::pump != this);
 }

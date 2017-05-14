@@ -41,6 +41,8 @@ namespace grafeex{
 
 				virtual dword_type white_listed_styles(bool is_extended) const override;
 
+				virtual bool is_dialog() const override;
+
 				virtual style_type &style() override;
 
 				virtual event_tunnel &events() override;

@@ -37,15 +37,11 @@ int WINAPI wWinMain(::HINSTANCE app_instance, ::HINSTANCE, ::LPWSTR cmd_line, in
 	grafeex::application::object app;
 	
 	grafeex::window::message msgw(true);
-
 	grafeex::window::top_level fw(L"Test Window", d2d_point_type{ 10.0f, 10.0f }, d2d_size_type{ 500.0f, 400.0f });
-	fw.view().show(static_cast<show_mode>(show_type));
-
-	grafeex::window::modal_dialog mdlg(fw, L"Modal dialog", size_type{ 360, 270 });
-
-	grafeex::gui::grid grid(fw);
+	
+	/*grafeex::gui::grid grid(fw);
 	grafeex::gui::row row1(grid);
-	grafeex::gui::row row2(grid);
+	grafeex::gui::row row2(grid);*/
 
 	grafeex::collections::tool_tip ttc(true);
 	fw.objects().tab_control([&ttc](grafeex::collections::tab_interface &tac){
@@ -168,6 +164,7 @@ int WINAPI wWinMain(::HINSTANCE app_instance, ::HINSTANCE, ::LPWSTR cmd_line, in
 	drop.item(L"last", [](){});
 
 	mb.redraw();//Update menu view
+	fw.view().show(static_cast<show_mode>(show_type));
 
 	return app.run();
 }

@@ -45,9 +45,6 @@ void grafeex::application::window_manager::on_nc_create(window_type &target, con
 }
 
 void grafeex::application::window_manager::on_create(window_type &target){
-	target.system_menu_ = std::make_shared<collections::shared_menu>(target, menu::shared::option::system);
-	target.system_menu_->init_();
-
 	auto is_control = (dynamic_cast<window::controls::object *>(&target) != nullptr);
 	auto is_message = (!is_control && dynamic_cast<window::message *>(&target) != nullptr);
 
@@ -61,6 +58,8 @@ void grafeex::application::window_manager::on_create(window_type &target){
 }
 
 void grafeex::application::window_manager::on_nc_destroy(window_type &target){
+	hwnd_type target_value = target;
+
 	target.uninitialize_();
 	target.reset_persistent_styles_();
 
@@ -72,8 +71,6 @@ void grafeex::application::window_manager::on_nc_destroy(window_type &target){
 
 	lock_.lock();
 	if (target.parent() == nullptr){
-		hwnd_type target_value = target;
-
 		auto entry = std::find(top_level_windows_.begin(), top_level_windows_.end(), target_value);
 		if (entry != top_level_windows_.end())//Remove from top level list
 			top_level_windows_.erase(entry);
@@ -97,8 +94,14 @@ void grafeex::application::window_manager::on_nc_destroy(window_type &target){
 void grafeex::application::window_manager::on_close(window_type &target){
 	auto dialog = dynamic_cast<window::dialog *>(&target);
 	if (dialog != nullptr){
-		dialog->end();//Cancel modal if applicable
-		dialog->destroy();//Destroy dialog
+		if (dialog->is_modal()){//Complete in different thread
+			app_instance->pool_.add([dialog]{
+				dialog->end();//Cancel modal if applicable
+				dialog->destroy();//Destroy dialog
+			});
+		}
+		else//Destroy dialog
+			dialog->destroy();
 	}
 }
 
@@ -278,7 +281,7 @@ grafeex::application::window_manager::result_type CALLBACK grafeex::application:
 	}
 
 	app_instance->pump->status_.is_posted = false;
-	if (is_sent && instance->modal_consume(app_instance->pump->cache_))
+	if (instance->modal_consume(app_instance->pump->cache_))
 		return 0;
 
 	return app_instance->dispatch_(app_instance->pump->cache_, is_sent, *target);

@@ -42,6 +42,10 @@ grafeex::window::controls::object::dword_type grafeex::window::controls::tab::wh
 	return (base_type::white_listed_styles(is_extended) | (is_extended ? 0ul : general_styles));
 }
 
+bool grafeex::window::controls::tab::is_dialog() const{
+	return true;
+}
+
 grafeex::window::controls::tab::style_type &grafeex::window::controls::tab::style(){
 	return *dynamic_cast<style_type *>(get_style_().get());
 }

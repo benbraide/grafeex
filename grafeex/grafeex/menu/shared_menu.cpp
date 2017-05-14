@@ -4,12 +4,14 @@
 
 grafeex::menu::shared::shared(const hwnd_type &target, option options)
 	: object((options == option::system) ? ::GetSystemMenu(target, FALSE) : ::GetMenu(target)){
+	init_();
 	if (options == option::system && value_ != nullptr)
 		populate_items_();
 }
 
 grafeex::menu::shared::shared(window_type &target, option options)
 	: object((options == option::system) ? ::GetSystemMenu(target, FALSE) : ::GetMenu(target)){
+	init_();
 	if (options == option::system && value_ != nullptr)
 		populate_items_();
 }

@@ -196,6 +196,8 @@ grafeex::window::object::menu_collection_type &grafeex::window::object::menu(){
 }
 
 grafeex::window::object::shared_menu_collection_type &grafeex::window::object::system_menu(){
+	if (system_menu_ == nullptr)
+		system_menu_ = std::make_shared<collections::shared_menu>(*this, menu::shared::option::system);
 	return *system_menu_;
 }
 
